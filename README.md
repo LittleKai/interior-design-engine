@@ -311,3 +311,4 @@ The engine ships with a lightweight property editor. It is select + edit only â€
 The editor uses `BoxService.update` / `BoxService.delete` for every mutation, so the model JSON shape stays valid and ready to feed back into `createAiImagePackage()` or `analyzeImage()`.
 "# interior-design-engine" 
 # interior-design-engine
+# interior-design-engine
