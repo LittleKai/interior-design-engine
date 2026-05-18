@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tủ quần áo - Interior Design Engine Demo</title>
+  <link rel="stylesheet" href="./interior-design-engine.css?v=20260518">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/",
+        "three-mesh-bvh": "https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.8.3/build/index.module.js",
+        "three-bvh-csg": "https://cdn.jsdelivr.net/npm/three-bvh-csg@0.0.17/build/index.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="design-review"></div>
+  <div id="ai-export"></div>
+  <div id="upload"></div>
+
+  <script type="module" src="./interior-design-engine.js?v=20260518"></script>
+  <script type="module">
+    const cabinetModel = {
+        title: "Tủ quần áo built-in",
+        subtitle: "Model chi tiết dùng chung cho mặt đứng, mặt ngang, mặt bằng và 3D",
+        units: "cm",
+        width: 276,
+        height: 276,
+        depth: 60,
+        materials: {
+          board: "#c9986b"
+        },
+        modules: [
+          {
+            type: "work-zone",
+            label: "Khu làm việc",
+            x: 0,
+            y: 0,
+            z: 0,
+            width: 138,
+            height: 276,
+            depth: 55,
+            color: "#d9b06f",
+            opacity: 0.16,
+            hiddenIn3d: true
+          },
+          {
+            type: "wardrobe-zone",
+            label: "Tủ áo",
+            x: 138,
+            y: 0,
+            z: 0,
+            width: 138,
+            height: 276,
+            depth: 60,
+            color: "#b9824a",
+            opacity: 0.16,
+            hiddenIn3d: true
+          }
+        ],
+        details: [
+          {
+            type: "back-panel",
+            label: "Hậu tủ",
+            x: 0,
+            y: 0,
+            z: 0,
+            width: 276,
+            height: 276,
+            depth: 1.8,
+            color: "#8a623d",
+            layer: 1,
+            hideLabel: true
+          },
+          {
+            type: "left-side",
+            x: 0,
+            y: 0,
+            z: 0,
+            width: 2,
+            height: 276,
+            depth: 60,
+            color: "#9a6b44",
+            layer: 2,
+            hideLabel: true
+          },
+          {
+            type: "center-divider",
+            x: 138,
+            y: 0,
+            z: 0,
+            width: 2,
+            height: 276,
+            depth: 60,
+            color: "#76502e",
+            layer: 2,
+            hideLabel: true
+          },
+          {
+            type: "right-side",
+            x: 274,
+            y: 0,
+            z: 0,
+            width: 2,
+            height: 276,
+            depth: 60,
+            color: "#9a6b44",
+            layer: 2,
+            hideLabel: true
+          },
+          {
+            type: "top-cap",
+            x: 0,
+            y: 273,
+            z: 0,
+            width: 276,
+            height: 3,
+            depth: 60,
+            color: "#6b4423",
+            layer: 3,
+            hideLabel: true
+          },
+          {
+            type: "base",
+            x: 0,
+            y: 0,
+            z: 0,
+            width: 276,
+            height: 3,
+            depth: 60,
+            color: "#6b4423",
+            layer: 3,
+            hideLabel: true
+          },
+          {
+            type: "desk-main",
+            label: "Bàn chính",
+            x: 0,
+            y: 75,
+            z: 0,
+            width: 138,
+            height: 4,
+            depth: 55,
+            color: "#e8c89a",
+            layer: 12
+          },
+          {
+            type: "desk-return",
+            label: "Bàn chữ L",
+            x: 0,
+            y: 75,
+            z: 55,
+            width: 55,
+            height: 4,
+            depth: 130,
+            color: "#e8c89a",
+            layer: 12
+          },
+          {
+            type: "desk-left-leg",
+            x: 0,
+            y: 0,
+            z: 52,
+            width: 3,
+            height: 75,
+            depth: 3,
+            color: "#9a6b44",
+            layer: 12,
+            hideLabel: true
+          },
+          {
+            type: "return-leg",
+            x: 52,
+            y: 0,
+            z: 182,
+            width: 3,
+            height: 75,
+            depth: 3,
+            color: "#9a6b44",
+            layer: 12,
+            hideLabel: true
+          },
+          {
+            type: "bookshelf-back",
+            label: "Kệ sách mở",
+            x: 0,
+            y: 106,
+            z: 0,
+            width: 138,
+            height: 80,
+            depth: 2,
+            color: "#b8875e",
+            layer: 9
+          },
+          {
+            type: "bookshelf-left",
+            x: 0,
+            y: 106,
+            z: 0,
+            width: 2,
+            height: 80,
+            depth: 35,
+            color: "#9a6b44",
+            layer: 10,
+            hideLabel: true
+          },
+          {
+            type: "bookshelf-right",
+            x: 136,
+            y: 106,
+            z: 0,
+            width: 2,
+            height: 80,
+            depth: 35,
+            color: "#9a6b44",
+            layer: 10,
+            hideLabel: true
+          },
+          {
+            type: "bookshelf-mid-shelf",
+            x: 0,
+            y: 145,
+            z: 0,
+            width: 138,
+            height: 2,
+            depth: 35,
+            color: "#c9986b",
+            layer: 11,
+            hideLabel: true
+          },
+          {
+            type: "bookshelf-bottom",
+            x: 0,
+            y: 106,
+            z: 0,
+            width: 138,
+            height: 2,
+            depth: 35,
+            color: "#c9986b",
+            layer: 11,
+            hideLabel: true
+          },
+          {
+            type: "upper-left-body",
+            label: "Tủ trên trái",
+            x: 0,
+            y: 186,
+            z: 0,
+            width: 95,
+            height: 90,
+            depth: 60,
+            color: "#c9986b",
+            layer: 4
+          },
+          {
+            type: "upper-left-door-a",
+            catalogId: "door-shaker",
+            x: 2,
+            y: 190,
+            z: 59,
+            width: 45,
+            height: 82,
+            depth: 1.2,
+            color: "#d8a97a",
+            layer: 18,
+            csgHints: ["glassCutout:6:10:33:60"],
+            hideLabel: true
+          },
+          {
+            type: "upper-left-door-b",
+            catalogId: "door-shaker",
+            x: 48,
+            y: 190,
+            z: 59,
+            width: 45,
+            height: 82,
+            depth: 1.2,
+            color: "#d8a97a",
+            layer: 18,
+            hideLabel: true
+          },
+          {
+            type: "upper-left-handle-a",
+            x: 45,
+            y: 222,
+            z: 60.5,
+            width: 1.5,
+            height: 18,
+            depth: 1.5,
+            color: "#1a1a1a",
+            layer: 24,
+            hideLabel: true
+          },
+          {
+            type: "upper-left-handle-b",
+            x: 50,
+            y: 222,
+            z: 60.5,
+            width: 1.5,
+            height: 18,
+            depth: 1.5,
+            color: "#1a1a1a",
+            layer: 24,
+            hideLabel: true
+          },
+          {
+            type: "ac-opening",
+            label: "Máy lạnh",
+            x: 95,
+            y: 218,
+            z: 6,
+            width: 86,
+            height: 48,
+            depth: 18,
+            color: "#eef2f0",
+            stroke: "#aab6b2",
+            layer: 19
+          },
+          {
+            type: "ac-louver-1",
+            x: 100,
+            y: 246,
+            z: 25,
+            width: 76,
+            height: 1,
+            depth: 1,
+            color: "#98a8aa",
+            layer: 25,
+            hideLabel: true
+          },
+          {
+            type: "ac-louver-2",
+            x: 100,
+            y: 235,
+            z: 25,
+            width: 76,
+            height: 1,
+            depth: 1,
+            color: "#98a8aa",
+            layer: 25,
+            hideLabel: true
+          },
+          {
+            type: "fold-door",
+            label: "Cánh lật",
+            x: 95,
+            y: 186,
+            z: 59,
+            width: 86,
+            height: 32,
+            depth: 1.2,
+            color: "#d8a97a",
+            layer: 20
+          },
+          {
+            type: "fold-door-handle",
+            x: 128,
+            y: 201,
+            z: 60.5,
+            width: 20,
+            height: 1.5,
+            depth: 1.5,
+            color: "#1a1a1a",
+            layer: 25,
+            hideLabel: true
+          },
+          {
+            type: "upper-right-body",
+            label: "Tủ trên phải",
+            x: 181,
+            y: 186,
+            z: 0,
+            width: 95,
+            height: 90,
+            depth: 60,
+            color: "#c9986b",
+            layer: 4
+          },
+          {
+            type: "upper-right-door-a",
+            x: 183,
+            y: 190,
+            z: 59,
+            width: 45,
+            height: 82,
+            depth: 1.2,
+            color: "#d8a97a",
+            layer: 18,
+            hideLabel: true
+          },
+          {
+            type: "upper-right-door-b",
+            x: 229,
+            y: 190,
+            z: 59,
+            width: 45,
+            height: 82,
+            depth: 1.2,
+            color: "#d8a97a",
+            layer: 18,
+            hideLabel: true
+          },
+          {
+            type: "upper-right-handle-a",
+            x: 226,
+            y: 222,
+            z: 60.5,
+            width: 1.5,
+            height: 18,
+            depth: 1.5,
+            color: "#1a1a1a",
+            layer: 24,
+            hideLabel: true
+          },
+          {
+            type: "upper-right-handle-b",
+            x: 231,
+            y: 222,
+            z: 60.5,
+            width: 1.5,
+            height: 18,
+            depth: 1.5,
+            color: "#1a1a1a",
+            layer: 24,
+            hideLabel: true
+          },
+          {
+            type: "wardrobe-body",
+            label: "Thân tủ áo",
+            x: 138,
+            y: 0,
+            z: 0,
+            width: 138,
+            height: 186,
+            depth: 60,
+            color: "#b8875e",
+            opacity: 0.42,
+            layer: 4
+          },
+          {
+            type: "wardrobe-mid-divider",
+            x: 206,
+            y: 0,
+            z: 0,
+            width: 2,
+            height: 186,
+            depth: 57,
+            color: "#76502e",
+            layer: 10,
+            hideLabel: true
+          },
+          {
+            type: "sliding-track-top",
+            x: 138,
+            y: 183,
+            z: 57,
+            width: 138,
+            height: 3,
+            depth: 3,
+            color: "#332417",
+            layer: 21,
+            hideLabel: true
+          },
+          {
+            type: "sliding-track-bottom",
+            x: 138,
+            y: 0,
+            z: 57,
+            width: 138,
+            height: 2,
+            depth: 3,
+            color: "#332417",
+            layer: 21,
+            hideLabel: true
+          },
+          {
+            type: "sliding-door-left",
+            label: "Cánh trượt A",
+            x: 140,
+            y: 3,
+            z: 58.5,
+            width: 67,
+            height: 179,
+            depth: 1.5,
+            color: "#d8a97a",
+            layer: 22
+          },
+          {
+            type: "sliding-door-right",
+            label: "Cánh trượt B",
+            x: 207,
+            y: 3,
+            z: 56.5,
+            width: 67,
+            height: 179,
+            depth: 1.5,
+            color: "#c9986b",
+            layer: 21
+          },
+          {
+            type: "slider-handle-left",
+            x: 145,
+            y: 68,
+            z: 60,
+            width: 2,
+            height: 50,
+            depth: 1.5,
+            color: "#1a1a1a",
+            layer: 26,
+            hideLabel: true
+          },
+          {
+            type: "slider-handle-right",
+            x: 268,
+            y: 68,
+            z: 58,
+            width: 2,
+            height: 50,
+            depth: 1.5,
+            color: "#1a1a1a",
+            layer: 26,
+            hideLabel: true
+          },
+          {
+            type: "short-hang-rod",
+            label: "Thanh treo ngắn",
+            x: 150,
+            y: 118,
+            z: 35,
+            width: 50,
+            height: 2,
+            depth: 2,
+            color: "#575757",
+            layer: 16
+          },
+          {
+            type: "long-hang-rod",
+            label: "Thanh treo dài",
+            x: 214,
+            y: 142,
+            z: 35,
+            width: 50,
+            height: 2,
+            depth: 2,
+            color: "#575757",
+            layer: 16
+          },
+          {
+            type: "shoe-shelf",
+            label: "Kệ giày",
+            x: 140,
+            y: 40,
+            z: 4,
+            width: 64,
+            height: 2,
+            depth: 52,
+            color: "#c9986b",
+            layer: 12
+          },
+          {
+            type: "folded-shelf-1",
+            x: 140,
+            y: 82,
+            z: 4,
+            width: 64,
+            height: 2,
+            depth: 52,
+            color: "#c9986b",
+            layer: 12,
+            hideLabel: true
+          },
+          {
+            type: "clothes-short-a",
+            x: 152,
+            y: 83,
+            z: 38,
+            width: 8,
+            height: 34,
+            depth: 1,
+            color: "#5f7ea8",
+            layer: 17,
+            hideLabel: true
+          },
+          {
+            type: "clothes-short-b",
+            x: 163,
+            y: 82,
+            z: 38,
+            width: 8,
+            height: 35,
+            depth: 1,
+            color: "#8e6453",
+            layer: 17,
+            hideLabel: true
+          },
+          {
+            type: "clothes-long-a",
+            x: 219,
+            y: 55,
+            z: 38,
+            width: 8,
+            height: 86,
+            depth: 1,
+            color: "#6f7495",
+            layer: 17,
+            hideLabel: true
+          },
+          {
+            type: "clothes-long-b",
+            x: 231,
+            y: 52,
+            z: 38,
+            width: 8,
+            height: 89,
+            depth: 1,
+            color: "#986c50",
+            layer: 17,
+            hideLabel: true
+          },
+          {
+            type: "chair-clearance",
+            label: "Vùng ghế",
+            kind: "arc",
+            x: 68,
+            y: 0,
+            z: 82,
+            width: 56,
+            height: 1,
+            depth: 56,
+            color: "transparent",
+            stroke: "#b9ad9d",
+            layer: 30,
+            onlyIn: ["plan"],
+            hideLabel: true
+          }
+        ],
+        specs: [
+          ["Khu làm việc", "138 x 55 cm", "Có bàn chính và bàn chữ L dài 130 cm"],
+          ["Tủ áo", "138 x 60 cm", "Có ray trượt, 2 cánh trượt, thanh treo và kệ trong"],
+          ["Khoang máy lạnh", "86 x 58 cm", "Có thân máy, nan gió và cánh lật dưới"],
+          ["Cách dùng với AI", "Sửa modules/details", "AI có thể thêm tấm, cánh, kệ, tay nắm bằng dữ liệu"]
+        ]
+      };
+
+    InteriorDesigner.render({
+      mount: "#app",
+      tabs: ["front", "side", "plan", "3d", "specs"],
+      model: cabinetModel
+    });
+
+    InteriorDesigner.attachDesignReviewPanel({
+      mount: "#design-review",
+      model: cabinetModel,
+      language: "vi"
+    });
+
+    InteriorDesigner.attachAiImageExportPanel({
+      mount: "#ai-export",
+      model: cabinetModel
+    });
+
+    InteriorDesigner.attachUploadPanel({
+      mount: "#upload",
+      language: "vi"
+    });
+  </script>
+</body>
+</html>

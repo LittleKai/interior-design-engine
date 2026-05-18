@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/interior-design-model.schema.json",
+  "title": "Interior Design Engine Model",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["width", "height", "depth", "modules"],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string",
+      "default": "cm"
+    },
+    "width": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "height": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "depth": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "materials": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "properties": {
+        "board": {
+          "type": "string"
+        }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/designItem"
+      }
+    },
+    "details": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/designItem"
+      }
+    },
+    "specs": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 3,
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "designItem": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["box", "void"]
+        },
+        "catalogId": {
+          "type": "string",
+          "description": "Optional reference to a catalog element name registered via InteriorDesigner catalog registry."
+        },
+        "props": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Free-form properties consumed by the catalog element render2D/render3D handlers."
+        },
+        "group": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "depth": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "color": {
+          "type": "string"
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "layer": {
+          "type": "number"
+        },
+        "hiddenIn3d": {
+          "type": "boolean"
+        },
+        "hideLabel": {
+          "type": "boolean"
+        },
+        "csgHints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      }
+    }
+  }
+}

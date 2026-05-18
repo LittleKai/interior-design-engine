@@ -1,0 +1,161 @@
+import { el, cm } from "../core/dom.js";
+import { normalizeModel } from "../core/model.js";
+import { t, pickLang } from "../core/i18n.js";
+import { renderSvgView } from "../renderers/svg-renderer.js";
+import { render3d } from "../renderers/canvas-2d-renderer.js";
+import { ThreeRenderer, isWebGLAvailable } from "../renderers/three-renderer.js";
+
+const DEFAULT_TABS = ["front", "side", "plan", "3d", "specs"];
+
+function queryRendererOverride() {
+  if (typeof window === "undefined" || !window.location) return null;
+  try {
+    return new URLSearchParams(window.location.search).get("renderer");
+  } catch (e) {
+    return null;
+  }
+}
+
+function mount3dTab(view, model, language) {
+  view.appendChild(el("p", { class: "ide-note", text: t("notes.view3d", language) }));
+  const wrap = el("div", { class: "ide-canvas-wrap ide-canvas-wrap-3d" });
+  view.appendChild(wrap);
+
+  const override = queryRendererOverride();
+  const useFallback = override === "canvas" || !isWebGLAvailable();
+
+  if (useFallback) {
+    wrap.appendChild(render3d(model));
+    view.appendChild(el("p", { class: "ide-hint", text: t("notes.view3dFallback", language) }));
+    return;
+  }
+
+  const stage = el("div", { class: "ide-three-stage" });
+  wrap.appendChild(stage);
+
+  const toolbar = el("div", { class: "ide-three-toolbar" });
+  const btnMode = el("button", { class: "ide-three-toggle", type: "button", text: t("view3d.modeOrtho", language) });
+  const btnDim = el("button", { class: "ide-three-toggle", type: "button", text: t("view3d.dimensionsOn", language) });
+  const btnShadow = el("button", { class: "ide-three-toggle", type: "button", text: t("view3d.shadowOn", language) });
+  toolbar.appendChild(btnMode);
+  toolbar.appendChild(btnDim);
+  toolbar.appendChild(btnShadow);
+  view.appendChild(toolbar);
+  view.appendChild(el("p", { class: "ide-hint", text: t("notes.view3dHint", language) }));
+
+  let currentMode = "perspective";
+  let dimVisible = false;
+  let shadowVisible = false;
+  const renderer = new ThreeRenderer(stage);
+
+  requestAnimationFrame(() => {
+    renderer.mount();
+    renderer.update(model);
+  });
+
+  btnMode.addEventListener("click", () => {
+    currentMode = currentMode === "perspective" ? "orthographic" : "perspective";
+    renderer.setMode(currentMode);
+    btnMode.textContent = t(currentMode === "perspective" ? "view3d.modeOrtho" : "view3d.modePerspective", language);
+    btnMode.classList.toggle("is-active", currentMode === "orthographic");
+  });
+  btnDim.addEventListener("click", () => {
+    dimVisible = !dimVisible;
+    renderer.setDimensionsVisible(dimVisible);
+    btnDim.classList.toggle("is-active", dimVisible);
+    btnDim.textContent = t(dimVisible ? "view3d.dimensionsOff" : "view3d.dimensionsOn", language);
+  });
+  btnShadow.addEventListener("click", () => {
+    shadowVisible = !shadowVisible;
+    renderer.setShadowEnabled(shadowVisible);
+    btnShadow.classList.toggle("is-active", shadowVisible);
+    btnShadow.textContent = t(shadowVisible ? "view3d.shadowOff" : "view3d.shadowOn", language);
+  });
+}
+
+function renderSpecs(model, language) {
+  const grid = el("div", { class: "ide-spec-grid" });
+  const specs = [
+    [t("specs.totalWidth", language), cm(model.width), t("specs.totalWidthNote", language)],
+    [t("specs.totalHeight", language), cm(model.height), t("specs.totalHeightNote", language)],
+    [t("specs.totalDepth", language), cm(model.depth), t("specs.totalDepthNote", language)],
+    [t("specs.moduleCount", language), String(model.modules.length), t("specs.moduleCountNote", language)],
+    [t("specs.detailCount", language), String((model.details || []).length), t("specs.detailCountNote", language)]
+  ].concat(model.specs || []);
+
+  specs.forEach(([label, value, note]) => {
+    grid.appendChild(el("div", { class: "ide-spec-card" }, [
+      el("div", { class: "ide-spec-label", text: label }),
+      el("div", { class: "ide-spec-value", text: value }),
+      el("div", { class: "ide-spec-note", text: note || "" })
+    ]));
+  });
+  return grid;
+}
+
+export function render(options) {
+  const mount = typeof options.mount === "string" ? document.querySelector(options.mount) : options.mount;
+  if (!mount) throw new Error("InteriorDesigner.render: mount element not found.");
+
+  const language = pickLang(options.language);
+  const model = normalizeModel(options.model);
+  const tabs = options.tabs || DEFAULT_TABS;
+  const activeIndex = Number.isInteger(options.activeIndex) && options.activeIndex >= 0 && options.activeIndex < tabs.length
+    ? options.activeIndex
+    : 0;
+  const root = el("div", { class: "ide-root" });
+  const shell = el("div", { class: "ide-shell" });
+  root.appendChild(shell);
+
+  shell.appendChild(el("header", { class: "ide-header" }, [
+    el("div", {}, [
+      el("h1", { class: "ide-title", text: model.title }),
+      el("p", { class: "ide-subtitle", text: model.subtitle })
+    ]),
+    el("div", { class: "ide-badge" }, [
+      el("div", { text: `${t("headerBadge.width", language)}: ${cm(model.width)}` }),
+      el("div", { text: `${t("headerBadge.height", language)}: ${cm(model.height)}` }),
+      el("div", { text: `${t("headerBadge.depth", language)}: ${cm(model.depth)}` })
+    ])
+  ]));
+
+  const nav = el("nav", { class: "ide-tabs" });
+  const views = el("main", {});
+  shell.appendChild(nav);
+  shell.appendChild(views);
+
+  tabs.forEach((tab, index) => {
+    const tabLabel = t(`tabs.${tab}`, language) || tab;
+    const button = el("button", {
+      class: `ide-tab${index === activeIndex ? " is-active" : ""}`,
+      type: "button",
+      text: tabLabel
+    });
+    const view = el("section", { class: `ide-view${index === activeIndex ? " is-active" : ""}` });
+
+    button.addEventListener("click", () => {
+      nav.querySelectorAll(".ide-tab").forEach((item) => item.classList.remove("is-active"));
+      views.querySelectorAll(".ide-view").forEach((item) => item.classList.remove("is-active"));
+      button.classList.add("is-active");
+      view.classList.add("is-active");
+      requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+    });
+
+    view.appendChild(el("h2", { class: "ide-view-title", text: tabLabel }));
+    if (tab === "front" || tab === "side" || tab === "plan") {
+      view.appendChild(el("p", { class: "ide-note", text: t("notes.planView", language) }));
+      view.appendChild(el("div", { class: "ide-canvas-wrap" }, [renderSvgView(model, tab, { language })]));
+    } else if (tab === "3d") {
+      mount3dTab(view, model, language);
+    } else {
+      view.appendChild(renderSpecs(model, language));
+    }
+
+    nav.appendChild(button);
+    views.appendChild(view);
+  });
+
+  mount.innerHTML = "";
+  mount.appendChild(root);
+  return { model, root };
+}
