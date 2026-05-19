@@ -1,0 +1,11 @@
+{
+  "templates": [
+    "upper-2door.json",
+    "upper-glass-2door.json",
+    "sliding-2door.json",
+    "sliding-3door.json",
+    "ac-recess-fold.json",
+    "open-bookshelf.json",
+    "l-desk-return.json"
+  ]
+}

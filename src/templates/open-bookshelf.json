@@ -1,0 +1,172 @@
+{
+  "id": "open-bookshelf",
+  "version": 1,
+  "category": "shelf",
+  "tags": [
+    "open",
+    "bookshelf"
+  ],
+  "description": {
+    "vi": "Ke sach mo",
+    "en": "Open bookshelf"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 80,
+      "max": 200,
+      "default": 138
+    },
+    "height": {
+      "type": "number",
+      "min": 40,
+      "max": 120,
+      "default": 80
+    },
+    "depth": {
+      "type": "number",
+      "min": 25,
+      "max": 40,
+      "default": 35
+    }
+  },
+  "style": {
+    "shelves": {
+      "values": [
+        1,
+        2,
+        3
+      ],
+      "default": 2
+    }
+  },
+  "frontSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.5
+    },
+    {
+      "type": "rect",
+      "x": 4,
+      "y": 4,
+      "w": "{{width - 8}}",
+      "h": "{{height / 2 - 6}}",
+      "fill": "$cabDark"
+    },
+    {
+      "type": "rect",
+      "x": 4,
+      "y": "{{height / 2 + 2}}",
+      "w": "{{width - 8}}",
+      "h": "{{height / 2 - 6}}",
+      "fill": "$cabDark"
+    },
+    {
+      "type": "line",
+      "x1": 2,
+      "y1": "{{height / 2}}",
+      "x2": "{{width - 2}}",
+      "y2": "{{height / 2}}",
+      "stroke": "$woodTop",
+      "sw": 2
+    },
+    {
+      "type": "rect",
+      "x": 8,
+      "y": 12,
+      "w": 5,
+      "h": "{{height / 2 - 16}}",
+      "fill": "#9060a0",
+      "opacity": 0.75
+    },
+    {
+      "type": "rect",
+      "x": 17,
+      "y": 15,
+      "w": 5,
+      "h": "{{height / 2 - 19}}",
+      "fill": "#6090b0",
+      "opacity": 0.75
+    },
+    {
+      "type": "rect",
+      "x": 26,
+      "y": 13,
+      "w": 5,
+      "h": "{{height / 2 - 17}}",
+      "fill": "#b08050",
+      "opacity": 0.75
+    }
+  ],
+  "sideSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{depth}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    }
+  ],
+  "planSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{depth}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    }
+  ],
+  "isoBoxes": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "right": "$woodSide",
+        "left": "$woodDark",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": 1,
+      "y": "{{height / 2 - 1}}",
+      "z": 1,
+      "w": "{{width - 2}}",
+      "h": 2,
+      "d": "{{depth - 2}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodFrontL",
+        "bottom": "$woodDark"
+      }
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "z": 1,
+      "w": "{{width - 2}}",
+      "h": 2,
+      "d": "{{depth - 2}}",
+      "faces": {
+        "top": "$woodTop",
+        "bottom": "$woodDark"
+      }
+    }
+  ]
+}

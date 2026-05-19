@@ -1,0 +1,164 @@
+{
+  "id": "l-desk-return",
+  "version": 1,
+  "category": "desk",
+  "tags": [
+    "L-shape",
+    "working"
+  ],
+  "description": {
+    "vi": "Ban lam viec chu L",
+    "en": "L-shaped desk return"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 80,
+      "max": 200,
+      "default": 138
+    },
+    "height": {
+      "type": "number",
+      "min": 70,
+      "max": 80,
+      "default": 75
+    },
+    "depth": {
+      "type": "number",
+      "min": 50,
+      "max": 65,
+      "default": 55
+    },
+    "returnDepth": {
+      "type": "number",
+      "min": 80,
+      "max": 160,
+      "default": 130
+    }
+  },
+  "style": {},
+  "frontSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": "{{height - 3}}",
+      "w": "{{width}}",
+      "h": 3,
+      "fill": "$deskTop",
+      "stroke": "$deskEdge",
+      "sw": 1.2
+    },
+    {
+      "type": "rect",
+      "x": 0,
+      "y": "{{height}}",
+      "w": "{{width}}",
+      "h": 31,
+      "fill": "#e0dcd6",
+      "stroke": "#c8c0b0",
+      "sw": 0.5
+    },
+    {
+      "type": "text",
+      "x": "{{width / 2}}",
+      "y": "{{height - 7}}",
+      "text": "Mat ban lam viec",
+      "fill": "$dim",
+      "fontSize": 9
+    }
+  ],
+  "sideSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": "{{height - 3}}",
+      "w": "{{returnDepth}}",
+      "h": 3,
+      "fill": "$deskTop",
+      "stroke": "$deskEdge",
+      "sw": 1
+    }
+  ],
+  "planSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{depth}}",
+      "fill": "$deskTop",
+      "stroke": "$deskEdge",
+      "sw": 1
+    },
+    {
+      "type": "rect",
+      "x": 0,
+      "y": "{{depth}}",
+      "w": "{{depth}}",
+      "h": "{{returnDepth}}",
+      "fill": "$deskTop",
+      "stroke": "$deskEdge",
+      "sw": 1
+    }
+  ],
+  "isoBoxes": [
+    {
+      "x": 0,
+      "y": "{{height - 3}}",
+      "z": 0,
+      "w": "{{width}}",
+      "h": 3,
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$deskTop",
+        "front": "$deskEdge",
+        "right": "$deskSide",
+        "left": "$deskSide",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "z": "{{depth - 3}}",
+      "w": 3,
+      "h": "{{height - 3}}",
+      "d": 3,
+      "faces": {
+        "front": "$deskSide",
+        "left": "$woodDark",
+        "right": "$deskSide",
+        "top": "$deskEdge"
+      }
+    },
+    {
+      "x": 0,
+      "y": "{{height - 3}}",
+      "z": "{{depth}}",
+      "w": "{{depth}}",
+      "h": 3,
+      "d": "{{returnDepth}}",
+      "faces": {
+        "top": "$deskTop",
+        "front": "$deskEdge",
+        "right": "$deskSide",
+        "left": "$deskSide",
+        "back": "$deskEdge"
+      }
+    },
+    {
+      "x": "{{depth - 3}}",
+      "y": 0,
+      "z": "{{depth + returnDepth - 3}}",
+      "w": 3,
+      "h": "{{height - 3}}",
+      "d": 3,
+      "faces": {
+        "front": "$deskSide",
+        "left": "$woodDark",
+        "right": "$deskSide",
+        "top": "$deskEdge"
+      }
+    }
+  ]
+}

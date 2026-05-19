@@ -1,7 +1,12 @@
 import { cm } from "../core/dom.js";
 import { normalizeModel } from "../core/model.js";
 import { renderSvgView, svgToPngDataUrl } from "../renderers/svg-renderer.js";
-import { renderStatic3dCanvas } from "../renderers/canvas-2d-renderer.js";
+import { renderStatic3dCanvas } from "../renderers/iso-renderer.js";
+
+const TEMPLATE_CATALOG_SUMMARY_VI = [
+  "DANH MUC TEMPLATE UU TIEN: upper-2door, upper-glass-2door, sliding-2door, sliding-3door, ac-recess-fold, open-bookshelf, l-desk-return.",
+  "Khi mo ta thiet ke, uu tien dung module co tpl phu hop thay vi box tho. Neu khong co template match thi moi dung module legacy."
+].join("\n");
 
 function compactItems(items, language) {
   return (items || [])
@@ -65,6 +70,7 @@ export function buildAiPrompt(model, options) {
       `Ánh sáng: ${pick("lighting")}.`,
       `Các khu chính: ${moduleSummary}.`,
       `Chi tiết cấu tạo quan trọng: ${detailSummary}.`,
+      TEMPLATE_CATALOG_SUMMARY_VI,
       `Giữ đúng tỷ lệ, vị trí, khoảng trống, cánh trượt, kệ, mặt bàn, tay nắm, thanh treo và ô máy lạnh theo các ảnh tham chiếu mặt đứng/mặt bên/mặt bằng/3D đính kèm.`,
       promptOptions.extra ? `Yêu cầu bổ sung của người dùng: ${promptOptions.extra}.` : "",
       `Yêu cầu tránh: ${negativeVi}.`
@@ -90,6 +96,7 @@ export function buildAiPrompt(model, options) {
     `Lighting: ${pick("lighting")}.`,
     `Main zones: ${moduleSummary}.`,
     `Important construction details: ${detailSummary}.`,
+    TEMPLATE_CATALOG_SUMMARY_VI,
     `Keep all major proportions, positions, openings, sliding doors, shelves, desk surfaces, handles, rods, and AC bay consistent with the attached front/side/plan/3D reference images.`,
     promptOptions.extra ? `Additional user preference, translated from the user's note if needed: ${promptOptions.extra}.` : "",
     `Negative instructions: ${negativeEn}.`

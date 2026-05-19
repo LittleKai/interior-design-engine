@@ -1,0 +1,176 @@
+{
+  "id": "sliding-3door",
+  "version": 1,
+  "category": "wardrobe",
+  "tags": [
+    "sliding",
+    "3-door"
+  ],
+  "description": {
+    "vi": "Tu ao cua keo 3 canh",
+    "en": "3-door sliding wardrobe"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 150,
+      "max": 400,
+      "default": 210
+    },
+    "height": {
+      "type": "number",
+      "min": 150,
+      "max": 260,
+      "default": 220
+    },
+    "depth": {
+      "type": "number",
+      "min": 55,
+      "max": 65,
+      "default": 60
+    }
+  },
+  "style": {
+    "door": {
+      "values": [
+        "flat"
+      ],
+      "default": "flat"
+    }
+  },
+  "frontSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.5
+    },
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": 3,
+      "fill": "$woodDark"
+    },
+    {
+      "type": "rect",
+      "x": 0,
+      "y": "{{height - 3}}",
+      "w": "{{width}}",
+      "h": 3,
+      "fill": "$woodDark"
+    },
+    {
+      "type": "rect",
+      "x": 2,
+      "y": 4,
+      "w": "{{width / 3}}",
+      "h": "{{height - 8}}",
+      "fill": "$cabLight",
+      "stroke": "$cabEdge",
+      "sw": 1
+    },
+    {
+      "type": "rect",
+      "x": "{{width / 3}}",
+      "y": 4,
+      "w": "{{width / 3}}",
+      "h": "{{height - 8}}",
+      "fill": "$cab",
+      "stroke": "$cabEdge",
+      "sw": 1
+    },
+    {
+      "type": "rect",
+      "x": "{{width * 2 / 3 - 2}}",
+      "y": 4,
+      "w": "{{width / 3}}",
+      "h": "{{height - 8}}",
+      "fill": "$cabLight",
+      "stroke": "$cabEdge",
+      "sw": 1
+    }
+  ],
+  "sideSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{depth}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    }
+  ],
+  "planSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{depth}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    }
+  ],
+  "isoBoxes": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodBack",
+        "right": "$woodSide",
+        "left": "$woodDark",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "z": "{{depth - 1.5}}",
+      "w": "{{width / 3}}",
+      "h": "{{height - 5}}",
+      "d": 1.5,
+      "faces": {
+        "front": "$woodFrontL",
+        "top": "$woodTop"
+      }
+    },
+    {
+      "x": "{{width / 3}}",
+      "y": 2,
+      "z": "{{depth - 3}}",
+      "w": "{{width / 3}}",
+      "h": "{{height - 5}}",
+      "d": 1.5,
+      "faces": {
+        "front": "$woodFront",
+        "top": "$woodTop"
+      }
+    },
+    {
+      "x": "{{width * 2 / 3 - 1}}",
+      "y": 2,
+      "z": "{{depth - 1.5}}",
+      "w": "{{width / 3}}",
+      "h": "{{height - 5}}",
+      "d": 1.5,
+      "faces": {
+        "front": "$woodFrontL",
+        "top": "$woodTop"
+      }
+    }
+  ]
+}

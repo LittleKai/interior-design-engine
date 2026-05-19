@@ -1,7 +1,6 @@
 import { el } from "../core/dom.js";
 import { normalizeModel, allItems, modelBounds } from "../core/model.js";
 import { t, pickLang, buildIntakeChecklist } from "../core/i18n.js";
-import { hasElement } from "../catalog/registry.js";
 
 export function reviewModel(input, options) {
   const language = pickLang(options && options.language);
@@ -59,13 +58,6 @@ export function reviewModel(input, options) {
     addStrength("material", "hasMaterials");
   } else {
     addIssue("material", "noMaterials");
-  }
-
-  const unknownCatalogIds = Array.from(new Set(
-    items.filter((item) => item.catalogId && !hasElement(item.catalogId)).map((item) => item.catalogId)
-  ));
-  if (unknownCatalogIds.length) {
-    addIssue("catalog", "unknownCatalog", unknownCatalogIds);
   }
 
   const score = Math.max(0, Math.min(10, 10 - issues.length * 1.5));

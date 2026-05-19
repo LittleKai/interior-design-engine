@@ -172,13 +172,6 @@
         },
         "hideLabel": {
           "type": "boolean"
-        },
-        "csgHints": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": []
         }
       }
     }

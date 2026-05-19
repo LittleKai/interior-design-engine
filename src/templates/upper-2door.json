@@ -1,0 +1,216 @@
+{
+  "id": "upper-2door",
+  "version": 1,
+  "category": "upper-cabinet",
+  "tags": [
+    "shaker",
+    "bar-handle",
+    "2-door"
+  ],
+  "description": {
+    "vi": "Tu tren 2 canh shaker",
+    "en": "2-door upper cabinet"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 40,
+      "max": 200,
+      "default": 95
+    },
+    "height": {
+      "type": "number",
+      "min": 50,
+      "max": 130,
+      "default": 90
+    },
+    "depth": {
+      "type": "number",
+      "min": 30,
+      "max": 70,
+      "default": 60
+    }
+  },
+  "style": {
+    "door": {
+      "values": [
+        "shaker",
+        "flat"
+      ],
+      "default": "shaker"
+    },
+    "handle": {
+      "values": [
+        "bar",
+        "knob"
+      ],
+      "default": "bar"
+    }
+  },
+  "frontSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width / 2}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.5
+    },
+    {
+      "type": "rect",
+      "x": "{{width / 2}}",
+      "y": 0,
+      "w": "{{width / 2}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.5
+    },
+    {
+      "type": "rect",
+      "x": 4,
+      "y": 6,
+      "w": "{{width / 2 - 8}}",
+      "h": "{{height - 12}}",
+      "rx": 2,
+      "fill": "$cabLight",
+      "stroke": "$cabEdge",
+      "sw": 1,
+      "if": "{{style.door == 'shaker'}}"
+    },
+    {
+      "type": "rect",
+      "x": "{{width / 2 + 4}}",
+      "y": 6,
+      "w": "{{width / 2 - 8}}",
+      "h": "{{height - 12}}",
+      "rx": 2,
+      "fill": "$cabLight",
+      "stroke": "$cabEdge",
+      "sw": 1,
+      "if": "{{style.door == 'shaker'}}"
+    },
+    {
+      "type": "rect",
+      "x": "{{width / 2 - 4}}",
+      "y": "{{height / 2 - 10}}",
+      "w": 2,
+      "h": 20,
+      "rx": 1,
+      "fill": "$handle",
+      "if": "{{style.handle == 'bar'}}"
+    },
+    {
+      "type": "rect",
+      "x": "{{width / 2 + 2}}",
+      "y": "{{height / 2 - 10}}",
+      "w": 2,
+      "h": 20,
+      "rx": 1,
+      "fill": "$handle",
+      "if": "{{style.handle == 'bar'}}"
+    }
+  ],
+  "sideSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{depth}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    }
+  ],
+  "planSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{depth}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    },
+    {
+      "type": "line",
+      "x1": "{{width / 2}}",
+      "y1": 0,
+      "x2": "{{width / 2}}",
+      "y2": "{{depth}}",
+      "stroke": "$cabEdge",
+      "sw": 0.8
+    }
+  ],
+  "isoBoxes": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodFront",
+        "right": "$woodSide",
+        "left": "$woodDark",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "z": "{{depth - 0.5}}",
+      "w": "{{width / 2 - 3}}",
+      "h": "{{height - 4}}",
+      "d": 0.5,
+      "faces": {
+        "front": "$woodFrontL"
+      }
+    },
+    {
+      "x": "{{width / 2 + 1}}",
+      "y": 2,
+      "z": "{{depth - 0.5}}",
+      "w": "{{width / 2 - 3}}",
+      "h": "{{height - 4}}",
+      "d": 0.5,
+      "faces": {
+        "front": "$woodFrontL"
+      }
+    },
+    {
+      "x": "{{width / 2 - 5}}",
+      "y": "{{height / 2 - 7}}",
+      "z": "{{depth}}",
+      "w": 1.5,
+      "h": 14,
+      "d": 1.5,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge",
+        "right": "$handle",
+        "left": "$handle"
+      }
+    },
+    {
+      "x": "{{width / 2 + 3.5}}",
+      "y": "{{height / 2 - 7}}",
+      "z": "{{depth}}",
+      "w": 1.5,
+      "h": 14,
+      "d": 1.5,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge",
+        "right": "$handle",
+        "left": "$handle"
+      }
+    }
+  ]
+}

@@ -2,7 +2,6 @@ import { el } from "../core/dom.js";
 import { t, pickLang } from "../core/i18n.js";
 import { normalizeModel } from "../core/model.js";
 import { render } from "../ui/main-renderer.js";
-import { BoxService } from "../catalog/services/box-service.js";
 import { enableSelection, setSelected as setSelectedNode, clearSelected } from "./selection.js";
 import { attachPropertyPanel } from "./property-panel.js";
 import { History } from "./history.js";
@@ -42,6 +41,16 @@ export function enableEditor(options) {
   let previewModel = null;
   let previewEntry = null;
   let isPreviewMode = false;
+
+  function deleteItem(sourceModel, id) {
+    const next = structuredClone(sourceModel);
+    next.modules = (next.modules || []).filter((item) => item.id !== id);
+    next.details = (next.details || []).filter((item) => item.id !== id);
+    next.runs = (next.runs || []).map((run) => Object.assign({}, run, {
+      modules: (run.modules || []).filter((item) => item.id !== id)
+    }));
+    return next;
+  }
 
   const previewBanner = el("div", { class: "ide-preview-banner" });
   const previewText = el("span", { text: t("history.banner", language) });
@@ -184,7 +193,7 @@ export function enableEditor(options) {
   btnDelete.addEventListener("click", () => {
     if (isPreviewMode) return;
     if (!selectedId) return;
-    const { model: next } = BoxService.delete(model, selectedId);
+    const next = deleteItem(model, selectedId);
     const removedId = selectedId;
     selectedId = null;
     applyChange(next, { type: "delete", id: removedId });

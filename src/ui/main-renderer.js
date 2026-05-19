@@ -2,74 +2,54 @@ import { el, cm } from "../core/dom.js";
 import { normalizeModel } from "../core/model.js";
 import { t, pickLang } from "../core/i18n.js";
 import { renderSvgView } from "../renderers/svg-renderer.js";
-import { render3d } from "../renderers/canvas-2d-renderer.js";
-import { ThreeRenderer, isWebGLAvailable } from "../renderers/three-renderer.js";
+import { IsoRenderer } from "../renderers/iso-renderer.js";
+import { listPalettes } from "../template-engine/color-tokens.js";
+import { prepareModelForRender } from "../template-engine/dispatcher.js";
 
 const DEFAULT_TABS = ["front", "side", "plan", "3d", "specs"];
-
-function queryRendererOverride() {
-  if (typeof window === "undefined" || !window.location) return null;
-  try {
-    return new URLSearchParams(window.location.search).get("renderer");
-  } catch (e) {
-    return null;
-  }
-}
 
 function mount3dTab(view, model, language) {
   view.appendChild(el("p", { class: "ide-note", text: t("notes.view3d", language) }));
   const wrap = el("div", { class: "ide-canvas-wrap ide-canvas-wrap-3d" });
   view.appendChild(wrap);
 
-  const override = queryRendererOverride();
-  const useFallback = override === "canvas" || !isWebGLAvailable();
-
-  if (useFallback) {
-    wrap.appendChild(render3d(model));
-    view.appendChild(el("p", { class: "ide-hint", text: t("notes.view3dFallback", language) }));
-    return;
-  }
-
   const stage = el("div", { class: "ide-three-stage" });
   wrap.appendChild(stage);
 
   const toolbar = el("div", { class: "ide-three-toolbar" });
-  const btnMode = el("button", { class: "ide-three-toggle", type: "button", text: t("view3d.modeOrtho", language) });
   const btnDim = el("button", { class: "ide-three-toggle", type: "button", text: t("view3d.dimensionsOn", language) });
-  const btnShadow = el("button", { class: "ide-three-toggle", type: "button", text: t("view3d.shadowOn", language) });
-  toolbar.appendChild(btnMode);
+  const paletteSelect = el("select", {
+    class: "ide-three-toggle",
+    title: t("view3d.paletteHint", language),
+    "aria-label": t("view3d.paletteLabel", language)
+  });
+  listPalettes(language).forEach((palette) => {
+    const option = el("option", { value: palette.id, text: palette.label });
+    if (palette.id === model.palette) option.selected = true;
+    paletteSelect.appendChild(option);
+  });
   toolbar.appendChild(btnDim);
-  toolbar.appendChild(btnShadow);
+  toolbar.appendChild(paletteSelect);
   view.appendChild(toolbar);
   view.appendChild(el("p", { class: "ide-hint", text: t("notes.view3dHint", language) }));
 
-  let currentMode = "perspective";
   let dimVisible = false;
-  let shadowVisible = false;
-  const renderer = new ThreeRenderer(stage);
+  const renderer = new IsoRenderer(stage, { palette: model.palette });
 
   requestAnimationFrame(() => {
     renderer.mount();
     renderer.update(model);
   });
 
-  btnMode.addEventListener("click", () => {
-    currentMode = currentMode === "perspective" ? "orthographic" : "perspective";
-    renderer.setMode(currentMode);
-    btnMode.textContent = t(currentMode === "perspective" ? "view3d.modeOrtho" : "view3d.modePerspective", language);
-    btnMode.classList.toggle("is-active", currentMode === "orthographic");
-  });
   btnDim.addEventListener("click", () => {
     dimVisible = !dimVisible;
     renderer.setDimensionsVisible(dimVisible);
     btnDim.classList.toggle("is-active", dimVisible);
     btnDim.textContent = t(dimVisible ? "view3d.dimensionsOff" : "view3d.dimensionsOn", language);
   });
-  btnShadow.addEventListener("click", () => {
-    shadowVisible = !shadowVisible;
-    renderer.setShadowEnabled(shadowVisible);
-    btnShadow.classList.toggle("is-active", shadowVisible);
-    btnShadow.textContent = t(shadowVisible ? "view3d.shadowOff" : "view3d.shadowOn", language);
+  paletteSelect.addEventListener("change", () => {
+    model.palette = paletteSelect.value;
+    renderer.setPalette(paletteSelect.value);
   });
 }
 
@@ -99,6 +79,7 @@ export function render(options) {
 
   const language = pickLang(options.language);
   const model = normalizeModel(options.model);
+  prepareModelForRender(model).catch((error) => console.warn("Template catalog load failed:", error));
   const tabs = options.tabs || DEFAULT_TABS;
   const activeIndex = Number.isInteger(options.activeIndex) && options.activeIndex >= 0 && options.activeIndex < tabs.length
     ? options.activeIndex

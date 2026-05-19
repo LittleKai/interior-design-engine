@@ -5,16 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tủ quần áo - Interior Design Engine Demo</title>
   <link rel="stylesheet" href="./interior-design-engine.css?v=20260518">
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/",
-        "three-mesh-bvh": "https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.8.3/build/index.module.js",
-        "three-bvh-csg": "https://cdn.jsdelivr.net/npm/three-bvh-csg@0.0.17/build/index.module.js"
-      }
-    }
-  </script>
 </head>
 <body>
   <div id="app"></div>
@@ -32,35 +22,32 @@
         width: 276,
         height: 276,
         depth: 60,
+        palette: "wood-oak",
         materials: {
           board: "#c9986b"
         },
         modules: [
           {
-            type: "work-zone",
+            tpl: "l-desk-return",
             label: "Khu làm việc",
             x: 0,
             y: 0,
             z: 0,
             width: 138,
-            height: 276,
+            height: 75,
             depth: 55,
-            color: "#d9b06f",
-            opacity: 0.16,
-            hiddenIn3d: true
+            returnDepth: 130
           },
           {
-            type: "wardrobe-zone",
+            tpl: "sliding-2door",
             label: "Tủ áo",
             x: 138,
             y: 0,
             z: 0,
             width: 138,
-            height: 276,
+            height: 186,
             depth: 60,
-            color: "#b9824a",
-            opacity: 0.16,
-            hiddenIn3d: true
+            style: { door: "flat", handle: "finger-pull" }
           }
         ],
         details: [
@@ -268,7 +255,6 @@
             depth: 1.2,
             color: "#d8a97a",
             layer: 18,
-            csgHints: ["glassCutout:6:10:33:60"],
             hideLabel: true
           },
           {

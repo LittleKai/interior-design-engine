@@ -19,6 +19,7 @@ const SOLID_BODY_KINDS = new Set([
 ]);
 
 const RUN_DIRECTIONS = new Set(["east", "north", "west", "south"]);
+const VALID_PALETTES = new Set(["wood-oak", "wood-walnut", "laminate-white", "dark-modern"]);
 
 export function normalizeModel(input) {
   const source = input || {};
@@ -32,13 +33,20 @@ export function normalizeModel(input) {
     modules: [],
     runs: [],
     details: [],
-    materials: {}
+    materials: {},
+    palette: "wood-oak",
+    inlineTemplates: {}
   }, source);
 
+  model.palette = VALID_PALETTES.has(source.palette) ? source.palette : "wood-oak";
+  model.inlineTemplates = source.inlineTemplates && typeof source.inlineTemplates === "object" && !Array.isArray(source.inlineTemplates)
+    ? source.inlineTemplates
+    : {};
   model.runs = normalizeRuns(source, model);
   model.modules = model.runs.flatMap((run) => run.modules);
   model.details = normalizeItems(model.details, model, "detail");
   model._validationWarnings = validateMaterialSemantics(model);
+  if (source.palette && source.palette !== model.palette) model._validationWarnings.push(`Unknown palette "${source.palette}", using wood-oak.`);
   return model;
 }
 
@@ -88,10 +96,13 @@ export function normalizeItems(items, model, group) {
       height: group === "module" ? model.height : 1,
       depth: group === "module" ? model.depth : 1,
       color: item.kind === "void" ? "#ebe4d9" : "#c89a62",
-      layer: group === "module" ? 0 : 10,
-      csgHints: []
+      layer: group === "module" ? 0 : 10
     }, item);
-    normalized.csgHints = Array.isArray(normalized.csgHints) ? normalized.csgHints : [];
+    normalized.style = normalized.style && typeof normalized.style === "object" && !Array.isArray(normalized.style) ? normalized.style : {};
+    if (typeof normalized.tpl === "string" && normalized.tpl.trim()) {
+      normalized.tpl = normalized.tpl.trim();
+      normalized._isTemplate = true;
+    }
     return normalized;
   });
 }
@@ -141,47 +152,10 @@ export function itemFootprint(item) {
   return { minX: item.x, maxX: item.x + item.width, minZ: item.z, maxZ: item.z + item.depth };
 }
 
-export function itemThreeTransform(item) {
-  // World Z follows model Z (no negation) so 3D matches plan view orientation:
-  // model_z increasing = "forward into room" = world Z increasing = TOWARD camera.
-  // Camera is positioned at +Z relative to model center (see ThreeRenderer.fitCamera),
-  // so cabinet fronts naturally face the viewer.
-  const direction = item._runDirection || "east";
-  if (direction === "north") {
-    return {
-      x: item.x + item.depth / 2,
-      y: item.y + item.height / 2,
-      z: item.z - item.width / 2,
-      rotationY: -Math.PI / 2
-    };
-  }
-  if (direction === "west") {
-    return {
-      x: item.x - item.width / 2,
-      y: item.y + item.height / 2,
-      z: item.z + item.depth / 2,
-      rotationY: Math.PI
-    };
-  }
-  if (direction === "south") {
-    return {
-      x: item.x + item.depth / 2,
-      y: item.y + item.height / 2,
-      z: item.z + item.width / 2,
-      rotationY: Math.PI / 2
-    };
-  }
-  return {
-    x: item.x + item.width / 2,
-    y: item.y + item.height / 2,
-    z: item.z + item.depth / 2,
-    rotationY: 0
-  };
-}
-
 function validateMaterialSemantics(model) {
   const warnings = [];
   allItems(model).forEach((item) => {
+    if (item._isTemplate) return;
     if (item.kind === "void" && SOLID_MATERIAL_REFS.has(item.materialRef)) {
       warnings.push(`${item.id || item.label || "item"}: kind "void" with solid materialRef "${item.materialRef}".`);
     }

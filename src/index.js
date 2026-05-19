@@ -6,11 +6,9 @@ import { attachCompareSlider } from "./ui/compare-slider.js";
 import { buildAiPrompt, createAiImagePackage, downloadAiImagePackage } from "./ai/prompt-builder.js";
 import { analyzeImage, generateRender } from "./ai/image-analyzer.js";
 import { getDesignDirections, buildIntakeChecklist } from "./core/i18n.js";
-import { registerBuiltinElements, registerElement, getElement, listElements, factoryElement } from "./catalog/index.js";
-import { BoxService } from "./catalog/services/box-service.js";
 import { enableEditor } from "./editor/index.js";
-
-registerBuiltinElements();
+import { loadTemplateCatalog, getTemplate } from "./template-engine/loader.js";
+import { listPalettes } from "./template-engine/color-tokens.js";
 
 const InteriorDesigner = {
   render,
@@ -24,11 +22,9 @@ const InteriorDesigner = {
   getDesignDirections,
   buildIntakeChecklist,
   reviewModel,
-  registerElement,
-  getElement,
-  listElements,
-  factoryElement,
-  BoxService,
+  loadTemplateCatalog,
+  getTemplate,
+  listPalettes,
   analyzeImage,
   generateRender,
   enableEditor
@@ -51,11 +47,9 @@ export {
   downloadAiImagePackage,
   getDesignDirections,
   buildIntakeChecklist,
-  registerElement,
-  getElement,
-  listElements,
-  factoryElement,
-  BoxService,
+  loadTemplateCatalog,
+  getTemplate,
+  listPalettes,
   analyzeImage,
   generateRender,
   enableEditor

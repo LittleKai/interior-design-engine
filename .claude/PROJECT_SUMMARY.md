@@ -1,7 +1,11 @@
 # Project Summary
 
-**Last Updated:** 2026-05-18 22:55:00 +07:00
-**Session:** #19 — Phase 10 review: resolveRunCoord absolute-x fix (multi-module L-shape)
+**Phase 12 Update (2026-05-19):** Self-extending template library wired in. The engine loader now merges seed templates (static manifest + bundled `builtin-templates.js`) with backend approved/seed rows fetched from `GET /api/interior/templates`. Inline templates from `model.inlineTemplates` still take precedence per render. No engine code change beyond `loader.js` — Phase 11 renderer + DSL interpreter unchanged.
+
+**Phase 11 Update (2026-05-19):** Builder completed the dependency-free template DSL + Canvas 2D isometric renderer. Three.js, CSG vendor code, import maps, and the old catalog registry/BoxService are removed from runtime. Model JSON now supports `palette`, `inlineTemplates`, and `modules[].tpl/style`; the seven built-in templates are `upper-2door`, `upper-glass-2door`, `sliding-2door`, `sliding-3door`, `ac-recess-fold`, `open-bookshelf`, and `l-desk-return`. The public mirror under `alpha-studio/public/interior-design/` is synced from this source and no longer ships Three/CSG vendor folders.
+
+**Last Updated:** 2026-05-19 (Builder: Phase 12 complete)
+**Session:** #21 — Phase 12 build: backend InteriorTemplate model + /api/interior/templates GET/POST + admin review endpoints, AI tplNew escape extracted into modelJson.inlineTemplates, frontend commit UX + admin tab.
 
 ---
 
@@ -254,17 +258,22 @@ Per CLAUDE.md workspace rule: nếu code thực tế khác PROJECT_SUMMARY.md, *
 
 ## 8. Roadmap Reference
 
-Architect đã ghi đầy đủ 5 phase + quick wins tại:
+Architect SPEC files ở **workspace root** (`D:\Dev\NodeJS\alpha-studio\`):
 
-- `D:\Dev\NodeJS\alpha-studio\tools\interior-design-engine\SPEC.md` — Builder contract
-- `D:\Dev\NodeJS\alpha-studio\research_docs\interior-design-engine-roadmap.md` — rationale + reference borrows
-- `D:\Dev\NodeJS\alpha-studio\research_docs\interior-design-engine-upgrade-research.md` — background research
-- `D:\Dev\NodeJS\alpha-studio\research_docs\ai-interior-design-similar-projects.md` — OSS landscape
+- `SPEC.md` — index roadmap, lists active + done phases
+- `SPEC-phase-6.md` → `SPEC-phase-10.md` — historical phase specs (đã build + review xong)
+- `SPEC-phase-11.md` — **Active**: Drop Three.js + iso renderer + JSON DSL template engine + 7 seed templates port từ reference HTML
+- `SPEC-phase-12.md` — **Planned (build ngay sau Phase 11)**: Self-extend template library — backend `InteriorTemplate` collection + AI `tplNew` escape hatch + user commit UX + admin review page
+- `BUILDER_LOG.md` + `REVIEW_LOG.md` — Builder/Reviewer audit trail
+- `.spec-archive/` — auto-archived old SPECs
 
-**Reference projects được khảo sát:**
+**Reference cho Phase 11 implementation:**
+- `tools/interior-design-engine/.claude/tu_quan_ao_thiet_ke.html` — Hand-crafted reference (~60KB): SVG views + Canvas 2D iso 3D với `project()` + `drawBox()` + ~30 sub-component renders. Port logic này thành 7 seed templates (upper-2door, upper-glass-2door, sliding-2door, sliding-3door, ac-recess-fold, open-bookshelf, l-desk-return).
+
+**Reference projects khảo sát ban đầu (Phase 1-3):**
 - `D:\Dev\2.reference_pj\Design-ref\roomGPT` — AI polling pipeline + before/after slider
 - `D:\Dev\2.reference_pj\Design-ref\react-planner` — catalog registry + static service pattern
-- `D:\Dev\2.reference_pj\Design-ref\three.js` — geometry/material/lighting cho Phase 3
+- ~~`D:\Dev\2.reference_pj\Design-ref\three.js`~~ — deprecated bởi Phase 11 (xoá Three.js)
 
 ---
 

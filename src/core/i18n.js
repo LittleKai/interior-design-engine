@@ -73,16 +73,23 @@ export const I18N = {
     notes: {
       planView: "Render từ cùng model: modules là khối chính, details là cánh/kệ/ray/tay nắm/phụ kiện.",
       view3d: "Kéo để xoay, cuộn để zoom, chuột phải để pan.",
-      view3dHint: "3D dùng cùng module và detail với ba mặt chính, nên đổi kích thước sẽ đồng bộ.",
-      view3dFallback: "WebGL không khả dụng — đang dùng renderer 2D dự phòng."
+      view3dHint: "3D dùng cùng module và detail với ba mặt chính, nên đổi kích thước sẽ đồng bộ."
     },
     view3d: {
-      modePerspective: "Phối cảnh",
-      modeOrtho: "Trực giao",
       dimensionsOn: "Hiển thị kích thước",
       dimensionsOff: "Ẩn kích thước",
-      shadowOn: "Bật bóng",
-      shadowOff: "Tắt bóng"
+      paletteLabel: "Bảng màu",
+      paletteHint: "Đổi bảng màu để xem trước nội thất với màu khác"
+    },
+    palette: {
+      "wood-oak": { label: "Sồi vàng" },
+      "wood-walnut": { label: "Óc chó" },
+      "laminate-white": { label: "Trắng laminate" },
+      "dark-modern": { label: "Hiện đại tối" }
+    },
+    template: {
+      notFound: "Không tìm thấy template: {id}",
+      evalError: "Lỗi tính toán biểu thức: {message}"
     },
     upload: {
       title: "Phân tích ảnh phòng",
@@ -213,16 +220,23 @@ export const I18N = {
     notes: {
       planView: "Rendered from the same model: modules are main blocks, details are doors/shelves/tracks/handles/accessories.",
       view3d: "Drag to rotate, scroll to zoom, right-drag to pan.",
-      view3dHint: "3D shares the same modules and details as the orthographic views — dimensions stay in sync.",
-      view3dFallback: "WebGL unavailable — using 2D fallback renderer."
+      view3dHint: "3D shares the same modules and details as the orthographic views — dimensions stay in sync."
     },
     view3d: {
-      modePerspective: "Perspective",
-      modeOrtho: "Orthographic",
       dimensionsOn: "Show dimensions",
       dimensionsOff: "Hide dimensions",
-      shadowOn: "Shadows on",
-      shadowOff: "Shadows off"
+      paletteLabel: "Palette",
+      paletteHint: "Switch palette to preview cabinet in different material tones"
+    },
+    palette: {
+      "wood-oak": { label: "Oak" },
+      "wood-walnut": { label: "Walnut" },
+      "laminate-white": { label: "Laminate white" },
+      "dark-modern": { label: "Dark modern" }
+    },
+    template: {
+      notFound: "Template not found: {id}",
+      evalError: "Expression eval error: {message}"
     },
     upload: {
       title: "Analyze a room photo",

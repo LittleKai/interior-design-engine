@@ -1,0 +1,199 @@
+{
+  "id": "ac-recess-fold",
+  "version": 1,
+  "category": "upper-cabinet",
+  "tags": [
+    "ac",
+    "fold-down"
+  ],
+  "description": {
+    "vi": "Hoc may lanh va canh lat",
+    "en": "AC recess with fold-down door"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 60,
+      "max": 130,
+      "default": 86
+    },
+    "height": {
+      "type": "number",
+      "min": 80,
+      "max": 130,
+      "default": 90
+    },
+    "depth": {
+      "type": "number",
+      "min": 50,
+      "max": 65,
+      "default": 60
+    }
+  },
+  "style": {},
+  "frontSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{height * 0.64}}",
+      "fill": "#d4dce2",
+      "stroke": "#a0b0b8",
+      "sw": 1
+    },
+    {
+      "type": "rect",
+      "x": 5,
+      "y": 6,
+      "w": "{{width - 10}}",
+      "h": "{{height * 0.64 - 12}}",
+      "rx": 3,
+      "fill": "#f0f0ec",
+      "stroke": "#a0b0b8",
+      "sw": 1
+    },
+    {
+      "type": "line",
+      "x1": 5,
+      "y1": "{{height * 0.22}}",
+      "x2": "{{width - 5}}",
+      "y2": "{{height * 0.22}}",
+      "stroke": "#a0b0b8",
+      "sw": 0.7
+    },
+    {
+      "type": "line",
+      "x1": 5,
+      "y1": "{{height * 0.40}}",
+      "x2": "{{width - 5}}",
+      "y2": "{{height * 0.40}}",
+      "stroke": "#a0b0b8",
+      "sw": 0.7
+    },
+    {
+      "type": "rect",
+      "x": 0,
+      "y": "{{height * 0.64}}",
+      "w": "{{width}}",
+      "h": "{{height * 0.36}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.5
+    },
+    {
+      "type": "rect",
+      "x": 3,
+      "y": "{{height * 0.64 + 3}}",
+      "w": "{{width - 6}}",
+      "h": "{{height * 0.36 - 6}}",
+      "fill": "$cabLight",
+      "stroke": "$cabEdge",
+      "sw": 1
+    },
+    {
+      "type": "rect",
+      "x": "{{width / 2 - 10}}",
+      "y": "{{height * 0.82}}",
+      "w": 20,
+      "h": 1.5,
+      "rx": 1,
+      "fill": "$handle"
+    }
+  ],
+  "sideSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{depth}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    }
+  ],
+  "planSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{depth}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    }
+  ],
+  "isoBoxes": [
+    {
+      "x": 0,
+      "y": 32,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height - 32}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "#e0e4e8",
+        "front": "#d4dce2",
+        "right": "#b8c0c8",
+        "left": "#b8c0c8",
+        "back": "#8898a4"
+      }
+    },
+    {
+      "x": 5,
+      "y": 38,
+      "z": 6,
+      "w": "{{width - 10}}",
+      "h": "{{height - 44}}",
+      "d": 18,
+      "faces": {
+        "top": "#f4f4f0",
+        "front": "#f0f0ec",
+        "right": "#d8d8d4",
+        "left": "#d8d8d4",
+        "back": "#c0c0bc"
+      }
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": 32,
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodFront",
+        "right": "$woodSide",
+        "left": "$woodSide",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "z": "{{depth - 0.5}}",
+      "w": "{{width - 4}}",
+      "h": 28,
+      "d": 0.5,
+      "faces": {
+        "front": "$woodFrontL"
+      }
+    },
+    {
+      "x": "{{width / 2 - 10}}",
+      "y": 14,
+      "z": "{{depth}}",
+      "w": 20,
+      "h": 1.5,
+      "d": 1.5,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge",
+        "bottom": "$handle"
+      }
+    }
+  ]
+}

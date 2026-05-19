@@ -1,7 +1,9 @@
 import { SVG_NS, svgEl, cm } from "../core/dom.js";
 import { allItems, measureBox, itemProjection, isVisible } from "../core/model.js";
 import { t } from "../core/i18n.js";
-import { getElement } from "../catalog/registry.js";
+import { getTemplate } from "../template-engine/loader.js";
+import { getInstance } from "../template-engine/dispatcher.js";
+import { renderTemplate } from "../template-engine/interpreter.js";
 
 export function renderSvgView(model, mode, options) {
   const language = options && options.language === "en" ? "en" : "vi";
@@ -63,11 +65,12 @@ function drawSvgItem(svg, item, mode, scale, pad, model) {
   const r = itemProjection(item, mode, scale, pad, model);
   const g = svgEl("g", { class: "ide-item", "data-detail-id": item.id || "" });
 
-  if (item.catalogId) {
-    const spec = getElement(item.catalogId);
-    if (spec && typeof spec.render2D === "function") {
-      spec.render2D({ svg: g, item, r, mode, scale, pad, model });
-      drawItemLabel(g, item, r);
+  if (item._isTemplate && item.tpl) {
+    const template = getTemplate(item.tpl);
+    if (template) {
+      renderTemplate(template, getInstance(item), mode, model.palette).forEach((shape) => {
+        appendTemplateShape(g, shape, r, item);
+      });
       svg.appendChild(g);
       return;
     }
@@ -99,6 +102,45 @@ function drawSvgItem(svg, item, mode, scale, pad, model) {
 
   drawItemLabel(g, item, r);
   svg.appendChild(g);
+}
+
+function appendTemplateShape(g, shape, r, item) {
+  const sx = r.w / Math.max(1, item.width);
+  const sy = r.h / Math.max(1, item.height);
+  const tx = (value) => r.x + value * sx;
+  const ty = (value) => r.y + value * sy;
+  if (shape.type === "line") {
+    g.appendChild(svgEl("line", {
+      x1: tx(shape.x1), y1: ty(shape.y1), x2: tx(shape.x2), y2: ty(shape.y2),
+      stroke: shape.stroke || "#3a3a42",
+      "stroke-width": shape.sw || 1,
+      opacity: shape.opacity == null ? 1 : shape.opacity
+    }));
+    return;
+  }
+  if (shape.type === "text") {
+    const text = svgEl("text", {
+      x: tx(shape.x), y: ty(shape.y),
+      "text-anchor": shape.anchor || "middle",
+      fill: shape.fill || "#51483e",
+      "font-size": shape.fontSize || 10,
+      "font-family": "Arial, Helvetica, sans-serif"
+    });
+    text.textContent = shape.text || "";
+    g.appendChild(text);
+    return;
+  }
+  g.appendChild(svgEl("rect", {
+    x: tx(shape.x || 0),
+    y: ty(shape.y || 0),
+    width: Math.max(1, (shape.w || 0) * sx),
+    height: Math.max(1, (shape.h || 0) * sy),
+    rx: shape.rx || 0,
+    fill: shape.fill || "#c89a62",
+    stroke: shape.stroke || "none",
+    "stroke-width": shape.sw || 1,
+    opacity: shape.opacity == null ? 1 : shape.opacity
+  }));
 }
 
 function drawItemLabel(svg, item, r) {

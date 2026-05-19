@@ -1,13 +1,21 @@
 import { el } from "../core/dom.js";
 import { t, pickLang } from "../core/i18n.js";
 import { allItems } from "../core/model.js";
-import { BoxService } from "../catalog/services/box-service.js";
-import { listElements } from "../catalog/registry.js";
-import { listMaterialPresets } from "../renderers/three/materials.js";
+
+const MATERIAL_PRESETS = ["wood-oak", "wood-walnut", "laminate-white", "laminate-black-matte", "metal-brushed", "metal-black", "glass-smoked", "fabric-linen"];
 
 function findItem(model, id) {
   if (!model || !id) return null;
   return allItems(model).find((item) => item.id === id) || null;
+}
+
+function updateItem(model, id, patch) {
+  const next = structuredClone(model);
+  const update = (items) => (items || []).map((item) => (item.id === id ? Object.assign({}, item, patch) : item));
+  next.modules = update(next.modules);
+  next.details = update(next.details);
+  next.runs = (next.runs || []).map((run) => Object.assign({}, run, { modules: update(run.modules) }));
+  return next;
 }
 
 function numberField(label, value, onChange) {
@@ -77,7 +85,7 @@ export function attachPropertyPanel(options) {
 
   function emitChange(patch) {
     if (!selectedId) return;
-    const { model: next } = BoxService.update(model, selectedId, patch);
+    const next = updateItem(model, selectedId, patch);
     model = next;
     onChange(model, { id: selectedId, patch });
   }
@@ -106,17 +114,10 @@ export function attachPropertyPanel(options) {
     form.appendChild(colorF.wrap);
 
     const materials = [{ value: "", label: t("editor.materialNone", language) }]
-      .concat(listMaterialPresets().map((name) => ({ value: name, label: name })));
+      .concat(MATERIAL_PRESETS.map((name) => ({ value: name, label: name })));
     const matF = selectField(t("editor.fieldMaterial", language), item.materialRef || "", materials, (v) => emitChange({ materialRef: v || null }));
     form.appendChild(matF.wrap);
 
-    const catalogs = [{ value: "", label: t("editor.catalogNone", language) }]
-      .concat(listElements({ prototype: "detail" }).map((spec) => ({
-        value: spec.name,
-        label: language === "vi" ? (spec.info?.titleVi || spec.name) : (spec.info?.titleEn || spec.name)
-      })));
-    const catF = selectField(t("editor.fieldCatalog", language), item.catalogId || "", catalogs, (v) => emitChange({ catalogId: v || null }));
-    form.appendChild(catF.wrap);
     applyReadOnly();
   }
 

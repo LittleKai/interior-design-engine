@@ -1,0 +1,191 @@
+{
+  "id": "upper-glass-2door",
+  "version": 1,
+  "category": "upper-cabinet",
+  "tags": [
+    "glass",
+    "frame",
+    "2-door"
+  ],
+  "description": {
+    "vi": "Tu tren 2 canh kinh",
+    "en": "2-door glass upper cabinet"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 40,
+      "max": 200,
+      "default": 95
+    },
+    "height": {
+      "type": "number",
+      "min": 50,
+      "max": 130,
+      "default": 90
+    },
+    "depth": {
+      "type": "number",
+      "min": 30,
+      "max": 70,
+      "default": 60
+    }
+  },
+  "style": {
+    "handle": {
+      "values": [
+        "bar",
+        "knob"
+      ],
+      "default": "bar"
+    }
+  },
+  "frontSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.5
+    },
+    {
+      "type": "rect",
+      "x": 5,
+      "y": 7,
+      "w": "{{width / 2 - 9}}",
+      "h": "{{height - 14}}",
+      "rx": 2,
+      "fill": "$glass",
+      "stroke": "$glassBorder",
+      "sw": 1
+    },
+    {
+      "type": "rect",
+      "x": "{{width / 2 + 4}}",
+      "y": 7,
+      "w": "{{width / 2 - 9}}",
+      "h": "{{height - 14}}",
+      "rx": 2,
+      "fill": "$glass",
+      "stroke": "$glassBorder",
+      "sw": 1
+    },
+    {
+      "type": "line",
+      "x1": "{{width / 2}}",
+      "y1": 0,
+      "x2": "{{width / 2}}",
+      "y2": "{{height}}",
+      "stroke": "$cabDark",
+      "sw": 1
+    },
+    {
+      "type": "rect",
+      "x": "{{width / 2 - 4}}",
+      "y": "{{height / 2 - 10}}",
+      "w": 2,
+      "h": 20,
+      "rx": 1,
+      "fill": "$handle"
+    },
+    {
+      "type": "rect",
+      "x": "{{width / 2 + 2}}",
+      "y": "{{height / 2 - 10}}",
+      "w": 2,
+      "h": 20,
+      "rx": 1,
+      "fill": "$handle"
+    }
+  ],
+  "sideSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{depth}}",
+      "h": "{{height}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    }
+  ],
+  "planSvg": [
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": "{{width}}",
+      "h": "{{depth}}",
+      "fill": "$cab",
+      "stroke": "$cabDark",
+      "sw": 1.2
+    }
+  ],
+  "isoBoxes": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodFront",
+        "right": "$woodSide",
+        "left": "$woodDark",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": 5,
+      "y": 7,
+      "z": "{{depth - 0.4}}",
+      "w": "{{width / 2 - 9}}",
+      "h": "{{height - 14}}",
+      "d": 0.4,
+      "faces": {
+        "front": "$glass"
+      }
+    },
+    {
+      "x": "{{width / 2 + 4}}",
+      "y": 7,
+      "z": "{{depth - 0.4}}",
+      "w": "{{width / 2 - 9}}",
+      "h": "{{height - 14}}",
+      "d": 0.4,
+      "faces": {
+        "front": "$glass"
+      }
+    },
+    {
+      "x": "{{width / 2 - 5}}",
+      "y": "{{height / 2 - 7}}",
+      "z": "{{depth}}",
+      "w": 1.5,
+      "h": 14,
+      "d": 1.5,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge"
+      }
+    },
+    {
+      "x": "{{width / 2 + 3.5}}",
+      "y": "{{height / 2 - 7}}",
+      "z": "{{depth}}",
+      "w": 1.5,
+      "h": 14,
+      "d": 1.5,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge"
+      }
+    }
+  ]
+}
