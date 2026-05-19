@@ -306,9 +306,13 @@ The engine ships with a lightweight property editor. It is select + edit only â€
 - Edit any field and the model updates instantly. All four tabs re-render together (front/side/plan/3D) so dimensions and the 3D scene stay in sync.
 - Sidebar buttons: **Undo**, **Redo**, **Delete detail**.
 - Keyboard: `Ctrl+Z` undo, `Ctrl+Y` or `Ctrl+Shift+Z` redo, `Delete` removes the selected item, `Escape` clears selection. Keys are ignored while typing in a form field (except `Escape`).
-- History keeps up to 50 snapshots via `structuredClone`. Editing after an undo discards the redo tail.
+- History keeps up to 50 metadata snapshots via `structuredClone`. Each entry has `id`, `timestamp`, `label`, and optional `renderUrl`. Editing after an undo discards the redo tail.
+- The sidebar History panel lists snapshots with thumbnails. Click **Preview** to render an older snapshot without changing the current model; the property panel becomes read-only and keyboard edit shortcuts are ignored. Click **Close** to return to the current model, or **Restore** to move the history pointer to that snapshot.
+- When `generateRender()` returns a `renderUrl`, it calls `options.onRenderComplete(renderUrl, modelSnapshot)` if provided and dispatches `interior:render-complete`; the editor attaches the URL to the current history entry for thumbnail preview.
 
 The editor uses `BoxService.update` / `BoxService.delete` for every mutation, so the model JSON shape stays valid and ready to feed back into `createAiImagePackage()` or `analyzeImage()`.
+
+History UI uses the `history.*` i18n namespace in `src/core/i18n.js`, including `history.relative.minutesAgo` and `history.relative.hoursAgo` interpolation via `t(key, language, vars)`.
 "# interior-design-engine" 
 # interior-design-engine
 # interior-design-engine

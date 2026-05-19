@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thiết Kế Tủ Quần Áo — 276×276 cm</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cabinet: #4a4a52;
+    --cabinet-light: #6b6b75;
+    --cabinet-dark: #2e2e35;
+    --cabinet-edge: #3a3a42;
+    --wood-desk: #f5f0e8;
+    --glass: rgba(180,210,230,0.25);
+    --glass-border: rgba(180,210,230,0.6);
+    --handle: #1a1a1a;
+    --bg: #f2f0eb;
+    --surface: #ffffff;
+    --text: #1c1c1e;
+    --muted: #888;
+    --dim-line: #c0b8a8;
+    --accent: #b8860b;
+    --section-bg: #faf8f5;
+  }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--cabinet-dark);
+    color: #f0ece4;
+    padding: 28px 40px 24px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+
+  header p {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: #a0998e;
+    margin-top: 4px;
+  }
+
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #d4c9b0;
+    padding: 6px 14px;
+    border-radius: 4px;
+    text-align: right;
+    line-height: 1.7;
+  }
+
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid #e0dbd0;
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  nav button {
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 16px 20px 13px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  nav button:hover { color: var(--text); }
+  nav button.active { color: var(--cabinet-dark); border-bottom-color: var(--accent); }
+
+  .view { display: none; padding: 40px; }
+  .view.active { display: block; }
+
+  .view-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--cabinet-dark);
+    margin-bottom: 6px;
+  }
+
+  .view-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .drawing-wrap {
+    background: var(--section-bg);
+    border: 1px solid #e0dbd0;
+    border-radius: 8px;
+    padding: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .spec-card {
+    background: var(--surface);
+    border: 1px solid #e0dbd0;
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+
+  .spec-card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .spec-card .value {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--cabinet-dark);
+  }
+
+  .spec-card .note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* 3D canvas */
+  #canvas3d {
+    width: 100%;
+    height: 540px;
+    border-radius: 6px;
+    cursor: grab;
+    display: block;
+  }
+
+  #canvas3d:active { cursor: grabbing; }
+
+  .ctrl-hint {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* dimension text style in SVG */
+  .dim { font-family: 'DM Mono', monospace; }
+  .label-text { font-family: 'Lato', sans-serif; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Tủ Quần Áo Built-in</h1>
+    <p>Bản vẽ thiết kế — Planning document</p>
+  </div>
+  <div class="badge">
+    Rộng: 276 cm<br>
+    Cao: 276 cm<br>
+    Sâu: 60 cm
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showView('front')">Mặt Đứng</button>
+  <button onclick="showView('top')">Mặt Bằng (Top)</button>
+  <button onclick="showView('open')">Khi Mở Cánh</button>
+  <button onclick="showView('3d')">Phối Cảnh 3D</button>
+</nav>
+
+<!-- ============ FRONT VIEW ============ -->
+<div id="front" class="view active">
+  <div class="view-title">Mặt Đứng — Front Elevation</div>
+  <div class="view-sub">Tỷ lệ 1:20 · Nhìn thẳng từ phía trước</div>
+  <div class="drawing-wrap">
+    <svg id="svgFront" viewBox="0 0 760 580" style="width:100%;max-width:760px" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="a1" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#a09880"/></marker>
+        <marker id="a2" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto"><path d="M7,0 L0,3.5 L7,7 Z" fill="#a09880"/></marker>
+      </defs>
+
+      <text x="20" y="18" font-size="10" fill="#bbb" font-family="DM Mono,monospace">Tỉ lệ đồng nhất 1.52 px/cm · 276×276 cm · 1:20</text>
+
+      <!-- CABINET BACKGROUND 420×420 px (276×276 cm) at (120,60)..(540,480) -->
+      <rect x="120" y="60" width="420" height="420" fill="#e8e4de" stroke="#c8c0b0" stroke-width="1"/>
+
+      <!-- === LEFT UPPER CABINET (95cm × 90cm = 144×137 px): x=120-264, y=60-197 === -->
+      <rect x="120" y="60" width="72" height="137" fill="#4a4a52" stroke="#2e2e35" stroke-width="1.5"/>
+      <rect x="192" y="60" width="72" height="137" fill="#4a4a52" stroke="#2e2e35" stroke-width="1.5"/>
+      <rect x="126" y="68" width="60" height="121" rx="2" fill="#555560" stroke="#3a3a42" stroke-width="1"/>
+      <rect x="131" y="73" width="50" height="111" rx="1" fill="#606070" stroke="#4a4a55" stroke-width="0.5"/>
+      <rect x="183" y="122" width="4" height="18" rx="2" fill="#1a1a1a"/>
+      <rect x="198" y="68" width="60" height="121" rx="2" fill="#555560" stroke="#3a3a42" stroke-width="1"/>
+      <rect x="203" y="73" width="50" height="111" rx="1" fill="#606070" stroke="#4a4a55" stroke-width="0.5"/>
+      <rect x="197" y="122" width="4" height="18" rx="2" fill="#1a1a1a"/>
+
+      <!-- === AC ZONE (86cm × 90cm = 131×137 px): x=264-395, y=60-197 === -->
+      <!-- AC opening (86×58 cm = 131×88 px): y=60-148 -->
+      <rect x="264" y="60" width="131" height="88" fill="#ddd8d0" stroke="#b8b0a0" stroke-width="1" stroke-dasharray="4,3"/>
+      <rect x="268" y="64" width="123" height="80" rx="3" fill="#c8d0d8" stroke="#a0b0b8" stroke-width="1"/>
+      <line x1="268" y1="84" x2="391" y2="84" stroke="#a0b0b8" stroke-width="0.6"/>
+      <line x1="268" y1="104" x2="391" y2="104" stroke="#a0b0b8" stroke-width="0.6"/>
+      <line x1="268" y1="124" x2="391" y2="124" stroke="#a0b0b8" stroke-width="0.6"/>
+      <text x="329" y="100" text-anchor="middle" font-size="9" fill="#607080" font-family="Lato,sans-serif">Máy lạnh</text>
+      <text x="329" y="113" text-anchor="middle" font-size="8" fill="#7090a0" font-family="DM Mono,monospace">86 × 58 cm</text>
+      <!-- Fold-down door (86×32 cm = 131×49 px): y=148-197 -->
+      <rect x="264" y="148" width="131" height="49" fill="#4a4a52" stroke="#2e2e35" stroke-width="1.5"/>
+      <rect x="269" y="151" width="121" height="43" rx="2" fill="#555560" stroke="#3a3a42" stroke-width="1"/>
+      <rect x="273" y="154" width="113" height="37" rx="1" fill="#606070" stroke="#4a4a55" stroke-width="0.5"/>
+      <rect x="274" y="148" width="9" height="6" rx="1" fill="#8888a0"/>
+      <rect x="376" y="148" width="9" height="6" rx="1" fill="#8888a0"/>
+      <rect x="312" y="170" width="35" height="4" rx="2" fill="#1a1a1a"/>
+      <path d="M272,197 Q272,218 329,218 Q387,218 387,197" stroke="#a09880" stroke-width="0.8" fill="none" stroke-dasharray="3,2"/>
+      <text x="329" y="215" text-anchor="middle" font-size="7.5" fill="#a09880" font-family="DM Mono,monospace">cánh lật</text>
+
+      <!-- === RIGHT UPPER CABINET (95cm × 90cm = 145×137 px): x=395-540, y=60-197 === -->
+      <rect x="395" y="60" width="72" height="137" fill="#4a4a52" stroke="#2e2e35" stroke-width="1.5"/>
+      <rect x="467" y="60" width="73" height="137" fill="#4a4a52" stroke="#2e2e35" stroke-width="1.5"/>
+      <rect x="401" y="68" width="60" height="121" rx="2" fill="#555560" stroke="#3a3a42" stroke-width="1"/>
+      <rect x="406" y="73" width="50" height="111" rx="1" fill="#606070" stroke="#4a4a55" stroke-width="0.5"/>
+      <rect x="458" y="122" width="4" height="18" rx="2" fill="#1a1a1a"/>
+      <rect x="473" y="68" width="61" height="121" rx="2" fill="#555560" stroke="#3a3a42" stroke-width="1"/>
+      <rect x="478" y="73" width="51" height="111" rx="1" fill="#606070" stroke="#4a4a55" stroke-width="0.5"/>
+      <rect x="472" y="122" width="4" height="18" rx="2" fill="#1a1a1a"/>
+
+      <!-- === OPEN BOOKSHELVES (138cm × 80cm = 210×122 px): x=120-330, y=197-319 === -->
+      <rect x="120" y="197" width="210" height="122" fill="#4a4a52" stroke="#2e2e35" stroke-width="1.5"/>
+      <!-- Shelf 1 (40cm = 61 px): interior y=200-255 -->
+      <rect x="126" y="200" width="198" height="55" rx="1" fill="#38383e"/>
+      <rect x="131" y="208" width="7" height="45" rx="1" fill="#9060a0" opacity="0.75"/>
+      <rect x="141" y="213" width="7" height="40" rx="1" fill="#6090b0" opacity="0.75"/>
+      <rect x="151" y="210" width="7" height="43" rx="1" fill="#b08050" opacity="0.75"/>
+      <rect x="161" y="215" width="7" height="38" rx="1" fill="#507090" opacity="0.75"/>
+      <rect x="171" y="211" width="7" height="42" rx="1" fill="#806050" opacity="0.75"/>
+      <rect x="181" y="214" width="7" height="39" rx="1" fill="#508060" opacity="0.75"/>
+      <rect x="221" y="213" width="7" height="40" rx="1" fill="#7060a0" opacity="0.65"/>
+      <rect x="231" y="216" width="7" height="37" rx="1" fill="#a07050" opacity="0.65"/>
+      <rect x="241" y="211" width="7" height="42" rx="1" fill="#6080b0" opacity="0.65"/>
+      <rect x="251" y="215" width="7" height="38" rx="1" fill="#b09060" opacity="0.65"/>
+      <rect x="261" y="210" width="7" height="43" rx="1" fill="#908060" opacity="0.65"/>
+      <text x="225" y="250" text-anchor="middle" font-size="8" fill="#8898a8" font-family="DM Mono,monospace">kệ sách 1 (40cm)</text>
+      <!-- Divider -->
+      <rect x="120" y="256" width="210" height="3" fill="#3a3a42" stroke="#2e2e35" stroke-width="1"/>
+      <!-- Shelf 2 (40cm = 61 px): interior y=260-315 -->
+      <rect x="126" y="260" width="198" height="55" rx="1" fill="#38383e"/>
+      <rect x="131" y="268" width="7" height="45" rx="1" fill="#8060b0" opacity="0.75"/>
+      <rect x="141" y="272" width="7" height="41" rx="1" fill="#6090a0" opacity="0.75"/>
+      <rect x="151" y="268" width="7" height="45" rx="1" fill="#a08060" opacity="0.75"/>
+      <rect x="161" y="274" width="7" height="39" rx="1" fill="#407090" opacity="0.75"/>
+      <rect x="171" y="270" width="7" height="43" rx="1" fill="#906050" opacity="0.75"/>
+      <rect x="221" y="271" width="7" height="42" rx="1" fill="#706090" opacity="0.65"/>
+      <rect x="231" y="274" width="7" height="39" rx="1" fill="#b07060" opacity="0.65"/>
+      <rect x="241" y="269" width="7" height="44" rx="1" fill="#608090" opacity="0.65"/>
+      <rect x="251" y="272" width="7" height="41" rx="1" fill="#908060" opacity="0.65"/>
+      <text x="225" y="310" text-anchor="middle" font-size="8" fill="#8898a8" font-family="DM Mono,monospace">kệ sách 2 (40cm)</text>
+
+      <!-- === GAP (138cm × 31cm = 210×47 px): x=120-330, y=319-366 === -->
+      <rect x="120" y="319" width="210" height="47" fill="#e0dcd6" stroke="#c8c0b0" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <text x="225" y="346" text-anchor="middle" font-size="9" fill="#bbb" font-family="DM Mono,monospace">khoảng trống</text>
+
+      <!-- Desk surface at y=366 -->
+      <rect x="120" y="366" width="210" height="5" fill="#e8e0cc" stroke="#c8b88a" stroke-width="1.2"/>
+      <text x="225" y="362" text-anchor="middle" font-size="9" fill="#888" font-family="Lato,sans-serif">Mặt bàn làm việc</text>
+      <!-- Below desk (138cm × 75cm = 210×114 px, minus 5 desk = 109): y=371-480 -->
+      <rect x="120" y="371" width="210" height="109" fill="#e0dcd6" stroke="none"/>
+      <text x="225" y="428" text-anchor="middle" font-size="9" fill="#bbb" font-family="DM Mono,monospace">khoảng trống bên dưới bàn</text>
+
+      <!-- === MAIN WARDROBE — Sliding doors (138cm × 186cm = 210×283 px): x=330-540, y=197-480 === -->
+      <rect x="330" y="197" width="210" height="283" fill="#4a4a52" stroke="#2e2e35" stroke-width="1.5"/>
+      <rect x="330" y="197" width="210" height="7" fill="#2a2a2e" stroke="#1a1a1e" stroke-width="0.5"/>
+      <rect x="330" y="473" width="210" height="7" fill="#2a2a2e" stroke="#1a1a1e" stroke-width="0.5"/>
+      <rect x="332" y="204" width="107" height="269" rx="1" fill="#606070" stroke="#3a3a42" stroke-width="1"/>
+      <rect x="336" y="208" width="99" height="261" rx="1" fill="#6a6a78" stroke="#4a4a55" stroke-width="0.3"/>
+      <rect x="431" y="204" width="107" height="269" rx="1" fill="#555560" stroke="#3a3a42" stroke-width="1"/>
+      <rect x="435" y="208" width="99" height="261" rx="1" fill="#5e5e6a" stroke="#4a4a55" stroke-width="0.3"/>
+      <rect x="431" y="204" width="8" height="269" fill="#000" opacity="0.25"/>
+      <rect x="337" y="322" width="2.5" height="35" rx="1" fill="#1a1a1a"/>
+      <rect x="530" y="322" width="2.5" height="35" rx="1" fill="#1a1a1a"/>
+      <g opacity="0.7">
+        <line x1="370" y1="435" x2="410" y2="435" stroke="#c0b8a8" stroke-width="1" marker-end="url(#a1)"/>
+        <line x1="500" y1="435" x2="460" y2="435" stroke="#c0b8a8" stroke-width="1" marker-end="url(#a2)"/>
+      </g>
+      <text x="435" y="453" text-anchor="middle" font-size="8" fill="#c0b8a8" font-family="DM Mono,monospace">cửa kéo ngang</text>
+
+      <!-- Crown & Base -->
+      <rect x="118" y="56" width="424" height="6" fill="#3a3a42" rx="1"/>
+      <rect x="118" y="478" width="424" height="6" fill="#3a3a42" rx="1"/>
+
+      <!-- === DIMENSIONS === -->
+      <!-- Top width breakdown at y=47 -->
+      <line x1="120" y1="47" x2="264" y2="47" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="192" y="43" text-anchor="middle" font-size="8.5" fill="#a09880" font-family="DM Mono,monospace">95 cm</text>
+      <line x1="264" y1="47" x2="395" y2="47" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="329" y="43" text-anchor="middle" font-size="8.5" fill="#607080" font-family="DM Mono,monospace">86 cm (máy lạnh)</text>
+      <line x1="395" y1="47" x2="540" y2="47" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="467" y="43" text-anchor="middle" font-size="8.5" fill="#a09880" font-family="DM Mono,monospace">95 cm</text>
+
+      <!-- Bottom: section widths 138/138 at y=494 + total 276 at y=508 -->
+      <line x1="120" y1="494" x2="330" y2="494" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="225" y="491" text-anchor="middle" font-size="9.5" fill="#a09880" font-family="DM Mono,monospace">138 cm</text>
+      <line x1="330" y1="494" x2="540" y2="494" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="435" y="491" text-anchor="middle" font-size="9.5" fill="#a09880" font-family="DM Mono,monospace">138 cm</text>
+      <line x1="120" y1="508" x2="540" y2="508" stroke="#a09880" stroke-width="0.8" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <rect x="295" y="500" width="70" height="16" fill="#f2f0eb"/>
+      <text x="330" y="512" text-anchor="middle" font-size="11" fill="#4a4050" font-family="DM Mono,monospace" font-weight="500">276 cm</text>
+
+      <!-- Right side vertical total 276 at x=588 -->
+      <line x1="588" y1="60" x2="588" y2="480" stroke="#a09880" stroke-width="0.8" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <rect x="596" y="262" width="54" height="16" fill="#f2f0eb"/>
+      <text x="623" y="274" text-anchor="middle" font-size="11" fill="#4a4050" font-family="DM Mono,monospace" font-weight="500">276 cm</text>
+
+      <!-- Right side sub-dims at x=558 -->
+      <line x1="558" y1="60" x2="558" y2="197" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="573" y="131" text-anchor="middle" font-size="9" fill="#a09880" font-family="DM Mono,monospace">90 cm</text>
+      <line x1="558" y1="197" x2="558" y2="319" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="573" y="256" text-anchor="middle" font-size="9" fill="#a09880" font-family="DM Mono,monospace">80 cm</text>
+      <text x="573" y="267" text-anchor="middle" font-size="7.5" fill="#a09880" font-family="DM Mono,monospace">(kệ sách)</text>
+      <line x1="558" y1="319" x2="558" y2="366" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="573" y="345" text-anchor="middle" font-size="8" fill="#a09880" font-family="DM Mono,monospace">31 cm</text>
+      <line x1="558" y1="366" x2="558" y2="480" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="573" y="425" text-anchor="middle" font-size="9" fill="#a09880" font-family="DM Mono,monospace">75 cm</text>
+
+      <!-- Desk height callout left (y=366 to y=480 = 75cm) -->
+      <line x1="108" y1="366" x2="120" y2="366" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="108" y1="480" x2="120" y2="480" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="108" y1="366" x2="108" y2="480" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#a2)" marker-end="url(#a1)"/>
+      <text x="103" y="425" text-anchor="end" font-size="9" fill="#a09880" font-family="DM Mono,monospace">75 cm</text>
+
+      <!-- Zone labels top -->
+      <text x="225" y="30" text-anchor="middle" font-size="11" fill="#6a6460" font-family="Lato,sans-serif" font-weight="700" letter-spacing="1">KHU LÀM VIỆC</text>
+      <text x="435" y="30" text-anchor="middle" font-size="11" fill="#6a6460" font-family="Lato,sans-serif" font-weight="700" letter-spacing="1">TỦ QUẦN ÁO</text>
+
+      <!-- Center line -->
+      <line x1="330" y1="60" x2="330" y2="484" stroke="#c0b8a8" stroke-width="0.7" stroke-dasharray="4,3"/>
+
+      <!-- Floor line -->
+      <line x1="100" y1="480" x2="560" y2="480" stroke="#888" stroke-width="0.5" stroke-dasharray="6,4"/>
+      <text x="572" y="482" font-size="9" fill="#aaa" font-family="DM Mono,monospace">±0.00</text>
+    </svg>
+  </div>
+
+  <div class="specs-grid">
+    <div class="spec-card"><div class="label">Tổng chiều rộng</div><div class="value">276 cm</div><div class="note">Khu làm việc 138 + Tủ áo 138</div></div>
+    <div class="spec-card"><div class="label">Tổng chiều cao</div><div class="value">276 cm</div><div class="note">Tủ trên 90 + Giữa 143 + Đế 43</div></div>
+    <div class="spec-card"><div class="label">Chiều sâu tủ áo</div><div class="value">60 cm</div><div class="note">Đủ để treo áo ngang</div></div>
+    <div class="spec-card"><div class="label">Chiều sâu bàn làm việc</div><div class="value">55 cm</div><div class="note">Tiêu chuẩn ergonomic</div></div>
+    <div class="spec-card"><div class="label">Cao mặt bàn</div><div class="value">75 cm</div><div class="note">Chuẩn quốc tế ISO — bên dưới để trống</div></div>
+    <div class="spec-card"><div class="label">Không gian máy lạnh</div><div class="value">86 × 58 cm</div><div class="note">Cách trái 95cm, cách phải 95cm</div></div>
+    <div class="spec-card"><div class="label">Kệ sách mở</div><div class="value">2 × 40 cm</div><div class="note">2 ngăn bằng nhau, rộng 138cm</div></div>
+  </div>
+</div>
+
+<!-- ============ TOP VIEW ============ -->
+<div id="top" class="view">
+  <div class="view-title">Mặt Bằng — Top / Plan View</div>
+  <div class="view-sub">Cắt ngang tại độ cao 1.2m · Nhìn từ trên xuống</div>
+  <div class="drawing-wrap">
+    <svg viewBox="0 0 680 300" style="width:100%;max-width:680px" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="b1" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#a09880"/></marker>
+        <marker id="b2" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto"><path d="M7,0 L0,3.5 L7,7 Z" fill="#a09880"/></marker>
+      </defs>
+
+      <text x="20" y="18" font-size="10" fill="#bbb" font-family="DM Mono,monospace">Tỉ lệ đồng nhất 1.52 px/cm</text>
+
+      <!-- WALL at y=62, 8px thick -->
+      <rect x="100" y="62" width="420" height="8" fill="#888" stroke="#555" stroke-width="1"/>
+      <text x="310" y="69" text-anchor="middle" font-size="9" fill="#eee" font-family="DM Mono,monospace">TƯỜNG</text>
+
+      <!-- LEFT ZONE (work area) 138×55cm = 210×84 px: x=100-310, y=70-154 -->
+      <rect x="100" y="70" width="210" height="84" fill="#f5f0e8" stroke="#c8b88a" stroke-width="0.8"/>
+      <!-- Bookshelf strip (35cm deep = 53 px): y=70-123 -->
+      <rect x="100" y="70" width="210" height="53" fill="#4a4a52" stroke="#2e2e35" stroke-width="1"/>
+      <text x="205" y="98" text-anchor="middle" font-size="9" fill="#d0cfc8" font-family="Lato,sans-serif">Kệ sách mở (sâu 35cm)</text>
+      <line x1="100" y1="123" x2="310" y2="123" stroke="#8a8070" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <text x="205" y="142" text-anchor="middle" font-size="9" fill="#888" font-family="Lato,sans-serif">Mặt bàn (sâu 55cm)</text>
+
+      <!-- RIGHT ZONE (wardrobe) 138×60cm = 210×91 px: x=310-520, y=70-161 -->
+      <rect x="310" y="70" width="210" height="91" fill="#4a4a52" stroke="#2e2e35" stroke-width="1.5"/>
+      <rect x="310" y="70" width="210" height="6" fill="#3a3a42"/>
+      <text x="415" y="120" text-anchor="middle" font-size="10" fill="#c0c0c8" font-family="Lato,sans-serif">Tủ áo (sâu 60cm)</text>
+      <line x1="415" y1="76" x2="415" y2="161" stroke="#5a5a64" stroke-width="0.8" stroke-dasharray="3,2"/>
+      <text x="362" y="150" text-anchor="middle" font-size="8" fill="#8888a0" font-family="DM Mono,monospace">hang space</text>
+      <text x="468" y="150" text-anchor="middle" font-size="8" fill="#8888a0" font-family="DM Mono,monospace">hang space</text>
+      <line x1="320" y1="100" x2="410" y2="100" stroke="#888890" stroke-width="2" stroke-dasharray="2,2"/>
+      <line x1="420" y1="100" x2="510" y2="100" stroke="#888890" stroke-width="2" stroke-dasharray="2,2"/>
+      <text x="365" y="98" text-anchor="middle" font-size="7.5" fill="#8888a0" font-family="DM Mono,monospace">thanh treo</text>
+      <text x="465" y="98" text-anchor="middle" font-size="7.5" fill="#8888a0" font-family="DM Mono,monospace">thanh treo</text>
+
+      <!-- Floor line at y=161 (front of wardrobe) -->
+      <line x1="100" y1="161" x2="520" y2="161" stroke="#888" stroke-width="0.8" stroke-dasharray="5,4"/>
+
+      <!-- Chair suggestion -->
+      <ellipse cx="205" cy="210" rx="34" ry="34" fill="none" stroke="#c8c0b0" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="205" y="214" text-anchor="middle" font-size="9" fill="#bbb" font-family="Lato,sans-serif">ghế</text>
+      <text x="310" y="260" text-anchor="middle" font-size="10" fill="#bbb" font-family="Lato,sans-serif">— Không gian phòng ngủ —</text>
+
+      <!-- Horizontal dimensions: sections 138/138 at y=180, total 276 at y=192 -->
+      <line x1="100" y1="180" x2="310" y2="180" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#b2)" marker-end="url(#b1)"/>
+      <text x="205" y="176" text-anchor="middle" font-size="9" fill="#a09880" font-family="DM Mono,monospace">138 cm</text>
+      <line x1="310" y1="180" x2="520" y2="180" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#b2)" marker-end="url(#b1)"/>
+      <text x="415" y="176" text-anchor="middle" font-size="9" fill="#a09880" font-family="DM Mono,monospace">138 cm</text>
+      <line x1="100" y1="192" x2="520" y2="192" stroke="#a09880" stroke-width="0.8" marker-start="url(#b2)" marker-end="url(#b1)"/>
+      <rect x="278" y="184" width="64" height="15" fill="#f2f0eb"/>
+      <text x="310" y="196" text-anchor="middle" font-size="11" fill="#4a4050" font-family="DM Mono,monospace" font-weight="500">276 cm</text>
+
+      <!-- Vertical depth dims -->
+      <line x1="535" y1="70" x2="535" y2="161" stroke="#a09880" stroke-width="0.8" marker-start="url(#b2)" marker-end="url(#b1)"/>
+      <text x="560" y="114" text-anchor="middle" font-size="9.5" fill="#4a4050" font-family="DM Mono,monospace">60 cm</text>
+      <text x="560" y="126" text-anchor="middle" font-size="8" fill="#a09880" font-family="DM Mono,monospace">(tủ áo)</text>
+      <line x1="80" y1="70" x2="80" y2="154" stroke="#a09880" stroke-width="0.8" marker-start="url(#b2)" marker-end="url(#b1)"/>
+      <text x="55" y="110" text-anchor="middle" font-size="9.5" fill="#4a4050" font-family="DM Mono,monospace">55 cm</text>
+      <text x="55" y="122" text-anchor="middle" font-size="8" fill="#a09880" font-family="DM Mono,monospace">(bàn)</text>
+
+      <!-- Labels -->
+      <text x="205" y="55" text-anchor="middle" font-size="11" fill="#6a6460" font-family="Lato,sans-serif" font-weight="700" letter-spacing="1">KHU LÀM VIỆC</text>
+      <text x="415" y="55" text-anchor="middle" font-size="11" fill="#6a6460" font-family="Lato,sans-serif" font-weight="700" letter-spacing="1">TỦ QUẦN ÁO</text>
+    </svg>
+  </div>
+  <div class="specs-grid">
+    <div class="spec-card"><div class="label">Footprint tổng</div><div class="value">276 × 60 cm</div><div class="note">Diện tích chiếm dụng sàn</div></div>
+    <div class="spec-card"><div class="label">Sâu kệ sách / tủ trên</div><div class="value">35 cm</div><div class="note">Phần nhô ra phía trước bàn</div></div>
+    <div class="spec-card"><div class="label">Thanh treo quần áo</div><div class="value">2 thanh × 120 cm</div><div class="note">Bên trong mỗi cánh tủ áo</div></div>
+  </div>
+</div>
+
+<!-- ============ OPEN DOOR VIEW ============ -->
+<div id="open" class="view">
+  <div class="view-title">Khi Mở Cánh — Interior Elevation</div>
+  <div class="view-sub">Nội thất bên trong toàn bộ tủ · Nhìn thẳng từ phía trước khi mở hết cánh</div>
+  <div class="drawing-wrap">
+    <svg viewBox="0 0 740 680" style="width:100%;max-width:740px" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="c1" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#a09880"/></marker>
+        <marker id="c2" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto"><path d="M7,0 L0,3.5 L7,7 Z" fill="#a09880"/></marker>
+      </defs>
+
+      <text x="20" y="18" font-size="10" fill="#bbb" font-family="DM Mono,monospace">Tỉ lệ đồng nhất 2.0 px/cm · 276×276 cm</text>
+
+      <!-- Cabinet 552×552 px (276×276 cm) at (80,40)..(632,592) -->
+      <rect x="80" y="40" width="552" height="552" fill="#d8d5cf" stroke="#b8b0a0" stroke-width="1"/>
+
+      <!-- ===== UPPER ZONE y=40-220 (180px = 90cm) ===== -->
+      <!-- Left upper cab 95cm=190px: x=80-270 -->
+      <rect x="80" y="40" width="190" height="180" fill="#3a3a42" stroke="#2e2e35" stroke-width="1"/>
+      <line x1="82" y1="130" x2="268" y2="130" stroke="#55555e" stroke-width="1.5"/>
+      <text x="85" y="126" font-size="9" fill="#c0c0c8" font-family="DM Mono,monospace">kệ trên</text>
+      <rect x="92" y="60" width="30" height="50" rx="1" fill="#7070a0" opacity="0.5"/>
+      <rect x="128" y="66" width="28" height="44" rx="1" fill="#a07050" opacity="0.5"/>
+      <rect x="168" y="58" width="20" height="52" rx="1" fill="#808060" opacity="0.4"/>
+      <rect x="194" y="64" width="18" height="46" rx="1" fill="#607050" opacity="0.4"/>
+      <rect x="220" y="60" width="26" height="50" rx="1" fill="#908878" opacity="0.45"/>
+      <!-- compartment heights (45cm = 90px) -->
+      <rect x="92" y="170" width="34" height="12" fill="#f2f0eb"/>
+      <text x="109" y="179" text-anchor="middle" font-size="8" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">45 cm</text>
+      <rect x="92" y="80" width="34" height="12" fill="#f2f0eb"/>
+      <text x="109" y="89" text-anchor="middle" font-size="8" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">45 cm</text>
+
+      <!-- AC zone 86cm=172px: x=270-442. AC opening 58cm=116px (y=40-156), fold door 32cm=64px (y=156-220) -->
+      <rect x="270" y="40" width="172" height="116" fill="#b8c8d0" stroke="#a0b0b8" stroke-width="1"/>
+      <rect x="286" y="56" width="140" height="86" rx="4" fill="#e8ecf0" stroke="#a0b0b8" stroke-width="0.8"/>
+      <line x1="286" y1="76" x2="426" y2="76" stroke="#c0ccd4" stroke-width="0.6"/>
+      <line x1="286" y1="96" x2="426" y2="96" stroke="#c0ccd4" stroke-width="0.6"/>
+      <line x1="286" y1="116" x2="426" y2="116" stroke="#c0ccd4" stroke-width="0.6"/>
+      <text x="356" y="100" text-anchor="middle" font-size="10" fill="#607080" font-family="Lato,sans-serif">Máy lạnh</text>
+      <text x="356" y="114" text-anchor="middle" font-size="8" fill="#7090a0" font-family="DM Mono,monospace">86 × 58 cm</text>
+      <!-- Fold-down door -->
+      <rect x="270" y="156" width="172" height="64" fill="#4a4a52" stroke="#2e2e35" stroke-width="1"/>
+      <rect x="274" y="159" width="164" height="58" rx="1" fill="#555560" stroke="#3a3a42" stroke-width="0.8"/>
+      <rect x="278" y="156" width="9" height="6" rx="1" fill="#8888a0"/>
+      <rect x="425" y="156" width="9" height="6" rx="1" fill="#8888a0"/>
+      <rect x="336" y="184" width="40" height="5" rx="2" fill="#1a1a1a"/>
+      <path d="M275,220 Q275,248 356,248 Q437,248 437,220" stroke="#a09880" stroke-width="0.7" fill="none" stroke-dasharray="3,2"/>
+      <text x="356" y="260" text-anchor="middle" font-size="8" fill="#a09880" font-family="DM Mono,monospace">cánh lật xuống</text>
+
+      <!-- Right upper cab 95cm=190px: x=442-632 -->
+      <rect x="442" y="40" width="190" height="180" fill="#3a3a42" stroke="#2e2e35" stroke-width="1"/>
+      <line x1="444" y1="130" x2="630" y2="130" stroke="#55555e" stroke-width="1.5"/>
+      <text x="447" y="126" font-size="9" fill="#c0c0c8" font-family="DM Mono,monospace">kệ trên (chăn / vali)</text>
+      <rect x="454" y="58" width="58" height="50" rx="2" fill="#808098" opacity="0.5"/>
+      <rect x="520" y="62" width="50" height="46" rx="2" fill="#706860" opacity="0.5"/>
+      <rect x="578" y="58" width="48" height="50" rx="2" fill="#908878" opacity="0.5"/>
+      <text x="483" y="86" text-anchor="middle" font-size="8" fill="#c0c0c8" font-family="Lato,sans-serif">vali</text>
+      <text x="602" y="86" text-anchor="middle" font-size="8" fill="#c0c0c8" font-family="Lato,sans-serif">hộp</text>
+      <rect x="454" y="170" width="34" height="12" fill="#f2f0eb"/>
+      <text x="471" y="179" text-anchor="middle" font-size="8" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">45 cm</text>
+      <rect x="454" y="80" width="34" height="12" fill="#f2f0eb"/>
+      <text x="471" y="89" text-anchor="middle" font-size="8" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">45 cm</text>
+
+      <!-- ===== LEFT BOOKSHELVES y=220-380 (160px=80cm), x=80-356 (276px=138cm) ===== -->
+      <rect x="80" y="220" width="276" height="160" fill="#3a3a42" stroke="#2e2e35" stroke-width="1"/>
+      <!-- Shelf 1 (40cm=80px): y=222-298 interior -->
+      <rect x="84" y="222" width="268" height="76" rx="1" fill="#38383e"/>
+      <rect x="94" y="234" width="8" height="60" rx="1" fill="#9060a0" opacity="0.8"/>
+      <rect x="106" y="238" width="8" height="56" rx="1" fill="#6090b0" opacity="0.8"/>
+      <rect x="118" y="234" width="8" height="60" rx="1" fill="#b08050" opacity="0.8"/>
+      <rect x="130" y="240" width="8" height="54" rx="1" fill="#507090" opacity="0.8"/>
+      <rect x="142" y="236" width="8" height="58" rx="1" fill="#806050" opacity="0.8"/>
+      <rect x="200" y="238" width="8" height="56" rx="1" fill="#7060a0" opacity="0.7"/>
+      <rect x="212" y="241" width="8" height="53" rx="1" fill="#a07050" opacity="0.7"/>
+      <rect x="224" y="236" width="8" height="58" rx="1" fill="#6080b0" opacity="0.7"/>
+      <rect x="290" y="236" width="8" height="58" rx="1" fill="#908060" opacity="0.7"/>
+      <rect x="302" y="240" width="8" height="54" rx="1" fill="#7080a0" opacity="0.7"/>
+      <rect x="314" y="236" width="8" height="58" rx="1" fill="#b07060" opacity="0.7"/>
+      <text x="218" y="290" text-anchor="middle" font-size="9" fill="#8898a8" font-family="DM Mono,monospace">kệ sách 1</text>
+      <rect x="148" y="258" width="30" height="12" fill="#f2f0eb"/>
+      <text x="163" y="267" text-anchor="middle" font-size="8" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">40 cm</text>
+      <!-- Divider y=298-302 -->
+      <rect x="80" y="298" width="276" height="4" fill="#2e2e35"/>
+      <!-- Shelf 2 (40cm=80px): y=302-378 interior -->
+      <rect x="84" y="302" width="268" height="76" rx="1" fill="#38383e"/>
+      <rect x="94" y="316" width="8" height="58" rx="1" fill="#8060b0" opacity="0.8"/>
+      <rect x="106" y="320" width="8" height="54" rx="1" fill="#6090a0" opacity="0.8"/>
+      <rect x="118" y="316" width="8" height="58" rx="1" fill="#a08060" opacity="0.8"/>
+      <rect x="130" y="322" width="8" height="52" rx="1" fill="#407090" opacity="0.8"/>
+      <rect x="142" y="318" width="8" height="56" rx="1" fill="#906050" opacity="0.8"/>
+      <rect x="200" y="320" width="8" height="54" rx="1" fill="#706090" opacity="0.7"/>
+      <rect x="212" y="324" width="8" height="50" rx="1" fill="#b07060" opacity="0.7"/>
+      <rect x="224" y="319" width="8" height="55" rx="1" fill="#608090" opacity="0.7"/>
+      <rect x="290" y="319" width="8" height="55" rx="1" fill="#808070" opacity="0.7"/>
+      <rect x="302" y="322" width="8" height="52" rx="1" fill="#a06080" opacity="0.7"/>
+      <text x="218" y="370" text-anchor="middle" font-size="9" fill="#8898a8" font-family="DM Mono,monospace">kệ sách 2</text>
+      <rect x="148" y="336" width="30" height="12" fill="#f2f0eb"/>
+      <text x="163" y="345" text-anchor="middle" font-size="8" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">40 cm</text>
+
+      <!-- ===== LEFT GAP y=380-442 (62px=31cm) + Desk + Below desk ===== -->
+      <rect x="80" y="380" width="276" height="62" fill="#c8c5c0" stroke="none"/>
+      <rect x="186" y="392" width="76" height="50" rx="2" fill="#222" opacity="0.65"/>
+      <rect x="216" y="442" width="20" height="3" fill="#333" opacity="0.7"/>
+      <rect x="96" y="400" width="42" height="42" rx="1" fill="#d4c090" opacity="0.6"/>
+      <text x="290" y="418" text-anchor="middle" font-size="9" fill="#a09880" font-family="DM Mono,monospace">khoảng trống 31cm</text>
+      <!-- Desk surface at y=442 -->
+      <rect x="80" y="442" width="276" height="4" fill="#e8e0cc" stroke="#c8b88a" stroke-width="1"/>
+      <!-- Below desk (75cm=150px): y=446-592 (146px usable) -->
+      <rect x="80" y="446" width="276" height="146" fill="#d0cdc8" stroke="none"/>
+      <text x="218" y="520" text-anchor="middle" font-size="10" fill="#bbb" font-family="DM Mono,monospace">khoảng trống bên dưới bàn</text>
+
+      <!-- ===== MAIN WARDROBE INTERIOR y=220-506 (286px=143cm), x=356-632 (276px=138cm) ===== -->
+      <rect x="356" y="220" width="276" height="286" fill="#38383e" stroke="#2e2e35" stroke-width="1"/>
+      <!-- Center divider at x=494 -->
+      <line x1="494" y1="222" x2="494" y2="504" stroke="#4a4a52" stroke-width="2"/>
+
+      <!-- LEFT half: short hang rod 90cm=180px (y=224-404 clothes) -->
+      <line x1="366" y1="230" x2="490" y2="230" stroke="#d4a820" stroke-width="3"/>
+      <circle cx="370" cy="230" r="2.5" fill="#d4a820"/>
+      <circle cx="486" cy="230" r="2.5" fill="#d4a820"/>
+      <text x="428" y="226" text-anchor="middle" font-size="9" fill="#e0c040" font-family="DM Mono,monospace" font-weight="700">thanh treo ngắn</text>
+      <path d="M382,236 Q382,322 376,408 L388,408 Q386,322 388,236Z" fill="#4a6fa5" opacity="0.95"/>
+      <path d="M396,236 Q396,326 391,410 L403,410 Q401,326 402,236Z" fill="#a84560" opacity="0.95"/>
+      <path d="M410,236 Q410,322 405,408 L417,408 Q415,322 416,236Z" fill="#5a8a3f" opacity="0.95"/>
+      <path d="M424,236 Q424,326 419,410 L431,410 Q429,326 430,236Z" fill="#b87030" opacity="0.95"/>
+      <path d="M438,236 Q438,322 433,408 L445,408 Q443,322 444,236Z" fill="#3d5a7a" opacity="0.95"/>
+      <path d="M452,236 Q452,326 447,410 L459,410 Q457,326 458,236Z" fill="#8a3f6a" opacity="0.95"/>
+      <path d="M466,236 Q466,322 461,408 L473,408 Q471,322 472,236Z" fill="#6a5a3a" opacity="0.95"/>
+      <!-- Shelves: divider y=410-413 (3px), shelf 1 y=413-453 (40px), divider y=453-456, shelf 2 y=456-504 -->
+      <!-- Adjusted to clean 50px shelves: shelf 1 y=410-460, shelf 2 y=463-504 -->
+      <rect x="358" y="410" width="134" height="3" fill="#6a5a40"/>
+      <rect x="358" y="456" width="134" height="3" fill="#6a5a40"/>
+      <text x="425" y="436" text-anchor="middle" font-size="10" fill="#f0e0a0" font-family="DM Mono,monospace" font-weight="700">gấp áo</text>
+      <text x="425" y="484" text-anchor="middle" font-size="10" fill="#f0e0a0" font-family="DM Mono,monospace" font-weight="700">phụ kiện</text>
+
+      <!-- RIGHT half: long hang rod 140cm=280px (y=224-504) -->
+      <line x1="498" y1="230" x2="624" y2="230" stroke="#d4a820" stroke-width="3"/>
+      <circle cx="502" cy="230" r="2.5" fill="#d4a820"/>
+      <circle cx="620" cy="230" r="2.5" fill="#d4a820"/>
+      <text x="561" y="226" text-anchor="middle" font-size="9" fill="#e0c040" font-family="DM Mono,monospace" font-weight="700">thanh treo dài</text>
+      <path d="M506,236 Q506,370 500,502 L512,502 Q509,370 511,236Z" fill="#4a6fa5" opacity="0.95"/>
+      <path d="M522,236 Q522,368 517,500 L529,500 Q526,368 528,236Z" fill="#a84560" opacity="0.95"/>
+      <path d="M538,236 Q538,370 533,502 L545,502 Q542,370 544,236Z" fill="#5a8a3f" opacity="0.95"/>
+      <path d="M554,236 Q554,368 549,500 L561,500 Q558,368 560,236Z" fill="#b87030" opacity="0.95"/>
+      <path d="M570,236 Q570,370 565,502 L577,502 Q574,370 576,236Z" fill="#3d5a7a" opacity="0.95"/>
+      <path d="M586,236 Q586,368 581,500 L593,500 Q590,368 592,236Z" fill="#8a3f6a" opacity="0.95"/>
+      <path d="M602,236 Q602,370 597,502 L609,502 Q606,370 608,236Z" fill="#6a5a3a" opacity="0.95"/>
+
+      <!-- ===== DIM LABELS for wardrobe compartments (at x=644) ===== -->
+      <!-- Short hang 90cm (y=224-404 = 180px = 90cm) -->
+      <line x1="640" y1="224" x2="652" y2="224" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="640" y1="404" x2="652" y2="404" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="644" y1="224" x2="644" y2="404" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <rect x="626" y="307" width="36" height="14" fill="#f2f0eb"/>
+      <text x="644" y="317" text-anchor="middle" font-size="9" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">90 cm</text>
+      <!-- Shelf 1: 25cm=50px (y=410-460) -->
+      <line x1="494" y1="410" x2="506" y2="410" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="494" y1="456" x2="506" y2="456" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="498" y1="410" x2="498" y2="456" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <rect x="481" y="427" width="30" height="13" fill="#f2f0eb"/>
+      <text x="496" y="437" text-anchor="middle" font-size="8" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">25 cm</text>
+      <!-- Shelf 2: 25cm=50px (y=456-504) -->
+      <line x1="494" y1="456" x2="506" y2="456" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="494" y1="504" x2="506" y2="504" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="498" y1="456" x2="498" y2="504" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <rect x="481" y="473" width="30" height="13" fill="#f2f0eb"/>
+      <text x="496" y="483" text-anchor="middle" font-size="8" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">25 cm</text>
+      <!-- Long hang total: 140cm=280px (y=224-504) -->
+      <line x1="640" y1="504" x2="652" y2="504" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="658" y1="224" x2="658" y2="504" stroke="#c0b8a8" stroke-width="0.9" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <rect x="664" y="356" width="40" height="14" fill="#f2f0eb"/>
+      <text x="684" y="366" text-anchor="middle" font-size="9.5" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">140 cm</text>
+      <text x="684" y="378" text-anchor="middle" font-size="7.5" fill="#888" font-family="DM Mono,monospace">treo dài</text>
+      <!-- Ngăn dưới kệ giày: 43cm=86px (y=506-592) -->
+      <line x1="640" y1="592" x2="652" y2="592" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="644" y1="506" x2="644" y2="592" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <rect x="626" y="541" width="36" height="13" fill="#f2f0eb"/>
+      <text x="644" y="551" text-anchor="middle" font-size="8.5" fill="#4a4050" font-family="DM Mono,monospace" font-weight="700">43 cm</text>
+      <text x="644" y="561" text-anchor="middle" font-size="7" fill="#888" font-family="DM Mono,monospace">kệ giày</text>
+
+      <!-- ===== FLOOR BOTTOM ZONE y=506-592 (86px=43cm) ===== -->
+      <rect x="356" y="506" width="276" height="86" fill="#4a4a52" stroke="#2e2e35" stroke-width="1"/>
+      <text x="494" y="552" text-anchor="middle" font-size="10" fill="#8888a0" font-family="Lato,sans-serif">Ngăn dưới — kệ giày</text>
+      <line x1="494" y1="508" x2="494" y2="590" stroke="#55555e" stroke-width="1"/>
+
+      <!-- FLOOR LINE -->
+      <line x1="70" y1="592" x2="642" y2="592" stroke="#888" stroke-width="0.6" stroke-dasharray="5,4"/>
+      <text x="654" y="595" font-size="9" fill="#aaa" font-family="DM Mono,monospace">±0.00</text>
+
+      <!-- Total width 276 at y=616 -->
+      <line x1="80" y1="616" x2="632" y2="616" stroke="#a09880" stroke-width="0.8" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <rect x="320" y="608" width="72" height="15" fill="#f2f0eb"/>
+      <text x="356" y="620" text-anchor="middle" font-size="11" fill="#4a4050" font-family="DM Mono,monospace" font-weight="500">276 cm</text>
+
+      <!-- Total height 276 at x=716 -->
+      <line x1="716" y1="40" x2="716" y2="592" stroke="#a09880" stroke-width="0.8" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <text x="726" y="316" text-anchor="middle" font-size="11" fill="#4a4050" font-family="DM Mono,monospace" font-weight="500" transform="rotate(90,726,316)">276 cm</text>
+
+      <!-- Left side height breakdown at x=68 -->
+      <line x1="68" y1="40" x2="80" y2="40" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="68" y1="220" x2="80" y2="220" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="68" y1="40" x2="68" y2="220" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <text x="63" y="133" text-anchor="end" font-size="9" fill="#a09880" font-family="DM Mono,monospace">90 cm</text>
+
+      <line x1="68" y1="380" x2="80" y2="380" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="68" y1="220" x2="68" y2="380" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <text x="63" y="303" text-anchor="end" font-size="9" fill="#a09880" font-family="DM Mono,monospace">80 cm</text>
+
+      <line x1="68" y1="442" x2="80" y2="442" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="68" y1="380" x2="68" y2="442" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <text x="63" y="414" text-anchor="end" font-size="8" fill="#a09880" font-family="DM Mono,monospace">31 cm</text>
+
+      <line x1="68" y1="592" x2="80" y2="592" stroke="#c0b8a8" stroke-width="0.7"/>
+      <line x1="68" y1="442" x2="68" y2="592" stroke="#c0b8a8" stroke-width="0.7" marker-start="url(#c2)" marker-end="url(#c1)"/>
+      <text x="63" y="519" text-anchor="end" font-size="9" fill="#a09880" font-family="DM Mono,monospace">75 cm</text>
+
+      <!-- Section labels -->
+      <text x="218" y="32" text-anchor="middle" font-size="11" fill="#6a6460" font-family="Lato,sans-serif" font-weight="700" letter-spacing="1">KHU LÀM VIỆC</text>
+      <text x="494" y="32" text-anchor="middle" font-size="11" fill="#6a6460" font-family="Lato,sans-serif" font-weight="700" letter-spacing="1">TỦ QUẦN ÁO</text>
+
+      <text x="425" y="604" text-anchor="middle" font-size="9" fill="#9898a8" font-family="DM Mono,monospace">Áo ngắn + kệ gấp</text>
+      <text x="561" y="604" text-anchor="middle" font-size="9" fill="#9898a8" font-family="DM Mono,monospace">Áo dài / váy treo</text>
+    </svg>
+  </div>
+  <div class="specs-grid">
+    <div class="spec-card"><div class="label">Thanh treo dài</div><div class="value">140 cm clearance</div><div class="note">Cho áo dài, váy, áo khoác dài</div></div>
+    <div class="spec-card"><div class="label">Thanh treo ngắn</div><div class="value">90 cm clearance</div><div class="note">Cho áo sơ mi, áo thun, quần gấp</div></div>
+    <div class="spec-card"><div class="label">Kệ gấp đồ</div><div class="value">2 × 25 cm</div><div class="note">Gấp áo + phụ kiện</div></div>
+    <div class="spec-card"><div class="label">Ngăn dưới kệ giày</div><div class="value">41 cm</div><div class="note">Hạ thấp để tăng chỗ treo áo dài</div></div>
+    <div class="spec-card"><div class="label">Kệ trên (upper)</div><div class="value">2 × 120 cm</div><div class="note">Vali, chăn, hộp</div></div>
+    <div class="spec-card"><div class="label">Kệ sách mở</div><div class="value">2 × 40 cm</div><div class="note">2 ngăn bằng nhau, cách mặt bàn 31cm</div></div>
+  </div>
+</div>
+
+<!-- ============ 3D VIEW ============ -->
+<div id="3d" class="view">
+  <div class="view-title">Phối Cảnh 3D</div>
+  <div class="view-sub">Kéo chuột để xoay · Cuộn để zoom · Tỷ lệ 1:20</div>
+  <div class="drawing-wrap" style="padding: 0; overflow: hidden; border-radius:8px;">
+    <canvas id="canvas3d"></canvas>
+  </div>
+  <p class="ctrl-hint">Drag để xoay — Scroll để zoom — Double-click để reset góc nhìn</p>
+  <div class="specs-grid" style="margin-top:20px">
+    <div class="spec-card"><div class="label">Tay nắm</div><div class="value">Inox đen mờ</div><div class="note">Dài 160mm, ốc M5</div></div>
+    <div class="spec-card"><div class="label">Cánh lật máy lạnh</div><div class="value">86 cm rộng</div><div class="note">Bản lề trên, lật xuống</div></div>
+  </div>
+</div>
+
+<script>
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (id === '3d') initCanvas();
+}
+
+let canvas3dInited = false;
+function initCanvas() {
+  if (canvas3dInited) return;
+  canvas3dInited = true;
+
+  const canvas = document.getElementById('canvas3d');
+  canvas.width = canvas.parentElement.offsetWidth;
+  canvas.height = 540;
+  const ctx = canvas.getContext('2d');
+
+  // Scale: 1cm = 1.5px for display
+  const S = 1.5;
+  // Dimensions in cm
+  const W = 276, H = 276, D = 60;
+  // Left zone width (work) and right zone width (wardrobe)
+  const WL = 138, WR = 138;
+  // Desk depth (main) and L-return dimensions
+  const DD = 55;
+  const L_RETURN_LEN = 130; // L-extension length forward from wall (longer)
+  const L_RETURN_W = 55;    // width of L-return
+  // Pivot — default view: from L-return foot looking back toward cabinet
+  let rotY = 3, rotX = 0;
+  const MIRROR_X = -1; // horizontal mirror (kept as-is)
+  let zoom = 1;
+  let isDragging = false, lastX, lastY;
+
+  function project(x, y, z) {
+    // Simple isometric-style with rotation
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+    const x2 = x * cosY + z * sinY;
+    const z2 = -x * sinY + z * cosY;
+    const y2 = y * cosX - z2 * sinX;
+    const z3 = y * sinX + z2 * cosX;
+    const fov = 600 * zoom;
+    const scale = fov / (fov + z3 + 400);
+    const cx = canvas.width / 2, cy = canvas.height / 2;
+    return [cx + MIRROR_X * x2 * S * scale, cy - y2 * S * scale + 20, scale];
+  }
+
+  function face(pts, fill, stroke, lw) {
+    ctx.beginPath();
+    const [px, py] = project(...pts[0]);
+    ctx.moveTo(px, py);
+    for (let i = 1; i < pts.length; i++) {
+      const [qx, qy] = project(...pts[i]);
+      ctx.lineTo(qx, qy);
+    }
+    ctx.closePath();
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 0.8; ctx.stroke(); }
+  }
+
+  function drawBox(x0, y0, z0, w, h, d, colors) {
+    // colors: {top, front, right, left, bottom}
+    const x1 = x0+w, y1 = y0+h, z1 = z0+d;
+    // Bottom
+    if (colors.bottom) face([[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]], colors.bottom, '#2e2e35', 0.5);
+    // Back
+    if (colors.back) face([[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0]], colors.back, '#2e2e35', 0.5);
+    // Left
+    if (colors.left) face([[x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0]], colors.left, '#2e2e35', 0.5);
+    // Right
+    if (colors.right) face([[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]], colors.right, '#2e2e35', 0.5);
+    // Front
+    if (colors.front) face([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]], colors.front, '#2e2e35', 0.5);
+    // Top
+    if (colors.top) face([[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]], colors.top, '#2e2e35', 0.5);
+  }
+
+  // Wood color palette (warm oak / walnut tones)
+  const woodFront = '#c9986b';   // door face light oak
+  const woodFrontL = '#d8a97a';  // lit side
+  const woodTop = '#b8875e';     // top surface
+  const woodSide = '#9a6b44';    // side panels
+  const woodDark = '#6b4423';    // dark edge
+  const woodBack = '#7a5a3a';    // back
+  const deskTop = '#e8c89a';     // desk surface (lighter oak)
+  const deskEdge = '#b8875e';    // desk edge
+  const deskSide = '#9a6b44';
+  // Aliases (kept for compat)
+  const cab = woodFront, cabL = woodFrontL, cabD = woodDark;
+  const cabTop = woodTop, cabR = woodSide;
+  const desk = deskEdge;
+
+  function drawScene() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#f2f0eb';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Origin: bottom-left-front of cabinet
+    // X: left→right (width 276), Y: bottom→top (height 276), Z: back→front (depth 60)
+    // Center the cabinet
+    const ox = -W/2, oy = -H/2, oz = -D/2;
+
+    // Shared constants
+    const UD = 35;                      // bookshelf depth 35cm (upper cabinets use full D=60cm)
+    const WL_LEFT = 95;                 // left upper cab width (cm)
+    const WL_AC = 86;                   // AC opening width (cm)
+    const WR_RIGHT = 95;                // right upper cab width (cm)
+    const SHELF_H = 80;                 // book shelf height (cm)
+    const DESK_Y = 75;                  // desk surface height from floor
+    const UP_Y = H - 90;                // upper zone bottom y
+
+    // === DESK MAIN (against wall, 138cm wide × 55cm deep) ===
+    drawBox(ox, oy+DESK_Y-3, oz, WL, 3, DD, {top: deskTop, front: deskEdge, right: deskSide, left: deskSide, back: woodBack});
+    // Desk left leg panel
+    drawBox(ox, oy, oz+DD-3, 3, DESK_Y-3, 3, {front: deskSide, left: woodDark, right: deskSide, top: deskEdge});
+    // === DESK L-RETURN (perpendicular, extends forward from left end into room) ===
+    // Return: from left edge forward (+z direction), sitting at same height
+    const lrZ0 = oz + DD;               // start at front edge of main desk
+    drawBox(ox, oy+DESK_Y-3, lrZ0, L_RETURN_W, 3, L_RETURN_LEN, {top: deskTop, front: deskEdge, right: deskSide, left: deskSide, back: deskEdge});
+    // Return leg (small support at far end)
+    drawBox(ox+L_RETURN_W-3, oy, lrZ0+L_RETURN_LEN-3, 3, DESK_Y-3, 3, {front: deskSide, left: woodDark, right: deskSide, top: deskEdge});
+
+    // === LEFT UPPER CABINET (95cm, 2 doors) — full depth D (60cm) ===
+    drawBox(ox, oy+UP_Y, oz, WL_LEFT, 90, D, {top: cabTop, front: woodFront, right: woodSide, left: woodDark, back: woodBack});
+    // Door insets (visual relief)
+    drawBox(ox+2, oy+UP_Y+2, oz+D-0.5, WL_LEFT/2-3, 86, 0.5, {front: woodFrontL});
+    drawBox(ox+WL_LEFT/2+1, oy+UP_Y+2, oz+D-0.5, WL_LEFT/2-3, 86, 0.5, {front: woodFrontL});
+    // Door handles (vertical bars, inner edges meeting at center)
+    drawBox(ox+WL_LEFT/2-5, oy+UP_Y+40, oz+D, 1.5, 14, 1.5, {front: '#1a1a1a', top: '#2a2a2a', right: '#1a1a1a', left: '#1a1a1a'});
+    drawBox(ox+WL_LEFT/2+3.5, oy+UP_Y+40, oz+D, 1.5, 14, 1.5, {front: '#1a1a1a', top: '#2a2a2a', right: '#1a1a1a', left: '#1a1a1a'});
+
+    // === AC ZONE (86cm wide, straddles center) — full depth D (60cm) ===
+    const acX = ox + WL_LEFT;
+    // AC opening recess (58cm high, top portion)
+    drawBox(acX, oy+UP_Y+32, oz, WL_AC, 58, D, {top: '#e0e4e8', front: '#d4dce2', right: '#b8c0c8', left: '#b8c0c8', back: '#8898a4'});
+    // AC unit inside recess (mounted near back wall of recess)
+    drawBox(acX+5, oy+UP_Y+38, oz+6, WL_AC-10, 46, 18, {top: '#f4f4f0', front: '#f0f0ec', right: '#d8d8d4', left: '#d8d8d4', back: '#c0c0bc'});
+    // Fold-down door below AC (32cm high)
+    drawBox(acX, oy+UP_Y, oz, WL_AC, 32, D, {top: cabTop, front: woodFront, right: woodSide, left: woodSide, back: woodBack});
+    drawBox(acX+2, oy+UP_Y+2, oz+D-0.5, WL_AC-4, 28, 0.5, {front: woodFrontL});
+    // Fold-door handle (horizontal bar centered)
+    drawBox(acX+WL_AC/2-10, oy+UP_Y+14, oz+D, 20, 1.5, 1.5, {front: '#1a1a1a', top: '#2a2a2a', bottom: '#1a1a1a'});
+
+    // === RIGHT UPPER CABINET (95cm, 2 doors) — uses full depth D ===
+    const rightUX = ox + WL_LEFT + WL_AC;
+    drawBox(rightUX, oy+UP_Y, oz, WR_RIGHT, 90, D, {top: cabTop, front: woodFront, right: woodSide, left: woodDark, back: woodBack});
+    drawBox(rightUX+2, oy+UP_Y+2, oz+D-0.5, WR_RIGHT/2-3, 86, 0.5, {front: woodFrontL});
+    drawBox(rightUX+WR_RIGHT/2+1, oy+UP_Y+2, oz+D-0.5, WR_RIGHT/2-3, 86, 0.5, {front: woodFrontL});
+    drawBox(rightUX+WR_RIGHT/2-5, oy+UP_Y+40, oz+D, 1.5, 14, 1.5, {front: '#1a1a1a', top: '#2a2a2a', right: '#1a1a1a', left: '#1a1a1a'});
+    drawBox(rightUX+WR_RIGHT/2+3.5, oy+UP_Y+40, oz+D, 1.5, 14, 1.5, {front: '#1a1a1a', top: '#2a2a2a', right: '#1a1a1a', left: '#1a1a1a'});
+
+    // === LEFT ZONE OPEN BOOK SHELVES (80cm, 2 open shelves, no door) ===
+    const SHELF_Y = UP_Y - SHELF_H;
+    drawBox(ox, oy+SHELF_Y, oz, WL, SHELF_H, UD, {top: cabTop, right: woodSide, left: woodDark, back: woodBack});
+    // Shelf divider panel at midpoint
+    drawBox(ox+1, oy+SHELF_Y+SHELF_H/2-1, oz+1, WL-2, 2, UD-2, {top: cabTop, front: woodFrontL, bottom: woodDark});
+    // Bottom panel of shelf frame
+    drawBox(ox+1, oy+SHELF_Y, oz+1, WL-2, 2, UD-2, {top: cabTop, bottom: woodDark});
+
+    // === MAIN WARDROBE BODY (right zone, height H-90) — sliding doors ===
+    const MH = H - 90;
+    drawBox(ox+WL, oy, oz, WR, MH, D, {top: cabTop, front: woodBack, right: woodSide, left: woodDark, back: woodBack});
+    // Top rail (sliding track)
+    drawBox(ox+WL, oy+MH-3, oz+D-3, WR, 3, 3, {top: woodDark, front: woodDark, bottom: '#2a2a2a'});
+    // Bottom rail
+    drawBox(ox+WL, oy, oz+D-3, WR, 2, 3, {top: '#2a2a2a', front: woodDark});
+    // Sliding door LEFT (mounted on FRONT track, z = oz+D-1.5)
+    drawBox(ox+WL+1, oy+2, oz+D-1.5, WR/2-1, MH-5, 1.5, {front: woodFrontL, right: woodSide, left: woodDark, top: woodTop});
+    // Sliding door RIGHT (mounted on BACK track, z = oz+D-3)
+    drawBox(ox+WL+WR/2, oy+2, oz+D-3, WR/2-1, MH-5, 1.5, {front: woodFront, right: woodSide, left: woodDark, top: woodTop});
+    // Recessed finger-pull handles on OUTER edges of each sliding door
+    // (sliding doors pull to the sides past each other, so handles are on outer edges)
+    // Left slider: handle near its left edge
+    drawBox(ox+WL+5, oy+MH/2-25, oz+D-1.0, 2, 50, 1.2, {front: '#1a1a1a', right: '#0a0a0a', top: '#2a2a2a', bottom: '#0a0a0a'});
+    // Inner shadow to give recessed look
+    drawBox(ox+WL+4.5, oy+MH/2-25, oz+D-0.4, 3, 50, 0.4, {front: '#0a0a0a'});
+    // Right slider: handle near its right edge
+    drawBox(ox+WL+WR-7, oy+MH/2-25, oz+D-2.5, 2, 50, 1.2, {front: '#1a1a1a', left: '#0a0a0a', top: '#2a2a2a', bottom: '#0a0a0a'});
+    drawBox(ox+WL+WR-7.5, oy+MH/2-25, oz+D-1.9, 3, 50, 0.4, {front: '#0a0a0a'});
+
+    // === CROWN MOLDING & BASE ===
+    drawBox(ox-1, oy+H-2, oz-1, W+2, 3, D+2, {top: woodDark, front: woodDark, right: woodDark, left: woodDark});
+    drawBox(ox, oy-1, oz, W, 3, D, {front: woodDark, top: woodDark});
+
+    // === DIMENSION LABELS ===
+    ctx.save();
+    ctx.font = '500 11px "DM Mono", monospace';
+    ctx.fillStyle = '#4a4050';
+
+    function labelBetween(p1, p2, text) {
+      const [x1,y1] = project(...p1);
+      const [x2,y2] = project(...p2);
+      const mx = (x1+x2)/2, my = (y1+y2)/2;
+      ctx.save();
+      ctx.fillStyle = 'rgba(242,240,235,0.85)';
+      const tw = ctx.measureText(text).width;
+      ctx.fillRect(mx - tw/2 - 4, my - 8, tw + 8, 16);
+      ctx.fillStyle = '#4a4050';
+      ctx.textAlign = 'center';
+      ctx.fillText(text, mx, my + 4);
+      ctx.restore();
+      // dim line
+      ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+      ctx.strokeStyle = '#a09880'; ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+
+    labelBetween([ox, oy-8, oz+D/2], [ox+W, oy-8, oz+D/2], '276 cm');
+    labelBetween([ox+W+6, oy, oz+D/2], [ox+W+6, oy+H, oz+D/2], '276 cm');
+    labelBetween([ox+W+4, oy, oz], [ox+W+4, oy, oz+D], '60 cm');
+
+    ctx.restore();
+  }
+
+  drawScene();
+
+  canvas.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; });
+  canvas.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    rotY += (e.clientX - lastX) * 0.008;
+    rotX += (e.clientY - lastY) * 0.006;
+    rotX = Math.max(-0.6, Math.min(0.7, rotX));
+    lastX = e.clientX; lastY = e.clientY;
+    drawScene();
+  });
+  canvas.addEventListener('mouseup', () => isDragging = false);
+  canvas.addEventListener('mouseleave', () => isDragging = false);
+  canvas.addEventListener('wheel', e => {
+    zoom *= e.deltaY > 0 ? 0.93 : 1.07;
+    zoom = Math.max(0.4, Math.min(2.5, zoom));
+    drawScene(); e.preventDefault();
+  }, { passive: false });
+  canvas.addEventListener('dblclick', () => { rotY = -0.4; rotX = 0.28; zoom = 1; drawScene(); });
+
+  // Touch support
+  let lastTouchX, lastTouchY;
+  canvas.addEventListener('touchstart', e => { lastTouchX = e.touches[0].clientX; lastTouchY = e.touches[0].clientY; });
+  canvas.addEventListener('touchmove', e => {
+    rotY += (e.touches[0].clientX - lastTouchX) * 0.008;
+    rotX += (e.touches[0].clientY - lastTouchY) * 0.006;
+    rotX = Math.max(-0.6, Math.min(0.7, rotX));
+    lastTouchX = e.touches[0].clientX; lastTouchY = e.touches[0].clientY;
+    drawScene(); e.preventDefault();
+  }, { passive: false });
+}
+
+window.addEventListener('resize', () => {
+  if (canvas3dInited) { canvas3dInited = false; initCanvas(); }
+});
+</script>
+</body>
+</html>

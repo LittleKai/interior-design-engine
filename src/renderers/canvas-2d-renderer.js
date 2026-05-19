@@ -79,7 +79,7 @@ export function render3d(model) {
     ctx.fillStyle = "#f6f1e8";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    allItems(model)
+    allItems(model, "3d")
       .filter((item) => isVisible(item, "3d"))
       .slice()
       .sort((a, b) => (a.layer || 0) - (b.layer || 0))
@@ -188,7 +188,7 @@ export function renderStatic3dCanvas(model, width, height, view) {
 
   ctx.fillStyle = "#f6f1e8";
   ctx.fillRect(0, 0, width, height);
-  allItems(model)
+  allItems(model, "3d")
     .filter((item) => isVisible(item, "3d"))
     .slice()
     .sort((a, b) => (a.layer || 0) - (b.layer || 0))

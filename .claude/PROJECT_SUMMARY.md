@@ -1,7 +1,7 @@
 # Project Summary
 
-**Last Updated:** 2026-05-18 17:10:00 +07:00
-**Session:** #15 — Phase 7 CSG hints
+**Last Updated:** 2026-05-18 22:55:00 +07:00
+**Session:** #19 — Phase 10 review: resolveRunCoord absolute-x fix (multi-module L-shape)
 
 ---
 
@@ -11,7 +11,7 @@
 - **Tech Stack:** HTML, CSS, JavaScript, SVG, Canvas 2D.
 - **Package Manager:** None (no build tool; sẽ thêm importmap cho Three.js ở Phase 3).
 - **i18n:** Hiện đang phân tán trong code; Phase 1 sẽ centralize vào `src/core/i18n.js` (vi/en).
-- **State Management:** In-memory JavaScript model object với `modules`, `details`, `specs`.
+- **State Management:** In-memory JavaScript model object với `runs`, `modules`, `details`, `specs`. Legacy top-level `modules[]` is normalized into a default east run.
 - **Styling:** Plain CSS với prefix `ide-`.
 - **Deployment:** Mở `.claude/tu_quan_ao_engine_demo.html` trực tiếp trong browser, serve folder statically, hoặc dùng bản copy ở `alpha-studio/public/interior-design/` được serve qua `/studio/interior-design`.
 
@@ -73,7 +73,8 @@ tools/interior-design-engine/
 │   │   ├── index.js                   ← enableEditor: orchestrates selection + property panel + history + keyboard
 │   │   ├── selection.js               ← enableSelection/setSelected/clearSelected — data-detail-id click delegation
 │   │   ├── property-panel.js          ← attachPropertyPanel — name/x/y/z/w/h/d/color/material/catalog form
-│   │   ├── history.js                 ← History class, structuredClone, max 50 snapshots
+│   │   ├── history.js                 ← History class, structuredClone, max 50 metadata snapshots
+│   │   ├── history-panel.js           ← Phase 9 snapshot timeline with preview/restore controls
 │   │   └── keyboard.js                ← bindEditorKeyboard — Ctrl+Z/Y, Delete, Escape; ignores typing targets
 │   └── ui/
 │       ├── main-renderer.js           ← mount3dTab: WebGL detect → ThreeRenderer hoặc Canvas 2D fallback
@@ -152,8 +153,11 @@ No router. In-page tab buttons.
 |---------|--------|----------------|-------|
 | Shared model rendering | Done | `interior-design-engine.js`, demo HTML | Front/side/plan/3D/specs derive từ một model. |
 | Front/side/plan tabs | Done | `interior-design-engine.js` | SVG views từ model bounds. |
-| 3D photoreal renderer | Done | `src/renderers/three-renderer.js`, `src/renderers/three/*.js`, `src/ui/main-renderer.js`, `interior-design-engine.css` | Three.js 0.169.0, PerspectiveCamera fov=45 + OrthographicCamera toggle, shadows default OFF with toolbar toggle, PCFSoftShadowMap when enabled, ACESFilmicToneMapping, OrbitControls (damping), 8 PBR preset, RoundedBoxGeometry cho panel, LatheGeometry cho knob, CylinderGeometry cho rod, CSS2DRenderer dimension labels (toggle), Canvas 2D fallback khi WebGL không khả dụng hoặc `?renderer=canvas`. Vendor offline fallback ở `alpha-studio/public/vendor/three/` qua dynamic importmap. |
+| 3D photoreal renderer | Done | `src/renderers/three-renderer.js`, `src/renderers/three/*.js`, `src/ui/main-renderer.js`, `interior-design-engine.css` | Three.js 0.169.0, PerspectiveCamera fov=45 + OrthographicCamera toggle, shadows default OFF with toolbar toggle, PCFSoftShadowMap when enabled, ACESFilmicToneMapping, OrbitControls (damping), 8 PBR preset, RoundedBoxGeometry cho panel, LatheGeometry cho knob, CylinderGeometry cho rod, CSS2DRenderer dimension labels (toggle), Canvas 2D fallback khi WebGL không khả dụng hoặc `?renderer=canvas`. Phase 10 widens directional shadow bounds to ±600cm/far 2000 and reduces bias to keep large/L-shaped cabinets shadowed. Vendor offline fallback ở `alpha-studio/public/vendor/three/` qua dynamic importmap. |
 | CSG hint rendering | Done | `src/renderers/three/csg-service.js`, `src/renderers/three-renderer.js`, schema JSON, demo HTML | Phase 7 adds optional `csgHints[]` per item. Whitelist supports `roundCorner:<corner>:<radius>`, `drawerCutout:<edge>:<size>`, and `glassCutout:<x>:<y>:<w>:<h>`. Unknown hints warn and keep rendering. Vendor deps: `three-bvh-csg@0.0.17` + `three-mesh-bvh@0.8.3` under `alpha-studio/public/vendor/`. |
+| Multi-run layouts | Done | `src/core/model.js`, `src/renderers/svg-renderer.js`, `src/renderers/three-renderer.js`, `src/renderers/three/dimensions.js`, schema JSON | Phase 8 adds top-level `runs[]` with `{id, origin:{x,z}, direction, modules}` for L/U/island/galley layouts. `normalizeModel()` converts legacy `modules[]` into `runs:[default]`, resolves run modules to absolute coordinates, plan/3D render all runs, and front/side render the first run plus absolute details. |
+| History preview panel | Done | `src/editor/history.js`, `src/editor/history-panel.js`, `src/editor/index.js`, `src/editor/property-panel.js`, `src/core/i18n.js`, `src/ai/image-analyzer.js`, CSS | Phase 9 stores snapshot metadata (`id`, `timestamp`, `label`, optional `renderUrl`), renders a sidebar timeline, supports non-destructive preview mode with read-only properties and disabled edit shortcuts, restores snapshots explicitly, and attaches `generateRender()` URLs as thumbnails. |
+| Solid material opacity guard | Done | `src/renderers/three/materials.js`, public mirror | Phase 10 forces solid body presets (`wood-*`, laminate, metal, fabric) to opaque when AI/legacy JSON sets `opacity < 1`, while preserving glass and void transparency. |
 | AI image export package | Done | `interior-design-engine.js`, `.css`, demo HTML | Exports reference PNGs, EN/VI prompt files, hướng dẫn VN, model JSON. |
 | Export options panel | Done | `interior-design-engine.js`, `.css`, demo HTML | Preset VN, design direction, EN/VI prompt, copy EN prompt. |
 | Design direction workflow | Done | `interior-design-engine.js`, workflow MD, README, AI instructions | 3 directions built-in + intake checklist. |
@@ -165,7 +169,7 @@ No router. In-page tab buttons.
 | ES module refactor | Done | `src/core/*`, `src/renderers/*`, `src/ai/*`, `src/ui/*`, `src/index.js`, `importmap.json` | Monolith 1174 dòng đã split. `interior-design-engine.js` giờ là 4-dòng shim re-export `./src/index.js`. Demo HTML + shell.html dùng `<script type="module">`. i18n centralize tại `src/core/i18n.js` (vi + en). |
 | Catalog registry | Done | `src/catalog/registry.js`, `src/catalog/index.js`, `src/catalog/elements/*.js`, `src/catalog/services/box-service.js` | 8 element built-in: door-shaker, door-flat, drawer-front, handle-bar, handle-knob, rod-hanging, shelf-fixed, void-cavity. Registry API: `registerElement`, `getElement`, `listElements`, `factoryElement`. BoxService: create/update/delete/intersect/contains. SVG renderer auto-delegate khi item có `catalogId`; reviewModel cảnh báo khi `catalogId` không tồn tại. JSON schema mở rộng `catalogId` + `props`. |
 | Gemini image-to-design pipeline | Done | `src/ai/image-analyzer.js`, `src/ui/upload-panel.js`, `src/ui/compare-slider.js`, `src/core/model.js`, backend `routes/interior.js` (+/analyze-image, +/generate-render), `middleware/interiorQuota.js`, models `InteriorAnalysis`/`InteriorRender`/`InteriorQuota` | Frontend: `analyzeImage(file, opts)` resize ≤1600px → presigned B2 upload → POST /analyze-image. Debug console logs are gated by `?debug=1` or `localStorage.ide:debug=1`; unsupported schema requests log as `[ide:ai] unsupported:`. `normalizeModel()` records `_validationWarnings` for invalid void/glass material semantics. Compare-slider web component (pointer drag + clip-path). Upload panel with drop zone + hints textarea + status. Backend: analyze flow has 24h cache via sha256(imageUrl+hints), robust JSON extraction before repair loop, repair loop max 2 retries, Gemini Flash 3 default → Pro 3.1 escalate when hints contain "complex" or override="pro". AI may return `meta.unsupportedRequests[]` for unsupported schema requests and is instructed not to misuse `glass-smoked` / `kind:"void"`. Generate-render endpoint validates modelJson, uploads viewBase64 to `interior-design/conditioning/`, persists InteriorRender record. **Image-gen upstream not yet wired** — returns conditioning URL as renderUrl placeholder + meta.pending=true. Rate limit 5/24h/user via `interiorQuotaCheck` middleware (bypass for admin/mod, disable via `INTERIOR_QUOTA_ENABLED=false`). |
-| Simple property editor | Done | `src/editor/{index,selection,property-panel,history,keyboard}.js`, `src/renderers/svg-renderer.js` (g-wrapper with `data-detail-id`), `interior-design-engine.css` (`.ide-selected`, `.ide-editor-*`, `.ide-prop-*`) | `InteriorDesigner.enableEditor({mount, model, language, onChange})` orchestrates click-to-select on front/side/plan SVG views + sidebar property form (label, x/y/z, w/h/d, color, material preset dropdown, catalog id dropdown). Every edit goes through `BoxService.update` → re-render all tabs → push `structuredClone` snapshot into `History` (max 50). Keyboard: Ctrl+Z undo, Ctrl+Y/Ctrl+Shift+Z redo, Delete remove selected (via `BoxService.delete`), Escape clear selection. Sidebar buttons mirror keyboard actions. Backward compat: items render unchanged when editor not mounted. |
+| Simple property editor | Done | `src/editor/{index,selection,property-panel,history,history-panel,keyboard}.js`, `src/renderers/svg-renderer.js` (g-wrapper with `data-detail-id`), `interior-design-engine.css` (`.ide-selected`, `.ide-editor-*`, `.ide-prop-*`, `.ide-history-*`) | `InteriorDesigner.enableEditor({mount, model, language, onChange})` orchestrates click-to-select on front/side/plan SVG views + sidebar property form (label, x/y/z, w/h/d, color, material preset dropdown, catalog id dropdown). Every edit goes through `BoxService.update` → re-render all tabs → push metadata snapshot into `History` (max 50). Keyboard: Ctrl+Z undo, Ctrl+Y/Ctrl+Shift+Z redo, Delete remove selected (via `BoxService.delete`), Escape clear selection or closes preview. Sidebar includes undo/redo/delete plus Phase 9 History preview/restore panel. Backward compat: items render unchanged when editor not mounted. |
 
 ---
 
@@ -185,6 +189,9 @@ No router. In-page tab buttons.
 - [x] Phase 5: Simple property editor — completed 2026-05-18 session #12.
 - [x] Phase 6: Quick wins — shadow toggle i18n, void/glass transparency guards, `_validationWarnings`, robust AI JSON extraction, unsupported request anchoring, gated console debug logs — completed 2026-05-18 session #14.
 - [x] Phase 7: CSG integration — `csgHints[]` schema/normalizer, `csg-service.js`, ThreeRenderer wiring, vendor `three-bvh-csg`, demo fixture, and AI instructions — completed 2026-05-18 session #15.
+- [x] Phase 8: Multi-run schema — top-level `runs[]`, `resolveRunCoord`, plan/3D multi-run rendering, backend validator/prompt, and docs — completed 2026-05-18 session #16.
+- [x] Phase 9: History panel with thumbnail preview — metadata snapshots, non-destructive preview, explicit restore, read-only property panel, render thumbnail attachment, and docs — completed 2026-05-18 session #17.
+- [x] Phase 10: Nhóm A bug fixes — solid material opacity guard, larger shadow camera bounds, demo opacity fixture, and backend prompt updates for `/chat` dimensions/runs/z-axis — completed 2026-05-18 session #18.
 - [ ] Wire actual image-generation upstream (Imagen/Gemini Image API) so `/generate-render` returns real AI-render URL instead of conditioning URL.
 - [ ] Add browser UI for pasting/validating AI-generated model JSON before rendering.
 

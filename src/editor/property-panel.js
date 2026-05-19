@@ -62,6 +62,7 @@ export function attachPropertyPanel(options) {
 
   let model = options.model;
   let selectedId = null;
+  let readOnly = false;
 
   const panel = el("aside", { class: "ide-prop-panel" });
   const header = el("h3", { class: "ide-prop-title", text: t("editor.title", language) });
@@ -116,6 +117,14 @@ export function attachPropertyPanel(options) {
       })));
     const catF = selectField(t("editor.fieldCatalog", language), item.catalogId || "", catalogs, (v) => emitChange({ catalogId: v || null }));
     form.appendChild(catF.wrap);
+    applyReadOnly();
+  }
+
+  function applyReadOnly() {
+    form.classList.toggle("ide-prop-form--readonly", readOnly);
+    form.querySelectorAll("input, select").forEach((field) => {
+      field.disabled = readOnly;
+    });
   }
 
   function showSelected(id) {
@@ -139,6 +148,10 @@ export function attachPropertyPanel(options) {
       if ((!opts || opts.rebuild !== false) && selectedId) showSelected(selectedId);
     },
     setSelected(id) { showSelected(id); },
+    setReadOnly(value) {
+      readOnly = Boolean(value);
+      applyReadOnly();
+    },
     getSelected() { return selectedId; },
     destroy() { panel.remove(); }
   };

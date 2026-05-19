@@ -37,7 +37,7 @@ export function renderSvgView(model, mode, options) {
     "stroke-width": 1
   }));
 
-  allItems(model)
+  allItems(model, mode)
     .filter((item) => isVisible(item, mode))
     .slice()
     .sort((a, b) => (a.layer || 0) - (b.layer || 0))

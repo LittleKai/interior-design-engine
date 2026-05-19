@@ -436,6 +436,7 @@
 }
 
 .ide-editor-canvas {
+  position: relative;
   min-width: 0;
 }
 
@@ -480,6 +481,110 @@
   border-color: #e1b8af;
 }
 
+.ide-preview-banner {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #d3c8b9;
+  border-radius: 8px;
+  background: #26302c;
+  color: #fbf6ec;
+  font: 700 13px/1 Arial, Helvetica, sans-serif;
+  box-shadow: 0 8px 18px rgba(35, 28, 20, 0.14);
+}
+
+.ide-preview-banner span {
+  margin-right: auto;
+}
+
+.ide-history-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ide-history-title {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6d746f;
+}
+
+.ide-history-empty {
+  margin: 0;
+  color: #6d746f;
+  font-size: 13px;
+}
+
+.ide-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 340px;
+  overflow: auto;
+}
+
+.ide-history-card {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #e4dccf;
+  border-radius: 8px;
+  background: #fbf8f1;
+}
+
+.ide-history-thumb {
+  grid-row: span 2;
+  width: 70px;
+  height: 48px;
+  border-radius: 5px;
+  object-fit: cover;
+  background: #f4f1eb;
+}
+
+.ide-history-meta {
+  min-width: 0;
+}
+
+.ide-history-time,
+.ide-history-badge {
+  display: inline-block;
+  color: #6d746f;
+  font-size: 11px;
+}
+
+.ide-history-label {
+  display: block;
+  overflow: hidden;
+  color: #26302c;
+  font-size: 12px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ide-history-badge {
+  margin-top: 4px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: #e5f1e8;
+  color: #1e5b34;
+  font-weight: 700;
+}
+
+.ide-history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .ide-prop-panel {
   display: flex;
   flex-direction: column;
@@ -504,6 +609,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.ide-prop-form--readonly {
+  opacity: 0.7;
 }
 
 .ide-prop-row {

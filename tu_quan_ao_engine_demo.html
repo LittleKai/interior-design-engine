@@ -21,6 +21,7 @@
   <div id="design-review"></div>
   <div id="ai-export"></div>
   <div id="upload"></div>
+  <div id="editor"></div>
 
   <script type="module" src="./interior-design-engine.js?v=20260518"></script>
   <script type="module">
@@ -646,6 +647,61 @@
         ]
       };
 
+    const lShapeRunsFixture = {
+      title: "Fixture tủ chữ L với runs",
+      subtitle: "Dùng để kiểm tra schema runs[] Phase 8",
+      units: "cm",
+      width: 300,
+      height: 240,
+      depth: 220,
+      materials: { board: "#c9986b" },
+      runs: [
+        {
+          id: "main",
+          origin: { x: 0, z: 0 },
+          direction: "east",
+          modules: [
+            { id: "main-base", type: "base-run", x: 0, y: 0, z: 0, width: 300, height: 90, depth: 60, color: "#c9986b" }
+          ]
+        },
+        {
+          id: "return",
+          origin: { x: 300, z: 0 },
+          direction: "north",
+          modules: [
+            { id: "return-base", type: "return-run", x: 0, y: 0, z: 0, width: 160, height: 90, depth: 60, color: "#b9824a" }
+          ]
+        }
+      ],
+      details: []
+    };
+
+    const opacityGuardFixture = {
+      title: "Fixture solid material opacity guard",
+      subtitle: "Dùng để kiểm tra Phase 10 ép opaque cho body solid",
+      units: "cm",
+      width: 120,
+      height: 120,
+      depth: 60,
+      modules: [
+        {
+          type: "panel",
+          label: "Solid wood body",
+          kind: "box",
+          materialRef: "wood-oak",
+          opacity: 0.3,
+          x: 0,
+          y: 0,
+          z: 0,
+          width: 120,
+          height: 120,
+          depth: 60,
+          color: "#c9986b"
+        }
+      ],
+      details: []
+    };
+
     InteriorDesigner.render({
       mount: "#app",
       tabs: ["front", "side", "plan", "3d", "specs"],
@@ -665,6 +721,12 @@
 
     InteriorDesigner.attachUploadPanel({
       mount: "#upload",
+      language: "vi"
+    });
+
+    InteriorDesigner.enableEditor({
+      mount: "#editor",
+      model: cabinetModel,
       language: "vi"
     });
   </script>

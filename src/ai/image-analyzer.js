@@ -156,5 +156,14 @@ export async function generateRender(modelJson, stylePrompt, viewBase64, options
     if (res.status === 402) debugLog("render:quota-exceeded", { message: body.message });
     throw new Error(body.message || `Tạo render thất bại (${res.status}).`);
   }
+  const renderUrl = body.data?.renderUrl;
+  if (renderUrl && typeof opts.onRenderComplete === "function") {
+    opts.onRenderComplete(renderUrl, modelJson);
+  }
+  if (renderUrl && typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+    window.dispatchEvent(new CustomEvent("interior:render-complete", {
+      detail: { url: renderUrl, modelSnapshot: modelJson, data: body.data }
+    }));
+  }
   return body.data;
 }

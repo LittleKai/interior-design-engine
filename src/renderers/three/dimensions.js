@@ -1,4 +1,5 @@
 import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
+import { allItems, itemThreeTransform } from "../../core/model.js";
 
 export class Dimensions {
   constructor({ container, scene, width, height }) {
@@ -31,13 +32,14 @@ export class Dimensions {
   update(model, visible) {
     this.clear();
     this.visible = !!visible;
-    if (!model || !model.modules) return;
-    model.modules.forEach((module) => {
+    if (!model) return;
+    allItems(model, "3d").filter((item) => item.group === "module").forEach((module) => {
       if (module.hiddenIn3d) return;
       if (!module.width || module.width < 30) return;
-      const cx = module.x + module.width / 2;
+      const transform = itemThreeTransform(module);
+      const cx = transform.x;
       const top = module.y + module.height;
-      const z = -(module.z + module.depth / 2);
+      const z = transform.z;
       const node = document.createElement("div");
       node.className = "ide-dim-label";
       node.textContent = `${Math.round(module.width)} cm`;

@@ -40,7 +40,7 @@ function colorKey(value) {
 }
 
 export function getMaterial(materialRef, overrides) {
-  const opts = overrides || {};
+  let opts = overrides || {};
   let ref = materialRef && PRESETS[materialRef] ? materialRef : "laminate-white";
   let isVoid = opts.kind === "void";
   if (isVoid && SOLID_REFS.has(ref)) {
@@ -52,6 +52,11 @@ export function getMaterial(materialRef, overrides) {
     ref = "laminate-white";
   }
   const isGlass = ref === "glass-smoked";
+  const isSolidBody = SOLID_REFS.has(ref) && (BODY_KINDS.has(opts.kind) || opts.kind === undefined || opts.kind === "box");
+  if (isSolidBody && opts.opacity != null && opts.opacity < 1) {
+    console.warn("[ide:materials] solid body with opacity<1, forcing opaque:", ref, opts.kind, opts.opacity);
+    opts = Object.assign({}, opts, { opacity: 1 });
+  }
   const opacity = opts.opacity == null ? 1 : opts.opacity;
   const key = `${ref}|${colorKey(opts.color)}|${opacity}|${isVoid ? "v" : ""}`;
   if (cache.has(key)) return cache.get(key);

@@ -7,6 +7,7 @@ import { enableSelection, setSelected as setSelectedNode, clearSelected } from "
 import { attachPropertyPanel } from "./property-panel.js";
 import { History } from "./history.js";
 import { bindEditorKeyboard } from "./keyboard.js";
+import { attachHistoryPanel } from "./history-panel.js";
 
 export function enableEditor(options) {
   const mount = typeof options.mount === "string" ? document.querySelector(options.mount) : options.mount;
@@ -36,12 +37,24 @@ export function enableEditor(options) {
 
   let selectionCleanup = null;
   let propertyPanel = null;
+  let historyPanel = null;
   let selectedId = null;
+  let previewModel = null;
+  let previewEntry = null;
+  let isPreviewMode = false;
+
+  const previewBanner = el("div", { class: "ide-preview-banner" });
+  const previewText = el("span", { text: t("history.banner", language) });
+  const previewRestore = el("button", { class: "ide-editor-btn", type: "button", text: t("history.restore", language) });
+  const previewClose = el("button", { class: "ide-editor-btn", type: "button", text: t("history.close", language) });
+  previewBanner.appendChild(previewText);
+  previewBanner.appendChild(previewRestore);
+  previewBanner.appendChild(previewClose);
 
   function refreshToolbar() {
-    btnUndo.disabled = !history.canUndo();
-    btnRedo.disabled = !history.canRedo();
-    btnDelete.disabled = !selectedId;
+    btnUndo.disabled = isPreviewMode || !history.canUndo();
+    btnRedo.disabled = isPreviewMode || !history.canRedo();
+    btnDelete.disabled = isPreviewMode || !selectedId;
   }
 
   function activeTabIndex() {
@@ -54,11 +67,15 @@ export function enableEditor(options) {
 
   function rerender() {
     if (selectionCleanup) selectionCleanup();
-    const result = render({ mount: canvasArea, model, language, activeIndex: activeTabIndex() });
+    const result = render({ mount: canvasArea, model: previewModel || model, language, activeIndex: activeTabIndex() });
+    if (isPreviewMode) {
+      canvasArea.prepend(previewBanner);
+    }
     const svgs = result.root.querySelectorAll(".ide-svg");
     const detachers = [];
     svgs.forEach((svg) => {
       detachers.push(enableSelection(svg, (id) => {
+        if (isPreviewMode) return;
         selectedId = id;
         svgs.forEach((other) => setSelectedNode(other, id));
         if (propertyPanel) propertyPanel.setSelected(id);
@@ -71,11 +88,43 @@ export function enableEditor(options) {
 
   function applyChange(nextModel, source) {
     model = nextModel;
-    history.push(model);
+    history.push(model, source?.label ? { label: source.label } : undefined);
     if (propertyPanel) propertyPanel.setModel(model, { rebuild: source?.type !== "edit" });
+    if (historyPanel) historyPanel.refresh();
     rerender();
     refreshToolbar();
     userOnChange(model, source || {});
+  }
+
+  function exitPreview() {
+    previewModel = null;
+    previewEntry = null;
+    isPreviewMode = false;
+    if (propertyPanel) {
+      propertyPanel.setReadOnly(false);
+      propertyPanel.setModel(model);
+    }
+    rerender();
+    refreshToolbar();
+  }
+
+  function restoreHistoryIndex(index) {
+    const restored = history.restoreAt(index);
+    if (!restored) return;
+    model = restored;
+    selectedId = null;
+    previewModel = null;
+    previewEntry = null;
+    isPreviewMode = false;
+    if (propertyPanel) {
+      propertyPanel.setReadOnly(false);
+      propertyPanel.setModel(model);
+      propertyPanel.setSelected(null);
+    }
+    if (historyPanel) historyPanel.refresh();
+    rerender();
+    refreshToolbar();
+    userOnChange(model, { type: "restore", index });
   }
 
   propertyPanel = attachPropertyPanel({
@@ -85,30 +134,55 @@ export function enableEditor(options) {
     onChange: (next, detail) => applyChange(next, { type: "edit", ...detail })
   });
 
+  historyPanel = attachHistoryPanel({
+    mount: sidebar,
+    history,
+    language,
+    onPreview: (entryModel, entry) => {
+      previewModel = normalizeModel(entryModel);
+      previewEntry = entry;
+      isPreviewMode = true;
+      selectedId = null;
+      if (propertyPanel) {
+        propertyPanel.setModel(previewModel);
+        propertyPanel.setSelected(null);
+        propertyPanel.setReadOnly(true);
+      }
+      rerender();
+      refreshToolbar();
+    },
+    onRestore: (index) => restoreHistoryIndex(index)
+  });
+
   rerender();
   refreshToolbar();
 
   btnUndo.addEventListener("click", () => {
+    if (isPreviewMode) return;
     const prev = history.undo();
     if (!prev) return;
     model = prev;
     if (propertyPanel) propertyPanel.setModel(model);
+    if (historyPanel) historyPanel.refresh();
     rerender();
     refreshToolbar();
     userOnChange(model, { type: "undo" });
   });
 
   btnRedo.addEventListener("click", () => {
+    if (isPreviewMode) return;
     const next = history.redo();
     if (!next) return;
     model = next;
     if (propertyPanel) propertyPanel.setModel(model);
+    if (historyPanel) historyPanel.refresh();
     rerender();
     refreshToolbar();
     userOnChange(model, { type: "redo" });
   });
 
   btnDelete.addEventListener("click", () => {
+    if (isPreviewMode) return;
     if (!selectedId) return;
     const { model: next } = BoxService.delete(model, selectedId);
     const removedId = selectedId;
@@ -116,11 +190,30 @@ export function enableEditor(options) {
     applyChange(next, { type: "delete", id: removedId });
   });
 
+  previewClose.addEventListener("click", exitPreview);
+  previewRestore.addEventListener("click", () => {
+    if (!previewEntry) return;
+    const index = history.list().findIndex((entry) => entry.id === previewEntry.id);
+    restoreHistoryIndex(index);
+  });
+
+  const renderCompleteHandler = (event) => {
+    const url = event.detail?.url;
+    if (!url) return;
+    history.attachRenderUrl(history.currentEntryId(), url);
+    if (historyPanel) historyPanel.refresh();
+  };
+  window.addEventListener("interior:render-complete", renderCompleteHandler);
+
   const keyboardCleanup = bindEditorKeyboard({
-    onUndo: () => btnUndo.click(),
-    onRedo: () => btnRedo.click(),
-    onDelete: () => btnDelete.click(),
+    onUndo: () => { if (!isPreviewMode) btnUndo.click(); },
+    onRedo: () => { if (!isPreviewMode) btnRedo.click(); },
+    onDelete: () => { if (!isPreviewMode) btnDelete.click(); },
     onEscape: () => {
+      if (isPreviewMode) {
+        exitPreview();
+        return;
+      }
       selectedId = null;
       canvasArea.querySelectorAll(".ide-svg").forEach((svg) => clearSelected(svg));
       if (propertyPanel) propertyPanel.setSelected(null);
@@ -133,7 +226,9 @@ export function enableEditor(options) {
     setModel(next) { applyChange(normalizeModel(next), { type: "external" }); },
     destroy() {
       if (selectionCleanup) selectionCleanup();
+      window.removeEventListener("interior:render-complete", renderCompleteHandler);
       if (keyboardCleanup) keyboardCleanup();
+      if (historyPanel) historyPanel.destroy();
       if (propertyPanel) propertyPanel.destroy();
       mount.innerHTML = "";
     }

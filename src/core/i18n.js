@@ -118,6 +118,20 @@ export const I18N = {
       redo: "Làm lại",
       deleteSelected: "Xóa chi tiết"
     },
+    history: {
+      title: "Lịch sử",
+      empty: "Chưa có thay đổi",
+      current: "Hiện tại",
+      preview: "Xem",
+      restore: "Phục hồi",
+      close: "Đóng",
+      banner: "Đang xem phiên bản cũ",
+      relative: {
+        justNow: "vừa xong",
+        minutesAgo: "{n} phút trước",
+        hoursAgo: "{n} giờ trước"
+      }
+    },
     specs: {
       totalWidth: "Tổng chiều rộng",
       totalWidthNote: "Dùng cho mặt đứng, mặt bằng và 3D",
@@ -244,6 +258,20 @@ export const I18N = {
       redo: "Redo",
       deleteSelected: "Delete detail"
     },
+    history: {
+      title: "History",
+      empty: "No changes yet",
+      current: "Current",
+      preview: "Preview",
+      restore: "Restore",
+      close: "Close",
+      banner: "Viewing past version",
+      relative: {
+        justNow: "just now",
+        minutesAgo: "{n} min ago",
+        hoursAgo: "{n} hr ago"
+      }
+    },
     specs: {
       totalWidth: "Total width",
       totalWidthNote: "Used by front, plan, and 3D views",
@@ -315,7 +343,14 @@ export function pickLang(input) {
   return input === "en" ? "en" : "vi";
 }
 
-export function t(key, lang) {
+function interpolate(value, vars) {
+  if (typeof value !== "string" || !vars) return value;
+  return value.replace(/\{([^}]+)\}/g, (match, name) => (
+    Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : match
+  ));
+}
+
+export function t(key, lang, vars) {
   const language = pickLang(lang);
   const parts = key.split(".");
   let cursor = I18N[language];
@@ -323,13 +358,13 @@ export function t(key, lang) {
     if (cursor == null) break;
     cursor = cursor[part];
   }
-  if (cursor != null) return cursor;
+  if (cursor != null) return interpolate(cursor, vars);
   cursor = I18N.en;
   for (const part of parts) {
     if (cursor == null) break;
     cursor = cursor[part];
   }
-  return cursor != null ? cursor : key;
+  return cursor != null ? interpolate(cursor, vars) : key;
 }
 
 export function localizeDirection(direction, lang) {

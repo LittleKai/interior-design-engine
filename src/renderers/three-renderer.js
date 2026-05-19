@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { allItems, modelBounds, isVisible } from "../core/model.js";
+import { allItems, modelBounds, isVisible, itemThreeTransform } from "../core/model.js";
 import { createGeometry } from "./three/geometry-factories.js";
 import { getMaterial, releaseMaterials } from "./three/materials.js";
 import { setupLighting } from "./three/lighting.js";
@@ -93,7 +93,7 @@ export class ThreeRenderer {
     this.model = model;
     this.clearMeshes();
 
-    allItems(model)
+    allItems(model, "3d")
       .filter((item) => isVisible(item, "3d"))
       .forEach((item) => this.addItem(item, model));
 
@@ -114,11 +114,9 @@ export class ThreeRenderer {
       kind: item.kind
     });
     const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(
-      item.x + item.width / 2,
-      item.y + item.height / 2,
-      -(item.z + item.depth / 2)
-    );
+    const transform = itemThreeTransform(item);
+    mesh.position.set(transform.x, transform.y, transform.z);
+    mesh.rotation.y = transform.rotationY;
     mesh.castShadow = this.shadowEnabled && item.kind !== "void";
     mesh.receiveShadow = this.shadowEnabled;
     mesh.userData.kind = item.kind;
@@ -147,7 +145,7 @@ export class ThreeRenderer {
   fitCamera(bounds) {
     const cx = bounds.minX + bounds.width / 2;
     const cy = bounds.minY + bounds.height / 2;
-    const cz = -(bounds.minZ + bounds.depth / 2);
+    const cz = bounds.minZ + bounds.depth / 2;
     const center = new THREE.Vector3(cx, cy, cz);
     const longest = Math.max(bounds.width, bounds.height, bounds.depth, 60);
 

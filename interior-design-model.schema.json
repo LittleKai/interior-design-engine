@@ -4,7 +4,11 @@
   "title": "Interior Design Engine Model",
   "type": "object",
   "additionalProperties": true,
-  "required": ["width", "height", "depth", "modules"],
+  "required": ["width", "height", "depth"],
+  "oneOf": [
+    { "required": ["modules"] },
+    { "required": ["runs"] }
+  ],
   "properties": {
     "title": {
       "type": "string"
@@ -46,6 +50,13 @@
         "$ref": "#/$defs/designItem"
       }
     },
+    "runs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/run"
+      }
+    },
     "details": {
       "type": "array",
       "items": {
@@ -65,6 +76,36 @@
     }
   },
   "$defs": {
+    "run": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["origin", "direction", "modules"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["x", "z"],
+          "properties": {
+            "x": { "type": "number" },
+            "z": { "type": "number" }
+          }
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["east", "north", "west", "south"]
+        },
+        "modules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/designItem"
+          }
+        }
+      }
+    },
     "designItem": {
       "type": "object",
       "additionalProperties": true,

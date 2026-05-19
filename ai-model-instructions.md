@@ -25,6 +25,7 @@ The JSON object must match this contract:
 - depth: positive number
 - materials: object, usually with board as a hex color
 - modules: array of main zones or large structures
+- runs: optional array for L, U, island, or galley layouts. Do not use runs and top-level modules together.
 - details: array of precise parts
 - specs: array of 2-item or 3-item string arrays
 
@@ -45,6 +46,14 @@ Use modules for:
 - tall storage blocks
 - appliance bays
 - large structural areas
+
+Use runs for non-straight layouts:
+- Each run has id, origin { x, z }, direction, and modules.
+- direction is one of "east", "north", "west", "south".
+- "east" connects modules along +x, "north" along -z, "west" along -x, and "south" along +z.
+- Modules inside a run keep the same item shape as normal modules.
+- Details remain top-level and use absolute coordinates.
+- For one straight cabinet run, top-level modules are still acceptable.
 
 Use details for:
 - side panels
@@ -233,6 +242,41 @@ Create a 276 cm wide built-in wardrobe, 276 cm high and 60 cm deep. Left half is
     ["Overall size", "276 x 276 x 60 cm", "User requested dimensions"],
     ["Finish", "Warm wood with black handles", "For AI image generation"]
   ]
+}
+```
+
+## Example Runs Layout
+
+Use this shape instead of top-level `modules` for an L layout.
+
+```json
+{
+  "title": "L-shaped cabinetry",
+  "subtitle": "Two runs with a 90 degree return",
+  "units": "cm",
+  "width": 276,
+  "height": 240,
+  "depth": 220,
+  "materials": { "board": "#c9986b" },
+  "runs": [
+    {
+      "id": "main-wall",
+      "origin": { "x": 0, "z": 0 },
+      "direction": "east",
+      "modules": [
+        { "id": "base-main", "type": "base-cabinet-run", "x": 0, "y": 0, "z": 0, "width": 276, "height": 90, "depth": 60, "color": "#c9986b" }
+      ]
+    },
+    {
+      "id": "return-wall",
+      "origin": { "x": 276, "z": 0 },
+      "direction": "north",
+      "modules": [
+        { "id": "base-return", "type": "base-cabinet-return", "x": 0, "y": 0, "z": 0, "width": 160, "height": 90, "depth": 60, "color": "#b9824a" }
+      ]
+    }
+  ],
+  "details": []
 }
 ```
 

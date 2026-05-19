@@ -8,13 +8,13 @@ export function setupLighting(scene) {
   dir.position.set(300, 400, 300);
   dir.castShadow = true;
   dir.shadow.mapSize.set(2048, 2048);
-  dir.shadow.camera.left = -300;
-  dir.shadow.camera.right = 300;
-  dir.shadow.camera.top = 300;
-  dir.shadow.camera.bottom = -300;
+  dir.shadow.camera.left = -600;
+  dir.shadow.camera.right = 600;
+  dir.shadow.camera.top = 600;
+  dir.shadow.camera.bottom = -600;
   dir.shadow.camera.near = 1;
-  dir.shadow.camera.far = 1000;
-  dir.shadow.bias = -0.0005;
+  dir.shadow.camera.far = 2000;
+  dir.shadow.bias = -0.0002;
   scene.add(dir);
 
   const fill1 = new THREE.PointLight(0xFFDDAA, 0.3);
