@@ -1,0 +1,86 @@
+{
+  "id": "base-cabinet-2door",
+  "version": 1,
+  "category": "base-cabinet",
+  "tags": [
+    "kitchen",
+    "base",
+    "2-door"
+  ],
+  "description": {
+    "vi": "Tu bep duoi 2 canh",
+    "en": "2-door kitchen base cabinet"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 50,
+      "max": 120,
+      "default": 80
+    },
+    "height": {
+      "type": "number",
+      "min": 80,
+      "max": 95,
+      "default": 86
+    },
+    "depth": {
+      "type": "number",
+      "min": 55,
+      "max": 65,
+      "default": 60
+    }
+  },
+  "style": {
+    "handle": {
+      "values": [
+        "bar",
+        "finger-pull"
+      ],
+      "default": "bar"
+    }
+  },
+  "boxes": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodFront",
+        "right": "$woodSide",
+        "left": "$woodDark",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": 2,
+      "y": 8,
+      "z": "{{depth - 1}}",
+      "w": "{{width / 2 - 3}}",
+      "h": "{{height - 12}}",
+      "d": 1,
+      "faces": {
+        "front": "$woodFrontL",
+        "right": "$woodSide",
+        "top": "$woodTop"
+      }
+    },
+    {
+      "x": "{{width / 2 + 1}}",
+      "y": 8,
+      "z": "{{depth - 1}}",
+      "w": "{{width / 2 - 3}}",
+      "h": "{{height - 12}}",
+      "d": 1,
+      "faces": {
+        "front": "$woodFrontL",
+        "right": "$woodSide",
+        "top": "$woodTop"
+      }
+    }
+  ]
+}

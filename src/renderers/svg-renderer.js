@@ -1,14 +1,17 @@
 import { SVG_NS, svgEl, cm } from "../core/dom.js";
-import { allItems, measureBox, itemProjection, isVisible } from "../core/model.js";
+import { allItems, measureBox, isVisible } from "../core/model.js";
 import { t } from "../core/i18n.js";
-import { getTemplate } from "../template-engine/loader.js";
-import { getInstance } from "../template-engine/dispatcher.js";
-import { renderTemplate } from "../template-engine/interpreter.js";
+import { resolveItemBoxes } from "../core/box-resolver.js";
+import { projectBoxToView } from "../template-engine/interpreter.js";
+import { resolveToken, DEFAULT_PALETTE } from "../template-engine/color-tokens.js";
 
 export function renderSvgView(model, mode, options) {
   const language = options && options.language === "en" ? "en" : "vi";
   const pad = 60;
-  const box = measureBox(model, mode);
+  const palette = model.palette || DEFAULT_PALETTE;
+  const projectedItems = collectProjectedItems(model, mode, palette);
+  const measuredBox = measureBox(model, mode);
+  const box = projectedItems.length ? projectedBounds(projectedItems, measuredBox) : measuredBox;
   const maxW = mode === "side" ? 660 : 960;
   const maxH = mode === "plan" ? 560 : 680;
   const scale = Math.min((maxW - pad * 2) / box.w, (maxH - pad * 2) / box.h);
@@ -39,11 +42,9 @@ export function renderSvgView(model, mode, options) {
     "stroke-width": 1
   }));
 
-  allItems(model, mode)
-    .filter((item) => isVisible(item, mode))
-    .slice()
-    .sort((a, b) => (a.layer || 0) - (b.layer || 0))
-    .forEach((item) => drawSvgItem(svg, item, mode, scale, pad, model));
+  projectedItems
+    .sort((a, b) => (a.layer - b.layer) || (a.rect.depthKey - b.rect.depthKey))
+    .forEach((entry) => drawProjectedItem(svg, entry, mode, scale, pad, box, palette));
 
   drawDimension(svg, pad, vbH - 26, pad + box.w * scale, vbH - 26, cm(box.w), false);
   drawDimension(svg, vbW - 28, pad, vbW - 28, pad + box.h * scale, cm(box.h), true);
@@ -61,86 +62,74 @@ export function renderSvgView(model, mode, options) {
   return svg;
 }
 
-function drawSvgItem(svg, item, mode, scale, pad, model) {
-  const r = itemProjection(item, mode, scale, pad, model);
-  const g = svgEl("g", { class: "ide-item", "data-detail-id": item.id || "" });
-
-  if (item._isTemplate && item.tpl) {
-    const template = getTemplate(item.tpl);
-    if (template) {
-      renderTemplate(template, getInstance(item), mode, model.palette).forEach((shape) => {
-        appendTemplateShape(g, shape, r, item);
-      });
-      svg.appendChild(g);
-      return;
-    }
-  }
-
-  if (item.kind === "arc" && mode === "plan") {
-    g.appendChild(svgEl("path", {
-      d: `M ${r.x} ${r.y + r.h} A ${r.w} ${r.h} 0 0 1 ${r.x + r.w} ${r.y}`,
-      fill: "none",
-      stroke: item.stroke || "#9b8f7d",
-      "stroke-width": item.strokeWidth || 1,
-      "stroke-dasharray": item.dash || "4 3"
-    }));
-    svg.appendChild(g);
-    return;
-  }
-
-  g.appendChild(svgEl("rect", {
-    x: r.x,
-    y: r.y,
-    width: r.w,
-    height: r.h,
-    rx: item.radius || 0,
-    fill: item.color || model.materials.board || "#c89a62",
-    stroke: item.stroke || "#76502e",
-    "stroke-width": item.strokeWidth || 1,
-    opacity: item.opacity == null ? 1 : item.opacity
-  }));
-
-  drawItemLabel(g, item, r);
-  svg.appendChild(g);
+function collectProjectedItems(model, mode, palette) {
+  return allItems(model, mode)
+    .filter((item) => isVisible(item, mode))
+    .flatMap((item) => resolveItemBoxes(item, palette).map((box) => ({ item, box })))
+    .map(({ item, box }) => ({ item, layer: item.layer || 0, rect: projectBoxToView(box, mode), opacity: box.opacity }))
+    .filter((entry) => entry.rect);
 }
 
-function appendTemplateShape(g, shape, r, item) {
-  const sx = r.w / Math.max(1, item.width);
-  const sy = r.h / Math.max(1, item.height);
-  const tx = (value) => r.x + value * sx;
-  const ty = (value) => r.y + value * sy;
-  if (shape.type === "line") {
-    g.appendChild(svgEl("line", {
-      x1: tx(shape.x1), y1: ty(shape.y1), x2: tx(shape.x2), y2: ty(shape.y2),
-      stroke: shape.stroke || "#3a3a42",
-      "stroke-width": shape.sw || 1,
-      opacity: shape.opacity == null ? 1 : shape.opacity
+function projectedBounds(entries, measuredBox) {
+  const bounds = entries.reduce((acc, entry) => ({
+    minX: Math.min(acc.minX, entry.rect.x),
+    minY: Math.min(acc.minY, entry.rect.y),
+    maxX: Math.max(acc.maxX, entry.rect.x + entry.rect.w),
+    maxY: Math.max(acc.maxY, entry.rect.y + entry.rect.h)
+  }), {
+    minX: measuredBox.minA,
+    minY: measuredBox.minB,
+    maxX: measuredBox.minA + measuredBox.w,
+    maxY: measuredBox.minB + measuredBox.h
+  });
+  return {
+    w: Math.max(1, bounds.maxX - bounds.minX),
+    h: Math.max(1, bounds.maxY - bounds.minY),
+    minA: bounds.minX,
+    minB: bounds.minY
+  };
+}
+
+function drawProjectedItem(svg, entry, mode, scale, pad, bounds, palette) {
+  const item = entry.item;
+  const rect = entry.rect;
+  const xValue = rect.x - bounds.minA;
+  const yValue = rect.y - bounds.minB;
+  const r = {
+    x: pad + xValue * scale,
+    y: pad + (mode === "plan" ? yValue : bounds.h - yValue - rect.h) * scale,
+    w: Math.max(1, rect.w * scale),
+    h: Math.max(1, rect.h * scale)
+  };
+  const g = svgEl("g", { class: "ide-item", "data-detail-id": item.id || "" });
+  const fill = rect.fill || item.color || resolveToken(palette, "woodFront") || "#c89a62";
+  const stroke = item.stroke || resolveToken(palette, "cabDark") || "#76502e";
+  if (rect.kind === "ellipse") {
+    g.appendChild(svgEl("ellipse", {
+      cx: r.x + r.w / 2,
+      cy: r.y + r.h / 2,
+      rx: r.w / 2,
+      ry: r.h / 2,
+      fill,
+      stroke,
+      "stroke-width": item.strokeWidth || 1,
+      opacity: entry.opacity == null ? 1 : entry.opacity
     }));
-    return;
+  } else {
+    g.appendChild(svgEl("rect", {
+      x: r.x,
+      y: r.y,
+      width: r.w,
+      height: r.h,
+      rx: (rect.radius || item.radius || 0) * scale,
+      fill,
+      stroke,
+      "stroke-width": item.strokeWidth || 1,
+      opacity: entry.opacity == null ? 1 : entry.opacity
+    }));
   }
-  if (shape.type === "text") {
-    const text = svgEl("text", {
-      x: tx(shape.x), y: ty(shape.y),
-      "text-anchor": shape.anchor || "middle",
-      fill: shape.fill || "#51483e",
-      "font-size": shape.fontSize || 10,
-      "font-family": "Arial, Helvetica, sans-serif"
-    });
-    text.textContent = shape.text || "";
-    g.appendChild(text);
-    return;
-  }
-  g.appendChild(svgEl("rect", {
-    x: tx(shape.x || 0),
-    y: ty(shape.y || 0),
-    width: Math.max(1, (shape.w || 0) * sx),
-    height: Math.max(1, (shape.h || 0) * sy),
-    rx: shape.rx || 0,
-    fill: shape.fill || "#c89a62",
-    stroke: shape.stroke || "none",
-    "stroke-width": shape.sw || 1,
-    opacity: shape.opacity == null ? 1 : shape.opacity
-  }));
+  drawItemLabel(g, item, r);
+  svg.appendChild(g);
 }
 
 function drawItemLabel(svg, item, r) {

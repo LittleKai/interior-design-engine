@@ -1,0 +1,64 @@
+{
+  "id": "sink-base",
+  "version": 1,
+  "category": "base-cabinet",
+  "tags": [
+    "kitchen",
+    "sink",
+    "base"
+  ],
+  "description": {
+    "vi": "Tu chau rua",
+    "en": "Sink base cabinet"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 70,
+      "max": 120,
+      "default": 90
+    },
+    "height": {
+      "type": "number",
+      "min": 80,
+      "max": 95,
+      "default": 86
+    },
+    "depth": {
+      "type": "number",
+      "min": 55,
+      "max": 65,
+      "default": 60
+    }
+  },
+  "style": {},
+  "boxes": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodFront",
+        "right": "$woodSide",
+        "left": "$woodDark",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": "{{width / 2 - 20}}",
+      "y": "{{height}}",
+      "z": 10,
+      "w": 40,
+      "h": 1,
+      "d": 28,
+      "faces": {
+        "top": "$glass",
+        "front": "$glassBorder"
+      }
+    }
+  ]
+}

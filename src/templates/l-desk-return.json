@@ -37,71 +37,7 @@
     }
   },
   "style": {},
-  "frontSvg": [
-    {
-      "type": "rect",
-      "x": 0,
-      "y": "{{height - 3}}",
-      "w": "{{width}}",
-      "h": 3,
-      "fill": "$deskTop",
-      "stroke": "$deskEdge",
-      "sw": 1.2
-    },
-    {
-      "type": "rect",
-      "x": 0,
-      "y": "{{height}}",
-      "w": "{{width}}",
-      "h": 31,
-      "fill": "#e0dcd6",
-      "stroke": "#c8c0b0",
-      "sw": 0.5
-    },
-    {
-      "type": "text",
-      "x": "{{width / 2}}",
-      "y": "{{height - 7}}",
-      "text": "Mat ban lam viec",
-      "fill": "$dim",
-      "fontSize": 9
-    }
-  ],
-  "sideSvg": [
-    {
-      "type": "rect",
-      "x": 0,
-      "y": "{{height - 3}}",
-      "w": "{{returnDepth}}",
-      "h": 3,
-      "fill": "$deskTop",
-      "stroke": "$deskEdge",
-      "sw": 1
-    }
-  ],
-  "planSvg": [
-    {
-      "type": "rect",
-      "x": 0,
-      "y": 0,
-      "w": "{{width}}",
-      "h": "{{depth}}",
-      "fill": "$deskTop",
-      "stroke": "$deskEdge",
-      "sw": 1
-    },
-    {
-      "type": "rect",
-      "x": 0,
-      "y": "{{depth}}",
-      "w": "{{depth}}",
-      "h": "{{returnDepth}}",
-      "fill": "$deskTop",
-      "stroke": "$deskEdge",
-      "sw": 1
-    }
-  ],
-  "isoBoxes": [
+  "boxes": [
     {
       "x": 0,
       "y": "{{height - 3}}",

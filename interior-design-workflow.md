@@ -11,9 +11,10 @@ Recommended pipeline:
 1. Collect project context.
 2. Create 1 to 3 design directions.
 3. Generate model JSON for each selected direction.
-4. Render front, side, plan, 3D, and specs.
-5. Review the model before exporting AI image prompts.
-6. Export reference images and prompt files for photorealistic image generation.
+4. Validate the model with `InteriorDesigner.validateModel(model)`.
+5. Render front, side, plan, 3D, and specs.
+6. Review the model before exporting AI image prompts.
+7. Export reference images and prompt files for photorealistic image generation.
 
 ## Context Checklist
 
@@ -70,7 +71,16 @@ Avoid:
 
 ## Review Gate
 
-Before export, run:
+Before render/export, validate runtime shape:
+
+```js
+const validation = InteriorDesigner.validateModel(model);
+if (!validation.valid) {
+  console.error(validation.errors);
+}
+```
+
+Then run the schematic review:
 
 ```js
 const review = InteriorDesigner.reviewModel(model, { language: "vi" });
@@ -103,4 +113,3 @@ const pkg = await InteriorDesigner.createAiImagePackage({
 ```
 
 Upload all `reference-*.png` files to the image-generation tool first, then use `ai-image-prompt-en.txt`. The Vietnamese prompt is mainly for user review.
-

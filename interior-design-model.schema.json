@@ -34,12 +34,40 @@
     },
     "materials": {
       "type": "object",
+      "description": "Shared material/color values used by legacy items and AI prompt/export helpers.",
       "additionalProperties": {
         "type": "string"
       },
       "properties": {
         "board": {
           "type": "string"
+        }
+      }
+    },
+    "palette": {
+      "type": "string",
+      "description": "Built-in renderer palette id. Unknown values are normalized to wood-oak by runtime validation.",
+      "enum": ["wood-oak", "wood-walnut", "laminate-white", "dark-modern"]
+    },
+    "inlineTemplates": {
+      "type": "object",
+      "description": "Per-model boxes-based template definitions keyed by template id.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string" },
+          "params": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "boxes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
         }
       }
     },
@@ -71,6 +99,17 @@
         "maxItems": 3,
         "items": {
           "type": "string"
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "unsupportedRequests": {
+          "type": "array",
+          "description": "User requests the AI could not represent safely in the current model contract.",
+          "items": { "type": "string" }
         }
       }
     }
@@ -118,7 +157,7 @@
         },
         "kind": {
           "type": "string",
-          "enum": ["box", "void"]
+          "description": "Render primitive or semantic body kind. `void` represents openings; other strings remain allowed for template/material semantics."
         },
         "catalogId": {
           "type": "string",
@@ -158,6 +197,19 @@
         },
         "color": {
           "type": "string"
+        },
+        "materialRef": {
+          "type": "string",
+          "description": "Optional material preset reference, for example wood-oak or glass-smoked."
+        },
+        "tpl": {
+          "type": "string",
+          "description": "Optional boxes-based template id. The renderer resolves the template and projects boxes into all views."
+        },
+        "style": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Per-template style overrides consumed by the template interpreter."
         },
         "opacity": {
           "type": "number",

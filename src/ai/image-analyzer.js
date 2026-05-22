@@ -1,17 +1,6 @@
+import { debugLog } from "../core/debug.js";
+
 const MAX_EDGE = 1600;
-
-function isDebugEnabled() {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.location.search.includes("debug=1") || localStorage.getItem("ide:debug") === "1";
-  } catch (e) {
-    return false;
-  }
-}
-
-function debugLog(...args) {
-  if (isDebugEnabled()) console.debug("[ide:ai]", ...args);
-}
 
 function resolveBackendBase(options) {
   if (options && options.apiBase) return options.apiBase.replace(/\/+$/, "");
@@ -58,7 +47,7 @@ async function presignAndUpload(file, options) {
   const apiRoot = (options && options.uploadApi) || "/api/upload/presign";
   const token = getAuthToken(options);
   if (!token) throw new Error("Cần đăng nhập trước khi upload ảnh.");
-  debugLog("upload:presign:start", { size: file.size, type: file.type, name: file.name });
+  debugLog("ai", "upload:presign:start", { size: file.size, type: file.type, name: file.name });
   const presignRes = await fetch(apiRoot, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -73,14 +62,14 @@ async function presignAndUpload(file, options) {
     throw new Error(presignBody.message || "Không thể tạo URL upload.");
   }
   const { presignedUrl, publicUrl } = presignBody.data;
-  debugLog("upload:put:start", { publicUrl });
+  debugLog("ai", "upload:put:start", { publicUrl });
   const putRes = await fetch(presignedUrl, {
     method: "PUT",
     headers: { "Content-Type": file.type },
     body: file
   });
   if (!putRes.ok) throw new Error(`Upload B2 thất bại (${putRes.status}).`);
-  debugLog("upload:done", { publicUrl });
+  debugLog("ai", "upload:done", { publicUrl });
   return publicUrl;
 }
 
@@ -93,14 +82,14 @@ export async function analyzeImage(file, options) {
 
   onProgress({ stage: "resizing" });
   const resized = await resizeImageFile(file, opts.maxEdge || MAX_EDGE);
-  debugLog("resize:done", { originalSize: file.size, resizedSize: resized.size });
+  debugLog("ai", "resize:done", { originalSize: file.size, resizedSize: resized.size });
 
   onProgress({ stage: "uploading" });
   const imageUrl = await presignAndUpload(resized, opts);
 
   onProgress({ stage: "analyzing" });
   const startedAt = performance.now();
-  debugLog("analyze:start", { imageUrl, hintsLength: (opts.hints || "").length });
+  debugLog("ai", "analyze:start", { imageUrl, hintsLength: (opts.hints || "").length });
   const analyzeRes = await fetch(`${apiBase}/analyze-image`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -111,14 +100,14 @@ export async function analyzeImage(file, options) {
     })
   });
   const body = await analyzeRes.json().catch(() => ({}));
-  debugLog("analyze:done", {
+  debugLog("ai", "analyze:done", {
     status: analyzeRes.status,
     latencyMs: Math.round(performance.now() - startedAt),
     responseSize: JSON.stringify(body).length
   });
   if (!analyzeRes.ok || !body.success) {
-    debugLog("analyze:error", { status: analyzeRes.status, message: body.message });
-    if (analyzeRes.status === 402) debugLog("analyze:quota-exceeded", { message: body.message });
+    debugLog("ai", "analyze:error", { status: analyzeRes.status, message: body.message });
+    if (analyzeRes.status === 402) debugLog("ai", "analyze:quota-exceeded", { message: body.message });
     throw new Error(body.message || `Phân tích thất bại (${analyzeRes.status}).`);
   }
   if (body.data?.model?.meta?.unsupportedRequests?.length) {
@@ -139,21 +128,21 @@ export async function generateRender(modelJson, stylePrompt, viewBase64, options
   const token = getAuthToken(opts);
   if (!token) throw new Error("Cần đăng nhập trước khi tạo render.");
   const startedAt = performance.now();
-  debugLog("render:start", { promptLength: (stylePrompt || "").length });
+  debugLog("ai", "render:start", { promptLength: (stylePrompt || "").length });
   const res = await fetch(`${apiBase}/generate-render`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({ modelJson, stylePrompt, viewBase64 })
   });
   const body = await res.json().catch(() => ({}));
-  debugLog("render:done", {
+  debugLog("ai", "render:done", {
     status: res.status,
     latencyMs: Math.round(performance.now() - startedAt),
     responseSize: JSON.stringify(body).length
   });
   if (!res.ok || !body.success) {
-    debugLog("render:error", { status: res.status, message: body.message });
-    if (res.status === 402) debugLog("render:quota-exceeded", { message: body.message });
+    debugLog("ai", "render:error", { status: res.status, message: body.message });
+    if (res.status === 402) debugLog("ai", "render:quota-exceeded", { message: body.message });
     throw new Error(body.message || `Tạo render thất bại (${res.status}).`);
   }
   const renderUrl = body.data?.renderUrl;

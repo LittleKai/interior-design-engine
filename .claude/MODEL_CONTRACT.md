@@ -1,0 +1,98 @@
+# Interior Design Engine Model Contract
+
+**Last Updated:** 2026-05-21
+
+This document describes the stable public model shape accepted by `InteriorDesigner.render()` and `InteriorDesigner.validateModel()`.
+
+## Source Of Truth
+
+The canonical source is the model JSON plus engine files under `tools/interior-design-engine/`. The public embed under `alpha-studio/public/interior-design/` is a mirrored runtime copy. Exported PNG, TXT, JSON download packages, screenshots, and AI conditioning images are generated artifacts, not source-of-truth files.
+
+## Top-Level Model
+
+Required fields:
+
+- `width`: positive number, overall width in centimeters.
+- `height`: positive number, overall height in centimeters.
+- `depth`: positive number, overall depth in centimeters.
+- Either non-empty legacy `modules[]` or non-empty `runs[]`.
+
+Optional fields:
+
+- `title`
+- `subtitle`
+- `units`
+- `materials`
+- `palette`
+- `inlineTemplates`
+- `details`
+- `specs`
+- `meta`
+
+Legacy top-level `modules[]` remains supported and is normalized into one default east-facing run.
+
+## Runs
+
+Use `runs[]` for L, U, galley, island, or multi-wall layouts.
+
+Each run contains:
+
+- `id`: optional stable identifier.
+- `origin.x`: finite number.
+- `origin.z`: finite number.
+- `direction`: one of `east`, `north`, `west`, `south`.
+- `modules[]`: non-empty array of design items.
+
+## Design Items
+
+Items appear in `modules[]`, `runs[].modules[]`, and `details[]`.
+
+Supported fields:
+
+- `id`
+- `type`
+- `kind`
+- `label`
+- `x`
+- `y`
+- `z`
+- `width`
+- `height`
+- `depth`
+- `color`
+- `opacity`
+- `layer`
+- `materialRef`
+- `tpl`
+- `style`
+- `hiddenIn3d`
+- `hideLabel`
+
+`width`, `height`, and `depth` must be finite positive numbers after defaulting. Modules default to the model size when dimensions are omitted. Details default to `1` cm for omitted dimensions.
+
+## Templates
+
+Modules may use `tpl` to reference a template. Since Phase 14, templates are `boxes`-based: 3D primitive definitions are the source of truth, and 2D front/side/plan drawings are projected from resolved primitives.
+
+Supported `boxes[]` primitives:
+
+- No `type` or `type: "box"`: regular rectangular box with `x/y/z/w/h/d`.
+- `type: "roundedBox"`: rectangular box with `radius` for rounded 2D projections and rounded-form metadata.
+- `type: "cylinder"`: round primitive with `x/y/z`, `radius`, `length`, and `axis: "x" | "y" | "z"` for knobs, rods, round legs, pendant stems, or metal tubes.
+
+Inline templates may be supplied through `inlineTemplates`. Built-in templates and approved backend templates are loaded by the template catalog.
+
+## Validation
+
+Call `InteriorDesigner.validateModel(model)` before render/export when consuming AI-generated JSON. It returns:
+
+```js
+{
+  valid: boolean,
+  errors: string[],
+  warnings: string[],
+  normalized: object
+}
+```
+
+Blocking errors cover invalid model shape, missing/invalid overall dimensions, missing modules/runs, invalid run metadata, and zero or negative item dimensions. Warnings cover recoverable fallbacks such as unknown palettes, suspicious material semantics, and unresolved template references.

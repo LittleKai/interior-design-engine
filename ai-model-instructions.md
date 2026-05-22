@@ -24,10 +24,13 @@ The JSON object must match this contract:
 - height: positive number
 - depth: positive number
 - materials: object, usually with board as a hex color
+- palette: optional built-in palette id such as "wood-oak", "wood-walnut", "laminate-white", or "dark-modern"
+- inlineTemplates: optional object of boxes-based templates for this model
 - modules: array of main zones or large structures
 - runs: optional array for L, U, island, or galley layouts. Do not use runs and top-level modules together.
 - details: array of precise parts
 - specs: array of 2-item or 3-item string arrays
+- meta.unsupportedRequests: optional array of unsupported user requests that cannot be represented safely
 
 Coordinate system:
 - All dimensions are centimeters.
@@ -82,6 +85,9 @@ Each module/detail may include:
 - hiddenIn3d: true when the item is only a 2D planning zone
 - hideLabel: true for small construction parts
 - csgHints: optional array of whitelisted CSG strings for rounded corners, drawer recesses, and glass cutouts
+- materialRef: optional material preset reference
+- tpl: optional template id; templates are boxes-based and may include `roundedBox`/`cylinder` primitives for bo goc, knobs, rods, round legs, and metal tubes
+- style: optional per-template style overrides
 
 If the user gives exact dimensions, preserve them.
 If dimensions are missing, infer practical residential cabinet dimensions in centimeters.
@@ -97,6 +103,7 @@ Use csgHints only for these whitelisted strings:
 - "glassCutout:<x>:<y>:<w>:<h>" for a glass panel inside a door, using local panel coordinates.
 Do not invent other hint names. If the user asks for another unsupported CSG effect, list it in meta.unsupportedRequests.
 Add specs rows for design direction, material assumptions, missing measurements, fixed services, and buildability notes.
+Before render or export, runtime consumers should run `InteriorDesigner.validateModel(model)` and fix blocking errors.
 
 Output JSON only.
 ```
@@ -285,10 +292,12 @@ Use this shape instead of top-level `modules` for an L layout.
 ```js
 async function renderAiModel(aiJsonText) {
   const model = JSON.parse(aiJsonText);
+  const validation = InteriorDesigner.validateModel(model);
+  if (!validation.valid) throw new Error(validation.errors.join("; "));
 
   InteriorDesigner.render({
     mount: "#app",
-    model
+    model: validation.normalized
   });
 
   InteriorDesigner.attachAiImageExportPanel({

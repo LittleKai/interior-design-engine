@@ -1,0 +1,75 @@
+{
+  "id": "wall-cabinet-2door",
+  "version": 1,
+  "category": "wall-cabinet",
+  "tags": [
+    "kitchen",
+    "wall",
+    "upper",
+    "2-door"
+  ],
+  "description": {
+    "vi": "Tu bep tren 2 canh",
+    "en": "2-door kitchen wall cabinet"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 50,
+      "max": 120,
+      "default": 80
+    },
+    "height": {
+      "type": "number",
+      "min": 60,
+      "max": 100,
+      "default": 75
+    },
+    "depth": {
+      "type": "number",
+      "min": 30,
+      "max": 40,
+      "default": 35
+    }
+  },
+  "style": {},
+  "boxes": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodFront",
+        "right": "$woodSide",
+        "left": "$woodDark",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "z": "{{depth - 1}}",
+      "w": "{{width / 2 - 3}}",
+      "h": "{{height - 4}}",
+      "d": 1,
+      "faces": {
+        "front": "$woodFrontL"
+      }
+    },
+    {
+      "x": "{{width / 2 + 1}}",
+      "y": 2,
+      "z": "{{depth - 1}}",
+      "w": "{{width / 2 - 3}}",
+      "h": "{{height - 4}}",
+      "d": 1,
+      "faces": {
+        "front": "$woodFrontL"
+      }
+    }
+  ]
+}

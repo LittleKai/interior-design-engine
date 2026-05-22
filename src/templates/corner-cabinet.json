@@ -1,0 +1,52 @@
+{
+  "id": "corner-cabinet",
+  "version": 1,
+  "category": "corner-cabinet",
+  "tags": [
+    "kitchen",
+    "corner",
+    "l-shape"
+  ],
+  "description": {
+    "vi": "Tu goc bep chu L",
+    "en": "L-shape kitchen corner cabinet"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 80,
+      "max": 110,
+      "default": 90
+    },
+    "height": {
+      "type": "number",
+      "min": 80,
+      "max": 95,
+      "default": 86
+    },
+    "depth": {
+      "type": "number",
+      "min": 80,
+      "max": 110,
+      "default": 90
+    }
+  },
+  "style": {},
+  "boxes": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodFront",
+        "right": "$woodSide",
+        "left": "$woodDark",
+        "back": "$woodBack"
+      }
+    }
+  ]
+}

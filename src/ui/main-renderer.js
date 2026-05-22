@@ -1,5 +1,5 @@
 import { el, cm } from "../core/dom.js";
-import { normalizeModel } from "../core/model.js";
+import { validateModel } from "../core/validation.js";
 import { t, pickLang } from "../core/i18n.js";
 import { renderSvgView } from "../renderers/svg-renderer.js";
 import { IsoRenderer } from "../renderers/iso-renderer.js";
@@ -78,7 +78,8 @@ export function render(options) {
   if (!mount) throw new Error("InteriorDesigner.render: mount element not found.");
 
   const language = pickLang(options.language);
-  const model = normalizeModel(options.model);
+  const validation = validateModel(options.model);
+  const model = validation.normalized;
   prepareModelForRender(model).catch((error) => console.warn("Template catalog load failed:", error));
   const tabs = options.tabs || DEFAULT_TABS;
   const activeIndex = Number.isInteger(options.activeIndex) && options.activeIndex >= 0 && options.activeIndex < tabs.length

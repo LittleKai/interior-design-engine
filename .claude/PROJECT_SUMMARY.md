@@ -1,10 +1,24 @@
 # Project Summary
 
+**Session #27 Update (2026-05-22):** Template DSL now supports whitelisted curved primitives inside `boxes`: `roundedBox` and `cylinder`. The interpreter/projection layer, box resolver, SVG renderer, and Canvas isometric renderer preserve/render primitive metadata. Added seed template `cab-base-rounded-end` and synced the public mirror; backend seed now imports 14 templates.
+
+**Session #26 Update (2026-05-21):** `skills/kitchen-l-shape.md` now explicitly treats the requested L return length as the full perpendicular leg length and gives the agent a concrete `origin:{x:W,z:0}` / `width:L` rule, avoiding tiny leftover return stubs for "nhánh L 1m" requests. Public mirror was updated under `alpha-studio/public/interior-design/skills/`.
+
+**Phase 14 Update (2026-05-20):** Engine templates now use `boxes` as the 3D source of truth. Built-in JSON templates and `builtin-templates.js` no longer carry `frontSvg`/`sideSvg`/`planSvg`; SVG views are projected from resolved world-space boxes via `core/box-resolver.js` and `projectBoxToView()`. Template param min/max is advisory only, so render dimensions no longer clamp away from the module's declared size.
+
+**Phase 13 Update (2026-05-20):** Added `skills/` with six interior agent domain recipes (kitchen L/galley, wardrobe built-in/sliding, study desk L, child bedroom). Template catalog now has 13 seed JSON files: the original seven plus six kitchen modules (`base-cabinet-2door`, `base-drawer-stack`, `wall-cabinet-2door`, `tall-cabinet`, `corner-cabinet`, `sink-base`). Public mirror under `alpha-studio/public/interior-design/` includes both `src/` and `skills/`.
+
 **Phase 12 Update (2026-05-19):** Self-extending template library wired in. The engine loader now merges seed templates (static manifest + bundled `builtin-templates.js`) with backend approved/seed rows fetched from `GET /api/interior/templates`. Inline templates from `model.inlineTemplates` still take precedence per render. No engine code change beyond `loader.js` — Phase 11 renderer + DSL interpreter unchanged.
 
 **Phase 11 Update (2026-05-19):** Builder completed the dependency-free template DSL + Canvas 2D isometric renderer. Three.js, CSG vendor code, import maps, and the old catalog registry/BoxService are removed from runtime. Model JSON now supports `palette`, `inlineTemplates`, and `modules[].tpl/style`; the seven built-in templates are `upper-2door`, `upper-glass-2door`, `sliding-2door`, `sliding-3door`, `ac-recess-fold`, `open-bookshelf`, and `l-desk-return`. The public mirror under `alpha-studio/public/interior-design/` is synced from this source and no longer ships Three/CSG vendor folders.
 
-**Last Updated:** 2026-05-19 (Builder: Phase 12 complete)
+**Last Updated:** 2026-05-22 (Session #27 - curved template primitives)
+**Session:** #27 - Added `roundedBox` and `cylinder` template primitives, seed/public `cab-base-rounded-end`, renderer/backend/workshop tests, and MongoDB seed update.
+**Session:** #26 - Fixed kitchen L-shape skill guidance so AI preserves full return-leg length and the public mirror stays aligned.
+**Session:** #25 - Phase 15 completed: added `MODEL_CONTRACT.md`, dependency-free runtime `validateModel`, centralized debug logging, validation tests, schema/docs alignment, and public mirror sync.
+**Session:** #24 - Phase 15 spec is ready for Builder: Articraft-inspired model contract, runtime validation, public `validateModel`, debug logging cleanup, focused Node tests, and public mirror sync.
+**Session:** #23 - Phase 14: `boxes` replaces per-view template SVG shapes, `box-resolver.js` shares world-space box resolution between SVG and 3D renderers, and public mirror is synced.
+**Session:** #22 — F23: `allItems` now returns all modules for every view mode (front/side previously dropped non-first runs). F24: iso-renderer applies `_runDirection` rotation to box geometry via `transformBox()` so 3D matches 2D footprint for L-shape kitchens.
 **Session:** #21 — Phase 12 build: backend InteriorTemplate model + /api/interior/templates GET/POST + admin review endpoints, AI tplNew escape extracted into modelJson.inlineTemplates, frontend commit UX + admin tab.
 
 ---
@@ -102,7 +116,8 @@ Vendor (offline fallback): `alpha-studio/public/vendor/three/` chứa `three.mod
 | `interior-design-model.schema.json` | AI output contract | JSON Schema cho validate AI-generated design models. |
 | `ai-model-instructions.md` | AI prompt template | System/developer instruction để convert user request → model JSON. |
 | `interior-design-workflow.md` | AI workflow docs | Intake checklist, design directions, review gate, AI image export. |
-| `SPEC.md` | Architect specification | Roadmap 5 phase + quick wins từ hybrid-ai-skills Architect. |
+| `SPEC.md` | Architect specification | Phase-based roadmap from hybrid-ai-skills Architect. |
+| `.claude/MODEL_CONTRACT.md` | Public model contract doc | Current model shape, runtime validation contract, template model, and source/generated-output boundary. |
 | `claude.md` | Instructions for future Claude sessions | Read `.claude/PROJECT_SUMMARY.md` first. |
 | `.claude/CONVENTIONS.md` | Coding conventions | Derived from this static library project. |
 | `.claude/SETUP_REPORT.md` | Initial setup report | Historical setup artifact. |
@@ -174,6 +189,9 @@ No router. In-page tab buttons.
 | Catalog registry | Done | `src/catalog/registry.js`, `src/catalog/index.js`, `src/catalog/elements/*.js`, `src/catalog/services/box-service.js` | 8 element built-in: door-shaker, door-flat, drawer-front, handle-bar, handle-knob, rod-hanging, shelf-fixed, void-cavity. Registry API: `registerElement`, `getElement`, `listElements`, `factoryElement`. BoxService: create/update/delete/intersect/contains. SVG renderer auto-delegate khi item có `catalogId`; reviewModel cảnh báo khi `catalogId` không tồn tại. JSON schema mở rộng `catalogId` + `props`. |
 | Gemini image-to-design pipeline | Done | `src/ai/image-analyzer.js`, `src/ui/upload-panel.js`, `src/ui/compare-slider.js`, `src/core/model.js`, backend `routes/interior.js` (+/analyze-image, +/generate-render), `middleware/interiorQuota.js`, models `InteriorAnalysis`/`InteriorRender`/`InteriorQuota` | Frontend: `analyzeImage(file, opts)` resize ≤1600px → presigned B2 upload → POST /analyze-image. Debug console logs are gated by `?debug=1` or `localStorage.ide:debug=1`; unsupported schema requests log as `[ide:ai] unsupported:`. `normalizeModel()` records `_validationWarnings` for invalid void/glass material semantics. Compare-slider web component (pointer drag + clip-path). Upload panel with drop zone + hints textarea + status. Backend: analyze flow has 24h cache via sha256(imageUrl+hints), robust JSON extraction before repair loop, repair loop max 2 retries, Gemini Flash 3 default → Pro 3.1 escalate when hints contain "complex" or override="pro". AI may return `meta.unsupportedRequests[]` for unsupported schema requests and is instructed not to misuse `glass-smoked` / `kind:"void"`. Generate-render endpoint validates modelJson, uploads viewBase64 to `interior-design/conditioning/`, persists InteriorRender record. **Image-gen upstream not yet wired** — returns conditioning URL as renderUrl placeholder + meta.pending=true. Rate limit 5/24h/user via `interiorQuotaCheck` middleware (bypass for admin/mod, disable via `INTERIOR_QUOTA_ENABLED=false`). |
 | Simple property editor | Done | `src/editor/{index,selection,property-panel,history,history-panel,keyboard}.js`, `src/renderers/svg-renderer.js` (g-wrapper with `data-detail-id`), `interior-design-engine.css` (`.ide-selected`, `.ide-editor-*`, `.ide-prop-*`, `.ide-history-*`) | `InteriorDesigner.enableEditor({mount, model, language, onChange})` orchestrates click-to-select on front/side/plan SVG views + sidebar property form (label, x/y/z, w/h/d, color, material preset dropdown, catalog id dropdown). Every edit goes through `BoxService.update` → re-render all tabs → push metadata snapshot into `History` (max 50). Keyboard: Ctrl+Z undo, Ctrl+Y/Ctrl+Shift+Z redo, Delete remove selected (via `BoxService.delete`), Escape clear selection or closes preview. Sidebar includes undo/redo/delete plus Phase 9 History preview/restore panel. Backward compat: items render unchanged when editor not mounted. |
+| Template 3D-as-truth rendering | Done | `src/core/box-resolver.js`, `src/template-engine/interpreter.js`, `src/renderers/svg-renderer.js`, `src/renderers/iso-renderer.js`, `src/templates/*.json` | Phase 14 replaces independent `frontSvg`/`sideSvg`/`planSvg` template views with `boxes` only. SVG front/side/plan views project resolved 3D boxes, and min/max param bounds are advisory rather than render-time clamps. |
+| Curved template primitives | Done | `src/template-engine/interpreter.js`, `src/core/box-resolver.js`, `src/renderers/svg-renderer.js`, `src/renderers/iso-renderer.js`, `src/templates/cab-base-rounded-end.json` | Boxes DSL now supports regular boxes plus `roundedBox` and `cylinder` for bo goc panels, round knobs, rods, legs, and tube frames. |
+| Model contract and runtime validation | Done | `.claude/MODEL_CONTRACT.md`, `src/core/validation.js`, `src/core/debug.js`, `src/__tests__/validation.test.mjs`, `README.md`, schema JSON, AI docs | Phase 15 adds lightweight validation and docs inspired by Articraft's contract-first workflow without adding dependencies or changing existing public API signatures. `InteriorDesigner.validateModel()` is exposed in source and public mirror. |
 
 ---
 
@@ -184,6 +202,7 @@ No router. In-page tab buttons.
 - [x] Phase 1: Split `interior-design-engine.js` (1174 dòng) thành ES modules + centralize i18n — completed 2026-05-17 session #8.
 - [ ] Browser visual verification: mở `tu_quan_ao_engine_demo.html` + alpha-studio `/studio/interior-design` để confirm 4 tab + review panel + AI export panel render đúng sau khi chuyển sang ES modules.
 - [ ] Verify Vietnamese text encoding in browser before bulk text edits; PowerShell output may show mojibake.
+- [x] Phase 15: implement model contract docs, `validateModel`, validation tests, debug helper cleanup, and source/public mirror sync.
 
 ### Medium Priority
 
@@ -196,6 +215,7 @@ No router. In-page tab buttons.
 - [x] Phase 8: Multi-run schema — top-level `runs[]`, `resolveRunCoord`, plan/3D multi-run rendering, backend validator/prompt, and docs — completed 2026-05-18 session #16.
 - [x] Phase 9: History panel with thumbnail preview — metadata snapshots, non-destructive preview, explicit restore, read-only property panel, render thumbnail attachment, and docs — completed 2026-05-18 session #17.
 - [x] Phase 10: Nhóm A bug fixes — solid material opacity guard, larger shadow camera bounds, demo opacity fixture, and backend prompt updates for `/chat` dimensions/runs/z-axis — completed 2026-05-18 session #18.
+- [x] Phase 14: 3D-as-truth template refactor — completed 2026-05-20 session #23.
 - [ ] Wire actual image-generation upstream (Imagen/Gemini Image API) so `/generate-render` returns real AI-render URL instead of conditioning URL.
 - [ ] Add browser UI for pasting/validating AI-generated model JSON before rendering.
 
@@ -248,6 +268,8 @@ Per CLAUDE.md workspace rule: nếu code thực tế khác PROJECT_SUMMARY.md, *
 - [ ] Test AI export panel sau khi sửa logic export.
 - [ ] `alpha-studio dev server` → `/studio/interior-design` → iframe shell flow OK.
 
+- [x] Phase 15 verification: `node --check` for edited runtime modules, `node --test` validation + box resolver tests, schema JSON parse, public `src/` hash comparison, and schema `fc` comparison.
+
 ### Don't forget to:
 
 - Update file's `Last Updated` + session number sau mỗi task.
@@ -264,6 +286,7 @@ Architect SPEC files ở **workspace root** (`D:\Dev\NodeJS\alpha-studio\`):
 - `SPEC-phase-6.md` → `SPEC-phase-10.md` — historical phase specs (đã build + review xong)
 - `SPEC-phase-11.md` — **Active**: Drop Three.js + iso renderer + JSON DSL template engine + 7 seed templates port từ reference HTML
 - `SPEC-phase-12.md` — **Planned (build ngay sau Phase 11)**: Self-extend template library — backend `InteriorTemplate` collection + AI `tplNew` escape hatch + user commit UX + admin review page
+- `SPEC-phase-15.md` — **Done**: Articraft-inspired model contract, runtime validation, public `validateModel`, debug logging cleanup, focused Node tests, and mirror sync.
 - `BUILDER_LOG.md` + `REVIEW_LOG.md` — Builder/Reviewer audit trail
 - `.spec-archive/` — auto-archived old SPECs
 

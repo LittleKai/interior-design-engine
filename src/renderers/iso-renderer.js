@@ -1,20 +1,7 @@
 import { el, cm } from "../core/dom.js";
 import { allItems, modelBounds, isVisible } from "../core/model.js";
-import { getInstance } from "../template-engine/dispatcher.js";
-import { getTemplate } from "../template-engine/loader.js";
-import { renderTemplate } from "../template-engine/interpreter.js";
+import { resolveItemBoxes, defaultFaces } from "../core/box-resolver.js";
 import { resolveToken, DEFAULT_PALETTE } from "../template-engine/color-tokens.js";
-
-function defaultFaces(palette) {
-  return {
-    top: resolveToken(palette, "woodTop"),
-    front: resolveToken(palette, "woodFront"),
-    right: resolveToken(palette, "woodSide"),
-    left: resolveToken(palette, "woodDark"),
-    back: resolveToken(palette, "woodBack"),
-    bottom: resolveToken(palette, "woodDark")
-  };
-}
 
 export class IsoRenderer {
   constructor(container, options = {}) {
@@ -179,32 +166,49 @@ export class IsoRenderer {
     this.face(ctx, [[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], faces.top, faces.stroke, box.opacity);
   }
 
-  boxesForItem(item) {
-    if (item._isTemplate && item.tpl) {
-      const template = getTemplate(item.tpl);
-      if (template) {
-        return renderTemplate(template, getInstance(item), "3d", this.palette).map((box) => ({
-          x: item.x + box.x,
-          y: item.y + box.y,
-          z: item.z + box.z,
-          w: box.w,
-          h: box.h,
-          d: box.d,
-          faces: box.faces,
-          opacity: box.opacity
-        }));
-      }
+  projectedRadius(x, y, z, radius) {
+    const center = this.project(x, y, z);
+    const edge = this.project(x + radius, y, z);
+    return Math.max(2, Math.hypot(edge[0] - center[0], edge[1] - center[1]));
+  }
+
+  drawCylinder(ctx, box) {
+    const faces = Object.assign({}, defaultFaces(this.palette), box.faces || {});
+    const fill = faces.front || faces.right || faces.top || resolveToken(this.palette, "metal") || "#606f7b";
+    const radius = box.radius || Math.min(box.w, box.h, box.d) / 2;
+    const cx = box.x + box.w / 2;
+    const cy = box.y + box.h / 2;
+    const cz = box.z + box.d / 2;
+    let a = [cx, cy, box.z];
+    let b = [cx, cy, box.z + box.d];
+    if (box.axis === "x") {
+      a = [box.x, cy, cz];
+      b = [box.x + box.w, cy, cz];
+    } else if (box.axis === "y") {
+      a = [cx, box.y, cz];
+      b = [cx, box.y + box.h, cz];
     }
-    return [{
-      x: item.x,
-      y: item.y,
-      z: item.z,
-      w: item.width,
-      h: item.height,
-      d: item.depth,
-      faces: defaultFaces(this.palette),
-      opacity: item.opacity
-    }];
+    const pa = this.project(a[0], a[1], a[2]);
+    const pb = this.project(b[0], b[1], b[2]);
+    const pr = this.projectedRadius(cx, cy, cz, radius);
+    ctx.globalAlpha = box.opacity == null ? 1 : box.opacity;
+    ctx.strokeStyle = fill;
+    ctx.lineWidth = pr * 2;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(pa[0], pa[1]);
+    ctx.lineTo(pb[0], pb[1]);
+    ctx.stroke();
+    ctx.lineWidth = window.devicePixelRatio || 1;
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = faces.stroke || resolveToken(this.palette, "cabDark") || "#2e2e35";
+    [pa, pb].forEach((p) => {
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], pr, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
   }
 
   draw() {
@@ -217,8 +221,11 @@ export class IsoRenderer {
       .filter((item) => isVisible(item, "3d"))
       .slice()
       .sort((a, b) => (a.layer || 0) - (b.layer || 0))
-      .flatMap((item) => this.boxesForItem(item))
-      .forEach((box) => this.drawBox(ctx, box));
+      .flatMap((item) => resolveItemBoxes(item, this.palette))
+      .forEach((box) => {
+        if (box.type === "cylinder") this.drawCylinder(ctx, box);
+        else this.drawBox(ctx, box);
+      });
     if (this.dimensionsVisible) {
       ctx.fillStyle = resolveToken(this.palette, "dim") || "#473d34";
       ctx.font = `${12 * (window.devicePixelRatio || 1)}px Arial`;

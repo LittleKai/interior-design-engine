@@ -1,0 +1,64 @@
+{
+  "id": "base-drawer-stack",
+  "version": 1,
+  "category": "drawer-base",
+  "tags": [
+    "kitchen",
+    "base",
+    "drawer"
+  ],
+  "description": {
+    "vi": "Tu bep duoi ngan keo",
+    "en": "Kitchen drawer base"
+  },
+  "params": {
+    "width": {
+      "type": "number",
+      "min": 45,
+      "max": 100,
+      "default": 60
+    },
+    "height": {
+      "type": "number",
+      "min": 80,
+      "max": 95,
+      "default": 86
+    },
+    "depth": {
+      "type": "number",
+      "min": 55,
+      "max": 65,
+      "default": 60
+    }
+  },
+  "style": {},
+  "boxes": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": "{{width}}",
+      "h": "{{height}}",
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodFront",
+        "right": "$woodSide",
+        "left": "$woodDark",
+        "back": "$woodBack"
+      }
+    },
+    {
+      "x": 3,
+      "y": 8,
+      "z": "{{depth - 1}}",
+      "w": "{{width - 6}}",
+      "h": "{{height - 12}}",
+      "d": 1,
+      "faces": {
+        "front": "$woodFrontL",
+        "top": "$woodTop"
+      }
+    }
+  ]
+}

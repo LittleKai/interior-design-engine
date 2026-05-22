@@ -97,6 +97,17 @@ InteriorDesigner.render({
 });
 ```
 
+### `InteriorDesigner.validateModel(model, options?)`
+
+Runs dependency-free runtime validation and returns `{ valid, errors, warnings, normalized }`. Use this before rendering or exporting AI-generated JSON.
+
+```js
+const result = InteriorDesigner.validateModel(model);
+if (!result.valid) {
+  console.error(result.errors);
+}
+```
+
 ### `InteriorDesigner.buildAiPrompt(model, promptOptions)`
 
 Builds a text prompt for external image generation from the same design model. English is the default because many image-generation models follow English prompts more consistently. Use `language: "vi"` when you want a Vietnamese review copy for the user.
@@ -233,9 +244,13 @@ Top-level fields:
 | `height` | number | yes | Overall model height. |
 | `depth` | number | yes | Overall model depth. |
 | `materials` | object | no | Shared material/color values. |
+| `palette` | string | no | Built-in color palette id, such as `wood-oak`. |
+| `inlineTemplates` | object | no | Per-model template definitions. |
 | `modules` | array | yes | Main zones or large structures. |
+| `runs` | array | no | Multi-run layouts for L, U, galley, or island designs. |
 | `details` | array | no | Panels, doors, shelves, handles, rods, appliances, voids. |
 | `specs` | array | no | Extra rows for the specs tab. |
+| `meta` | object | no | Runtime/AI metadata, including unsupported requests. |
 
 Item fields for `modules` and `details`:
 
@@ -250,10 +265,13 @@ Item fields for `modules` and `details`:
 | `color` | string | no | CSS color, usually hex. |
 | `opacity` | number | no | SVG/canvas opacity from `0` to `1`. |
 | `layer` | number | no | Draw order. Higher values render later. |
+| `materialRef` | string | no | Material preset reference. |
+| `tpl` | string | no | Template id for boxes-based template rendering. Template DSL supports regular boxes plus `roundedBox` and `cylinder` primitives. |
+| `style` | object | no | Per-template style overrides. |
 | `hiddenIn3d` | boolean | no | Hide item in the 3D schematic. |
 | `hideLabel` | boolean | no | Hide item label in drawings. |
 
-Use `interior-design-model.schema.json` when validating AI output.
+Use `interior-design-model.schema.json` for schema alignment and `InteriorDesigner.validateModel(model)` for runtime validation before render/export.
 
 ## AI Integration Flow
 
@@ -265,7 +283,7 @@ Recommended flow:
 4. Use `ai-model-instructions.md` as the system/developer instruction.
 5. Ask the AI to return JSON only.
 6. Parse the JSON.
-7. Validate it against `interior-design-model.schema.json`.
+7. Validate it with `InteriorDesigner.validateModel(model)` and inspect blocking errors.
 8. Run `InteriorDesigner.reviewModel()` and inspect issues before image export.
 9. Pass the model to `InteriorDesigner.render()`.
 10. Optionally call `createAiImagePackage()` to generate image references, English/Vietnamese prompts, a usage guide, and model JSON for external photorealistic rendering.

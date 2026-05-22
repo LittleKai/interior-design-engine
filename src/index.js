@@ -6,6 +6,7 @@ import { attachCompareSlider } from "./ui/compare-slider.js";
 import { buildAiPrompt, createAiImagePackage, downloadAiImagePackage } from "./ai/prompt-builder.js";
 import { analyzeImage, generateRender } from "./ai/image-analyzer.js";
 import { getDesignDirections, buildIntakeChecklist } from "./core/i18n.js";
+import { validateModel } from "./core/validation.js";
 import { enableEditor } from "./editor/index.js";
 import { loadTemplateCatalog, getTemplate } from "./template-engine/loader.js";
 import { listPalettes } from "./template-engine/color-tokens.js";
@@ -21,6 +22,7 @@ const InteriorDesigner = {
   buildAiPrompt,
   getDesignDirections,
   buildIntakeChecklist,
+  validateModel,
   reviewModel,
   loadTemplateCatalog,
   getTemplate,
@@ -47,6 +49,7 @@ export {
   downloadAiImagePackage,
   getDesignDirections,
   buildIntakeChecklist,
+  validateModel,
   loadTemplateCatalog,
   getTemplate,
   listPalettes,

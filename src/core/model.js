@@ -107,11 +107,13 @@ export function normalizeItems(items, model, group) {
   });
 }
 
-export function allItems(model, mode) {
-  const modules = mode === "front" || mode === "side"
-    ? (((model.runs && model.runs[0] && model.runs[0].modules) || model.modules || []))
-    : (model.modules || []);
-  return modules.concat(model.details || []);
+export function allItems(model) {
+  // Multi-run models must surface every module in every view. Earlier code
+  // returned only runs[0] for front/side which silently dropped perpendicular
+  // runs (L-shape kitchen return-run, etc) from those projections. The 2D
+  // projection logic in itemProjection/itemFootprint already handles direction,
+  // so passing all modules is safe.
+  return (model.modules || []).concat(model.details || []);
 }
 
 export function resolveRunCoord(run, moduleIndex, item) {
