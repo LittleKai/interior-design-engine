@@ -29,15 +29,14 @@ Specific files user mentioned  -> Only if needed for implementation
 ### Update PROJECT_SUMMARY.md
 
 **Always update:**
-- Top: `Last Updated` timestamp + session number
+- Top: `Last Updated` timestamp
 - Section 4: Feature status
 - Section 5: Mark completed TODOs or add new ones
 
 **Update if changed:**
 - Section 2: New files or dependencies
-- Section 7: New verification or workflow notes
 
-> Do not record changelogs or recent-change logs in documentation. PROJECT_SUMMARY.md should describe the current state only.
+**CRITICAL:** Tuyệt đối KHÔNG tạo hay cập nhật file lịch sử, Recent Changes hay Changelog. Nếu phát hiện các phần ghi lịch sử/Recent Changes trong các tài liệu hiện tại, hãy xóa chúng đi.
 
 ---
 
