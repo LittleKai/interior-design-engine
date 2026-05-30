@@ -36,7 +36,7 @@ Specific files user mentioned  -> Only if needed for implementation
 **Update if changed:**
 - Section 2: New files or dependencies
 
-**CRITICAL:** Tuyệt đối KHÔNG tạo hay cập nhật file lịch sử, Recent Changes hay Changelog. Nếu phát hiện các phần ghi lịch sử/Recent Changes trong các tài liệu hiện tại, hãy xóa chúng đi.
+**CRITICAL:** PROJECT_SUMMARY.md chỉ phản ánh trạng thái hiện tại của dự án. Không dùng PROJECT_SUMMARY.md để ghi lịch sử thay đổi, changelog, recent changes, hoặc bug-fix log. Git history là nguồn lịch sử thay đổi.
 
 ---
 

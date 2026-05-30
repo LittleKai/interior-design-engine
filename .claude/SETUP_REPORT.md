@@ -117,7 +117,13 @@ From now on, every Claude Code session should:
 1. **Start:** Read `.claude/PROJECT_SUMMARY.md` — not the entire codebase
 2. **Check:** `.claude/CONVENTIONS.md` for standards if needed
 3. **Work:** Make requested changes
-4. **Update:** PROJECT_SUMMARY.md timestamp, Section 4, Section 5, and Section 7 when relevant
+4. **Update:** PROJECT_SUMMARY.md timestamp and active features status/TODOs when relevant.
+
+Documentation now follows current-state tracking:
+- PROJECT_SUMMARY.md reflects the current project state only.
+- Change history belongs in git.
+- Important fixed bugs that should not be repeated belong in `.claude/IMPORTANT_FIXED_BUGS.md`.
+- Setup/re-summary reports are one-time snapshots and do not need ongoing updates.
 
 
 ## Documentation System Ready
