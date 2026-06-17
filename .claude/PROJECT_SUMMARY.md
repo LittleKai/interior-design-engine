@@ -1,28 +1,5 @@
 # Project Summary
 
-**Session #27 Update (2026-05-22):** Template DSL now supports whitelisted curved primitives inside `boxes`: `roundedBox` and `cylinder`. The interpreter/projection layer, box resolver, SVG renderer, and Canvas isometric renderer preserve/render primitive metadata. Added seed template `cab-base-rounded-end` and synced the public mirror; backend seed now imports 14 templates.
-
-**Session #26 Update (2026-05-21):** `skills/kitchen-l-shape.md` now explicitly treats the requested L return length as the full perpendicular leg length and gives the agent a concrete `origin:{x:W,z:0}` / `width:L` rule, avoiding tiny leftover return stubs for "nhánh L 1m" requests. Public mirror was updated under `alpha-studio/public/interior-design/skills/`.
-
-**Phase 14 Update (2026-05-20):** Engine templates now use `boxes` as the 3D source of truth. Built-in JSON templates and `builtin-templates.js` no longer carry `frontSvg`/`sideSvg`/`planSvg`; SVG views are projected from resolved world-space boxes via `core/box-resolver.js` and `projectBoxToView()`. Template param min/max is advisory only, so render dimensions no longer clamp away from the module's declared size.
-
-**Phase 13 Update (2026-05-20):** Added `skills/` with six interior agent domain recipes (kitchen L/galley, wardrobe built-in/sliding, study desk L, child bedroom). Template catalog now has 13 seed JSON files: the original seven plus six kitchen modules (`base-cabinet-2door`, `base-drawer-stack`, `wall-cabinet-2door`, `tall-cabinet`, `corner-cabinet`, `sink-base`). Public mirror under `alpha-studio/public/interior-design/` includes both `src/` and `skills/`.
-
-**Phase 12 Update (2026-05-19):** Self-extending template library wired in. The engine loader now merges seed templates (static manifest + bundled `builtin-templates.js`) with backend approved/seed rows fetched from `GET /api/interior/templates`. Inline templates from `model.inlineTemplates` still take precedence per render. No engine code change beyond `loader.js` — Phase 11 renderer + DSL interpreter unchanged.
-
-**Phase 11 Update (2026-05-19):** Builder completed the dependency-free template DSL + Canvas 2D isometric renderer. Three.js, CSG vendor code, import maps, and the old catalog registry/BoxService are removed from runtime. Model JSON now supports `palette`, `inlineTemplates`, and `modules[].tpl/style`; the seven built-in templates are `upper-2door`, `upper-glass-2door`, `sliding-2door`, `sliding-3door`, `ac-recess-fold`, `open-bookshelf`, and `l-desk-return`. The public mirror under `alpha-studio/public/interior-design/` is synced from this source and no longer ships Three/CSG vendor folders.
-
-**Last Updated:** 2026-05-22 (Session #27 - curved template primitives)
-**Session:** #27 - Added `roundedBox` and `cylinder` template primitives, seed/public `cab-base-rounded-end`, renderer/backend/workshop tests, and MongoDB seed update.
-**Session:** #26 - Fixed kitchen L-shape skill guidance so AI preserves full return-leg length and the public mirror stays aligned.
-**Session:** #25 - Phase 15 completed: added `MODEL_CONTRACT.md`, dependency-free runtime `validateModel`, centralized debug logging, validation tests, schema/docs alignment, and public mirror sync.
-**Session:** #24 - Phase 15 spec is ready for Builder: Articraft-inspired model contract, runtime validation, public `validateModel`, debug logging cleanup, focused Node tests, and public mirror sync.
-**Session:** #23 - Phase 14: `boxes` replaces per-view template SVG shapes, `box-resolver.js` shares world-space box resolution between SVG and 3D renderers, and public mirror is synced.
-**Session:** #22 — F23: `allItems` now returns all modules for every view mode (front/side previously dropped non-first runs). F24: iso-renderer applies `_runDirection` rotation to box geometry via `transformBox()` so 3D matches 2D footprint for L-shape kitchens.
-**Session:** #21 — Phase 12 build: backend InteriorTemplate model + /api/interior/templates GET/POST + admin review endpoints, AI tplNew escape extracted into modelJson.inlineTemplates, frontend commit UX + admin tab.
-
----
-
 ## 1. Project Overview
 
 - **Type:** Static browser library and demo for interior design visualization (chuyên tủ áo built-in).

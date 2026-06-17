@@ -29,7 +29,6 @@ Specific files user mentioned  -> Only if needed for implementation
 ### Update PROJECT_SUMMARY.md
 
 **Always update:**
-- Top: `Last Updated` timestamp
 - Section 4: Feature status
 - Section 5: Mark completed TODOs or add new ones
 
