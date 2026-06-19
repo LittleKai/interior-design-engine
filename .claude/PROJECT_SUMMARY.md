@@ -235,7 +235,7 @@ No router. In-page tab buttons.
 
 ### Drift Check Rule
 
-Per CLAUDE.md workspace rule: nếu code thực tế khác PROJECT_SUMMARY.md, **PHẢI** cập nhật md ngay trong cùng task. Bump `Last Updated` + session number.
+Per CLAUDE.md workspace rule: nếu code thực tế khác PROJECT_SUMMARY.md, **PHẢI** cập nhật md ngay trong cùng task.
 
 ### Testing checklist:
 
@@ -249,7 +249,6 @@ Per CLAUDE.md workspace rule: nếu code thực tế khác PROJECT_SUMMARY.md, *
 
 ### Don't forget to:
 
-- Update file's `Last Updated` + session number sau mỗi task.
 - Follow `CONVENTIONS.md`.
 - Demo/embed HTML KHÔNG chứa reusable implementation code.
 
