@@ -1,7 +1,5 @@
 # Project Summary
 
-*Latest Session: Completed Interior Design Phase D: backend geometry warnings, one-shot AI repair loop, template dimension defaults, shell warning panel, and public mirror sync.*
-
 ## 1. Project Overview
 
 - **Type:** Static browser library and demo for interior design visualization (chuyên tủ áo built-in).
@@ -59,7 +57,7 @@ tools/interior-design-engine/
 │   ├── template-engine/
 │   │   ├── interpreter.js             ← renderTemplate/projectBoxToView (box, roundedBox, cylinder)
 │   │   ├── expression.js              ← DSL expression AST whitelist ({{ expr }})
-│   │   ├── color-tokens.js            ← 8 palettes + material tokens ($woodFront, $metal, $fabric, $stone...)
+│   │   ├── color-tokens.js            ← 4 palette × ~21 token ($woodFront, $handle...)
 │   │   ├── loader.js                  ← catalog: builtin + static manifest + backend /templates
 │   │   ├── builtin-templates.js       ← bundle inline của templates JSON
 │   │   └── dispatcher.js
@@ -144,7 +142,7 @@ No router. In-page tab buttons.
 |---------|--------|----------------|-------|
 | Shared model rendering | Done | `interior-design-engine.js`, demo HTML | Front/side/plan/3D/specs derive từ một model. |
 | Front/side/plan tabs | Done | `interior-design-engine.js` | SVG views từ model bounds. |
-| 3D iso renderer (thay Three.js) | Done | `src/renderers/iso-renderer.js`, `src/ui/main-renderer.js` | Phase 11 xoá Three.js. Canvas 2D isometric: drag rotate, wheel zoom, dblclick reset, palette-based faces, per-face luminance shading, exportPNG. Raw `item.color` and template `style.colors` overrides now render; `roundedBox` still renders as box in 3D until Phase E. |
+| 3D iso renderer (thay Three.js) | Done | `src/renderers/iso-renderer.js`, `src/ui/main-renderer.js` | Phase 11 xoá Three.js. Canvas 2D isometric: drag rotate, wheel zoom, dblclick reset, palette-based flat faces, exportPNG. Hạn chế hiện tại: bỏ qua `item.color`/`materialRef`, `roundedBox` vẽ như box vuông, không shading — xem `IMPROVEMENT_PLAN.md`. |
 | CSG hint rendering | Removed (Phase 11) | — | `csgHints[]` chỉ tồn tại ở ThreeRenderer (Phase 7), đã bị xoá cùng Three.js. Bo góc nay dùng primitive `roundedBox` trong template DSL. |
 | Multi-run layouts | Done | `src/core/model.js`, `src/renderers/svg-renderer.js`, `src/renderers/three-renderer.js`, `src/renderers/three/dimensions.js`, schema JSON | Phase 8 adds top-level `runs[]` with `{id, origin:{x,z}, direction, modules}` for L/U/island/galley layouts. `normalizeModel()` converts legacy `modules[]` into `runs:[default]`, resolves run modules to absolute coordinates, plan/3D render all runs, and front/side render the first run plus absolute details. |
 | History preview panel | Done | `src/editor/history.js`, `src/editor/history-panel.js`, `src/editor/index.js`, `src/editor/property-panel.js`, `src/core/i18n.js`, `src/ai/image-analyzer.js`, CSS | Phase 9 stores snapshot metadata (`id`, `timestamp`, `label`, optional `renderUrl`), renders a sidebar timeline, supports non-destructive preview mode with read-only properties and disabled edit shortcuts, restores snapshots explicitly, and attaches `generateRender()` URLs as thumbnails. |
@@ -153,7 +151,6 @@ No router. In-page tab buttons.
 | Export options panel | Done | `interior-design-engine.js`, `.css`, demo HTML | Preset VN, design direction, EN/VI prompt, copy EN prompt. |
 | Design direction workflow | Done | `interior-design-engine.js`, workflow MD, README, AI instructions | 3 directions built-in + intake checklist. |
 | Model review panel/API | Done | `interior-design-engine.js`, `.css`, demo HTML, README | `reviewModel()` + `attachDesignReviewPanel()`. |
-| Shell validation warning panel | Done | `src/ui/main-renderer.js`, `src/core/i18n.js`, `src/core/model.js`, `interior-design-engine.css`, public mirror | Phase D surfaces backend/runtime `_validationWarnings` and `reviewModel()` issues directly below the shell header with vi/en labels. Template modules missing dimensions use `params.default` instead of full-model fallback. |
 | AI model contract docs | Done | README, schema JSON, AI instructions MD | Document model JSON shape cho AI consumers. |
 | Documentation system | Done | `claude.md`, `.claude/*`, `SPEC.md` | Architect SPEC.md ready cho Builder. |
 | Alpha Studio embed assets | Done | `alpha-studio/public/interior-design/*`, `InteriorDesignPage.tsx` | Source ở `tools/interior-design-engine`, copy static được serve qua `/studio/interior-design`. |
@@ -170,22 +167,13 @@ No router. In-page tab buttons.
 
 ## 5. Known Issues & TODOs
 
-> **2026-07-02:** Phase B asset pipeline completed. Backend prompts now build the catalog dynamically from `InteriorTemplate` seed/approved rows with 5-minute cache, backend startup auto-seeds built-ins + workshop components, 42 current workshop JSON components were upserted as approved templates, active few-shot examples favor `tpl`, agent prompts include domain/dimension/runs/catalog rules, and source/public mirror color tokens include small workshop aliases (`wood`, `woodLight`, `metal`).
-
-> **2026-07-02:** Phase C color/material work completed. Palette vocabulary now includes VN-oriented `white-oak`, `navy-brass`, `green-sage`, `grey-minimal`; material tokens cover metal/fabric/stone/ceramic/plant/LED/accent variants; `module.style.colors` supports per-template-module overrides; iso renderer applies face luminance shading; backend validator rejects unknown `$token` references; source/public mirror and schema/model contract are synced.
-
-> **2026-07-02:** Phase D dimension/repair work completed. `/chat` backend now attaches non-blocking geometry warnings, retries once with a focused repair prompt, applies template `params.default` dimensions before save, and shell UI renders `_validationWarnings` plus `reviewModel()` issues in a warning panel. Public mirror is hash-synced for changed runtime files.
-
-> **2026-07-02:** Phase A hotfix completed. `cab-base-rounded-end` no longer uses ternary, per-shape template errors are skipped into validation warnings, `===`/`!==` aliases are supported, raw `item.color` renders with shaded faces, backend catalog prompt lists all 14 seed templates, public mirror is synced, and seed script upserted 14 DB templates.
-
 > **2026-07-02:** Xem `IMPROVEMENT_PLAN.md` (project root) — phân tích 26 phát hiện (F1-F26) về việc AI không dùng template catalog, màu sắc bị renderer bỏ qua, template bo góc `cab-base-rounded-end` crash do ternary không được expression engine hỗ trợ, kích thước sai ở agent mode, và roadmap 5 phase (A-E) để khắc phục.
 
 ### High Priority
 
-- [x] **[BUG — crash]** `cab-base-rounded-end` ternary/strict-equality crash fixed by splitting conditional handle shapes with `"if"` and adding `===`/`!==` aliases.
-- [x] **[BUG]** `box-resolver.resolveItemBoxes` now honors raw `item.color` by deriving shaded faces from the provided color.
-- [x] Prompt catalog backend (`INTERIOR_CATALOG_VI/EN`) now lists all 14 seed templates and documents the `"if"` pattern instead of ternary.
-- [x] Workshop components are now dynamically included in `/chat`/proposal/agent prompts through the DB-backed `InteriorTemplate` catalog.
+- [ ] **[BUG — crash]** `cab-base-rounded-end` (template + builtin bundle) dùng ternary `? :` và `===` mà `expression.js` không hỗ trợ → `renderTemplate` throw, view crash (đã verify bằng node test). Fix theo Phase A của IMPROVEMENT_PLAN.md.
+- [ ] **[BUG]** `box-resolver.resolveItemBoxes` bỏ qua `item.color`/`materialRef` cho raw box → mọi màu AI/user đặt đều render thành tông palette gỗ.
+- [ ] Prompt catalog backend (`INTERIOR_CATALOG_VI/EN`) chỉ liệt kê 7/14 template và không bao gồm workshop components — AI không biết assets có sẵn.
 
 - [x] Phase 1: Split `interior-design-engine.js` (1174 dòng) thành ES modules + centralize i18n — completed 2026-05-17 session #8.
 - [ ] Browser visual verification: mở `tu_quan_ao_engine_demo.html` + alpha-studio `/studio/interior-design` để confirm 4 tab + review panel + AI export panel render đúng sau khi chuyển sang ES modules.

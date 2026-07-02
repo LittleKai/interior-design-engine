@@ -216,14 +216,6 @@ AI sinh model "mù" — không bao giờ nhìn thấy kết quả render của c
 
 ### Phase A — Hotfix (ưu tiên cao nhất, ~1-2 ngày)
 
-**Status 2026-07-02:** Phase A completed and verified.
-
-- [x] A1: `cab-base-rounded-end` ternary removed, builtin/template/mirror synced, DB seed upserted 14 templates.
-- [x] A2: `renderTemplate` now skips invalid shapes and records validation warnings instead of crashing a whole view.
-- [x] A3: `===` and `!==` aliases are supported in the browser expression tokenizer; backend validator tests cover alias pass vs ternary rejection.
-- [x] A4: Raw `item.color` now renders through derived shaded faces in 2D/3D box resolution.
-- [x] A5: Temporary backend prompt catalog now lists all 14 seed templates and teaches `"if"` conditional shapes instead of ternary.
-
 | # | Việc | File | Verify |
 |---|------|------|--------|
 | A1 | Sửa `cab-base-rounded-end`: thay ternary bằng 2 shape dùng `"if": "{{style.hand == 'right'}}"` / `"{{style.hand != 'right'}}"`; sửa cả `builtin-templates.js` + templates JSON + mirror `public/interior-design` + re-seed DB | `src/templates/cab-base-rounded-end.json`, `src/template-engine/builtin-templates.js` | Node test render template không throw; demo HTML hiển thị bo góc 2D |
@@ -233,14 +225,6 @@ AI sinh model "mù" — không bao giờ nhìn thấy kết quả render của c
 | A5 | Cập nhật tạm `INTERIOR_CATALOG_VI/EN` liệt kê đủ 14 template (trước khi làm B1) + thêm dòng dạy pattern `"if"` thay ternary | `server/routes/interior.js` | Chat thử "tủ bếp có bo góc đầu tủ" → AI chọn `cab-base-rounded-end` |
 
 ### Phase B — Asset pipeline: đưa toàn bộ assets đến AI (~3-5 ngày)
-
-**Status 2026-07-02:** Phase B completed and verified.
-
-- [x] B1: `/chat`, proposal, and agent prompts now use a DB-backed catalog prompt section from `InteriorTemplate` (`seed` + `approved`), cached in memory for 5 minutes and capped/prioritized by request keywords.
-- [x] B2: Backend startup auto-seeds built-in templates and workshop components idempotently after DB connect; `npm run seed:interior-templates` uses the same helper and logs counts.
-- [x] B3: 42 current Workshop component JSON files were imported/upserted into DB as approved templates, with ingest normalization for `faces.side` and legacy `$metal`/`$wood`/`$woodLight` tokens.
-- [x] B4: Active few-shot prompt examples now put common wardrobe and L-kitchen cases on `tpl` + `style` instead of raw boxes; raw box remains only as a final fallback/detail example.
-- [x] B5: Agent initial/system prompts now include domain hints, dimension anchor rules, runs rule, dynamic catalog, and require `template.suggest` before the first module add/commit.
 
 | # | Việc | Ghi chú |
 |---|------|--------|
@@ -252,14 +236,6 @@ AI sinh model "mù" — không bao giờ nhìn thấy kết quả render của c
 
 ### Phase C — Màu sắc & vật liệu (~1 tuần)
 
-**Status 2026-07-02:** Phase C completed and verified.
-
-- [x] C1: Token vocabulary expanded across all palettes (`metalDark`, `fabric`, `stone`, `ceramic`, `plantGreen`, `ledWarm`, `accent2`, etc.); backend validates unknown `$token` references and ingest normalizes `faces.side` before validation.
-- [x] C2: Added `white-oak`, `navy-brass`, `green-sage`, and `grey-minimal` palettes with i18n labels; dropdown picks them up through `listPalettes()`.
-- [x] C3: Added per-module `module.style.colors` overrides in the template interpreter, schema JSON, MODEL_CONTRACT, and prompt rules.
-- [x] C4: Added iso-renderer face luminance shading (`top` lighter, side/back/bottom darker) with focused tests.
-- [x] C5: Synced `INTERIOR_DOMAIN_HINTS`/catalog/agent prompt rules with actual renderable palettes, tokens, and per-module color overrides.
-
 | # | Việc | Ghi chú |
 |---|------|--------|
 | C1 | Mở rộng token vocabulary: `metal`, `metalDark`, `fabric`, `stone`, `ceramic`, `plantGreen`, `ledWarm`, `accent2`... cho cả 4 palette; chuẩn hoá face keys (map `side` → `left`+`right` hoặc cấm khi import) | Sửa F10; validate `$token` tồn tại trong `templateValidator` khi import/tplNew |
@@ -269,13 +245,6 @@ AI sinh model "mù" — không bao giờ nhìn thấy kết quả render của c
 | C5 | Đồng bộ `INTERIOR_DOMAIN_HINTS` với năng lực thật của engine sau C1-C3 (chỉ quảng cáo màu/vật liệu render được) | Sửa F9 |
 
 ### Phase D — Kích thước đúng & vòng lặp tự sửa (~1 tuần)
-
-**Status 2026-07-02:** Phase D completed and verified.
-
-- [x] D1: Backend now produces non-blocking geometry warnings for run occupied length, out-of-bounds modules, overlapping modules in the same run/y-range, and upper-vs-lower cabinet z alignment.
-- [x] D2: `/chat` apply now retries once with a focused geometry-repair prompt when D1 warnings exist, then keeps the schema-valid model with warnings if repair fails.
-- [x] D3: `/chat` applies missing `tpl` dimensions from `InteriorTemplate.params.default` and inline template defaults; engine normalization also uses template defaults instead of full model-size fallback for template modules.
-- [x] D4: Shell render now shows `_validationWarnings` plus `reviewModel()` issues in a warning panel with vi/en i18n; source and `alpha-studio/public/interior-design/` mirror are synced.
 
 | # | Việc | Ghi chú |
 |---|------|--------|

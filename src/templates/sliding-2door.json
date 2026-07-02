@@ -139,6 +139,55 @@
         "right": "$handleEdge",
         "top": "$handleEdge"
       }
+    },
+    {
+      "x": 4,
+      "y": "{{height / 2}}",
+      "z": 4,
+      "w": "{{width - 8}}",
+      "h": 2,
+      "d": "{{depth - 12}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodSide"
+      }
+    },
+    {
+      "type": "cylinder",
+      "x": "{{width / 2 - 2}}",
+      "y": 24,
+      "z": 8,
+      "radius": 1.4,
+      "length": "{{width - 12}}",
+      "axis": "x",
+      "faces": {
+        "front": "$metal",
+        "top": "$metalDark"
+      }
+    },
+    {
+      "type": "cylinder",
+      "x": "{{width / 4}}",
+      "y": 3,
+      "z": "{{depth - 2}}",
+      "radius": 2,
+      "length": 2,
+      "axis": "z",
+      "faces": {
+        "front": "$metal"
+      }
+    },
+    {
+      "type": "cylinder",
+      "x": "{{width * 3 / 4}}",
+      "y": 3,
+      "z": "{{depth - 3.5}}",
+      "radius": 2,
+      "length": 2,
+      "axis": "z",
+      "faces": {
+        "front": "$metal"
+      }
     }
   ]
 }

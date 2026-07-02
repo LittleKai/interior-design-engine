@@ -88,9 +88,10 @@ test("cab-base-rounded-end builtin renders without ternary crash", () => {
   const warnings = [];
   const boxes = renderTemplate(template, { params: { width: 50, height: 86, depth: 60 }, style: { hand: "right" }, warnings }, "front", "wood-oak");
   assert.equal(warnings.length, 0);
-  assert.equal(boxes.length, 3);
-  assert.equal(boxes[2].type, "cylinder");
-  assert.equal(boxes[2].x, 40);
+  assert.equal(boxes.length, 7);
+  assert.equal(boxes[2].type, "roundedBox");
+  assert.equal(boxes[4].type, "cylinder");
+  assert.equal(boxes[4].x, 40);
 });
 
 test("projectBoxToView projects rounded boxes and front-facing cylinders", () => {
@@ -150,4 +151,27 @@ test("renderTemplate applies per-module style.colors overrides", () => {
   assert.equal(boxes[0].faces.right, "#eeeeee");
   assert.equal(boxes[0].faces.back, "#eeeeee");
   assert.equal(boxes[1].faces.front, "#c9a354");
+});
+
+test("upgraded seed templates render detailed primitive counts", () => {
+  const expectedCounts = {
+    "base-cabinet-2door": 11,
+    "sink-base": 10,
+    "base-drawer-stack": 9,
+    "wall-cabinet-2door": 9,
+    "upper-2door": 9,
+    "upper-glass-2door": 9,
+    "sliding-2door": 11,
+    "sliding-3door": 12,
+    "cab-base-rounded-end": 7,
+    "corner-cabinet": 7
+  };
+  for (const [id, expectedCount] of Object.entries(expectedCounts)) {
+    const template = BUILTIN_TEMPLATES.find((tpl) => tpl.id === id);
+    const warnings = [];
+    const boxes = renderTemplate(template, { warnings }, "front", "wood-oak");
+    assert.equal(warnings.length, 0, id);
+    assert.equal(boxes.length, expectedCount, id);
+    assert.ok(boxes.length >= 6 && boxes.length <= 12, id);
+  }
 });

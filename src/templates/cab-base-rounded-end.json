@@ -50,6 +50,34 @@
   },
   "boxes": [
     {
+      "x": 0,
+      "y": "{{height - 4}}",
+      "z": 0,
+      "w": "{{width}}",
+      "h": 4,
+      "d": "{{depth}}",
+      "faces": {
+        "top": "$stone",
+        "front": "$stone",
+        "right": "$stone",
+        "left": "$stone"
+      }
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "z": 3,
+      "w": "{{width - 6}}",
+      "h": 8,
+      "d": "{{depth - 6}}",
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
+      }
+    },
+    {
       "type": "roundedBox",
       "x": 0,
       "y": 0,
@@ -104,6 +132,34 @@
       "axis": "z",
       "faces": {
         "front": "$handle"
+      }
+    },
+    {
+      "x": 5,
+      "y": 12,
+      "z": "{{depth - 0.4}}",
+      "w": "{{width - 10}}",
+      "h": 1.5,
+      "d": 0.4,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "x": 5,
+      "y": "{{height - 13.5}}",
+      "z": "{{depth - 0.4}}",
+      "w": "{{width - 10}}",
+      "h": 1.5,
+      "d": 0.4,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
       }
     }
   ]

@@ -16,6 +16,10 @@ function clampChannel(value) {
   return Math.max(0, Math.min(255, Math.round(value)));
 }
 
+function deviceLineWidth() {
+  return typeof window !== "undefined" ? (window.devicePixelRatio || 1) : 1;
+}
+
 export function shadeColor(color, factor = 1) {
   if (typeof color !== "string") return color;
   const value = color.trim();
@@ -35,6 +39,64 @@ export function shadeColor(color, factor = 1) {
 
 export function shadeFaceColor(face, color) {
   return shadeColor(color, FACE_LUMINANCE[face] || 1);
+}
+
+function distance(a, b) {
+  return Math.hypot((b[0] || 0) - (a[0] || 0), (b[1] || 0) - (a[1] || 0));
+}
+
+function lerpPoint(from, to, amount) {
+  return [
+    from[0] + (to[0] - from[0]) * amount,
+    from[1] + (to[1] - from[1]) * amount
+  ];
+}
+
+export function roundedPathCommands(points, radius, roundedIndices = []) {
+  if (!Array.isArray(points) || points.length < 3) return [];
+  const rounded = new Set(roundedIndices);
+  const commands = [];
+  points.forEach((point, index) => {
+    const prev = points[(index - 1 + points.length) % points.length];
+    const next = points[(index + 1) % points.length];
+    if (rounded.has(index) && radius > 0) {
+      const prevDistance = distance(point, prev);
+      const nextDistance = distance(point, next);
+      const r = Math.min(radius, prevDistance / 2, nextDistance / 2);
+      if (r > 0) {
+        const start = lerpPoint(point, prev, r / prevDistance);
+        const end = lerpPoint(point, next, r / nextDistance);
+        commands.push(index === 0 ? ["M", start[0], start[1]] : ["L", start[0], start[1]]);
+        commands.push(["Q", point[0], point[1], end[0], end[1]]);
+        return;
+      }
+    }
+    commands.push(index === 0 ? ["M", point[0], point[1]] : ["L", point[0], point[1]]);
+  });
+  commands.push(["Z"]);
+  return commands;
+}
+
+export function cylinderEndEllipse(pa, pb, radius) {
+  const angle = Math.atan2(pb[1] - pa[1], pb[0] - pa[0]);
+  return {
+    rx: Math.max(1, radius),
+    ry: Math.max(1, radius * 0.46),
+    rotation: angle + Math.PI / 2
+  };
+}
+
+export function cylinderHighlightLine(pa, pb, radius) {
+  const dx = pb[0] - pa[0];
+  const dy = pb[1] - pa[1];
+  const length = Math.hypot(dx, dy) || 1;
+  const offset = Math.max(1, radius * 0.38);
+  const nx = -dy / length;
+  const ny = dx / length;
+  return [
+    [pa[0] + nx * offset, pa[1] + ny * offset],
+    [pb[0] + nx * offset, pb[1] + ny * offset]
+  ];
 }
 
 export class IsoRenderer {
@@ -180,11 +242,36 @@ export class IsoRenderer {
     ctx.fill();
     ctx.globalAlpha = 1;
     ctx.strokeStyle = stroke || resolveToken(this.palette, "cabDark") || "#2e2e35";
-    ctx.lineWidth = window.devicePixelRatio || 1;
+    ctx.lineWidth = deviceLineWidth();
+    ctx.stroke();
+  }
+
+  roundedFace(ctx, points, fill, stroke, alpha, roundedIndices, radiusPx) {
+    if (!fill) return;
+    const projected = points.map((point) => this.project(point[0], point[1], point[2]));
+    const commands = roundedPathCommands(projected, radiusPx, roundedIndices);
+    if (!commands.length) return;
+    ctx.beginPath();
+    commands.forEach((command) => {
+      if (command[0] === "M") ctx.moveTo(command[1], command[2]);
+      else if (command[0] === "L") ctx.lineTo(command[1], command[2]);
+      else if (command[0] === "Q") ctx.quadraticCurveTo(command[1], command[2], command[3], command[4]);
+      else if (command[0] === "Z") ctx.closePath();
+    });
+    ctx.globalAlpha = alpha == null ? 1 : alpha;
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = stroke || resolveToken(this.palette, "cabDark") || "#2e2e35";
+    ctx.lineWidth = deviceLineWidth();
     ctx.stroke();
   }
 
   drawBox(ctx, box) {
+    if (box.type === "roundedBox" && box.radius > 0) {
+      this.drawRoundedBox(ctx, box);
+      return;
+    }
     const x0 = box.x;
     const y0 = box.y;
     const z0 = box.z;
@@ -198,6 +285,23 @@ export class IsoRenderer {
     this.face(ctx, [[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]], shadeFaceColor("right", faces.right), faces.stroke, box.opacity);
     this.face(ctx, [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], shadeFaceColor("front", faces.front), faces.stroke, box.opacity);
     this.face(ctx, [[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], shadeFaceColor("top", faces.top), faces.stroke, box.opacity);
+  }
+
+  drawRoundedBox(ctx, box) {
+    const x0 = box.x;
+    const y0 = box.y;
+    const z0 = box.z;
+    const x1 = x0 + box.w;
+    const y1 = y0 + box.h;
+    const z1 = z0 + box.d;
+    const faces = Object.assign({}, defaultFaces(this.palette), box.faces || {});
+    const radiusPx = Math.min(22, Math.max(3, this.projectedRadius(x0, y1, z1, box.radius)));
+    this.face(ctx, [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]], shadeFaceColor("bottom", faces.bottom), faces.stroke, box.opacity);
+    this.face(ctx, [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]], shadeFaceColor("back", faces.back), faces.stroke, box.opacity);
+    this.face(ctx, [[x0, y0, z0], [x0, y0, z1], [x0, y1, z1], [x0, y1, z0]], shadeFaceColor("left", faces.left), faces.stroke, box.opacity);
+    this.face(ctx, [[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]], shadeFaceColor("right", faces.right), faces.stroke, box.opacity);
+    this.roundedFace(ctx, [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], shadeFaceColor("front", faces.front), faces.stroke, box.opacity, [2, 3], radiusPx);
+    this.roundedFace(ctx, [[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], shadeFaceColor("top", faces.top), faces.stroke, box.opacity, [2, 3], radiusPx);
   }
 
   projectedRadius(x, y, z, radius) {
@@ -226,21 +330,40 @@ export class IsoRenderer {
     const pb = this.project(b[0], b[1], b[2]);
     const pr = this.projectedRadius(cx, cy, cz, radius);
     ctx.globalAlpha = box.opacity == null ? 1 : box.opacity;
-    ctx.strokeStyle = fill;
+    const bodyFill = shadeColor(fill, 0.88);
+    ctx.strokeStyle = bodyFill;
     ctx.lineWidth = pr * 2;
     ctx.lineCap = "round";
     ctx.beginPath();
     ctx.moveTo(pa[0], pa[1]);
     ctx.lineTo(pb[0], pb[1]);
     ctx.stroke();
-    ctx.lineWidth = window.devicePixelRatio || 1;
+    const highlight = cylinderHighlightLine(pa, pb, pr);
+    ctx.globalAlpha = (box.opacity == null ? 1 : box.opacity) * 0.42;
+    ctx.strokeStyle = shadeColor(fill, 1.25);
+    ctx.lineWidth = Math.max(deviceLineWidth(), pr * 0.32);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(highlight[0][0], highlight[0][1]);
+    ctx.lineTo(highlight[1][0], highlight[1][1]);
+    ctx.stroke();
+    ctx.globalAlpha = box.opacity == null ? 1 : box.opacity;
+    ctx.lineWidth = deviceLineWidth();
     ctx.fillStyle = fill;
     ctx.strokeStyle = faces.stroke || resolveToken(this.palette, "cabDark") || "#2e2e35";
+    const ellipse = cylinderEndEllipse(pa, pb, pr);
     [pa, pb].forEach((p) => {
       ctx.beginPath();
-      ctx.arc(p[0], p[1], pr, 0, Math.PI * 2);
+      ctx.ellipse(p[0], p[1], ellipse.rx, ellipse.ry, ellipse.rotation, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
+      ctx.beginPath();
+      ctx.globalAlpha = (box.opacity == null ? 1 : box.opacity) * 0.35;
+      ctx.strokeStyle = shadeColor(fill, 1.3);
+      ctx.ellipse(p[0], p[1] - ellipse.ry * 0.18, ellipse.rx * 0.62, Math.max(1, ellipse.ry * 0.28), ellipse.rotation, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = box.opacity == null ? 1 : box.opacity;
+      ctx.strokeStyle = faces.stroke || resolveToken(this.palette, "cabDark") || "#2e2e35";
     });
     ctx.globalAlpha = 1;
   }
@@ -262,7 +385,7 @@ export class IsoRenderer {
       });
     if (this.dimensionsVisible) {
       ctx.fillStyle = resolveToken(this.palette, "dim") || "#473d34";
-      ctx.font = `${12 * (window.devicePixelRatio || 1)}px Arial`;
+      ctx.font = `${12 * deviceLineWidth()}px Arial`;
       ctx.textAlign = "center";
       ctx.fillText(`${cm(this.model.width)} x ${cm(this.model.height)} x ${cm(this.model.depth)}`, this.canvas.width / 2, this.canvas.height - 22);
     }

@@ -72,7 +72,10 @@ export const BUILTIN_TEMPLATES = [
         "h": "{{height - 4}}",
         "d": 0.5,
         "faces": {
-          "front": "$woodFrontL"
+          "front": "$woodFrontL",
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
         }
       },
       {
@@ -83,13 +86,76 @@ export const BUILTIN_TEMPLATES = [
         "h": "{{height - 4}}",
         "d": 0.5,
         "faces": {
-          "front": "$woodFrontL"
+          "front": "$woodFrontL",
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "if": "{{style.door == 'shaker'}}",
+        "x": 5,
+        "y": 6,
+        "z": "{{depth}}",
+        "w": "{{width / 2 - 9}}",
+        "h": 1.2,
+        "d": 0.7,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "if": "{{style.door == 'shaker'}}",
+        "x": 5,
+        "y": "{{height - 7.2}}",
+        "z": "{{depth}}",
+        "w": "{{width / 2 - 9}}",
+        "h": 1.2,
+        "d": 0.7,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "if": "{{style.door == 'shaker'}}",
+        "x": "{{width / 2 + 5}}",
+        "y": 6,
+        "z": "{{depth}}",
+        "w": "{{width / 2 - 9}}",
+        "h": 1.2,
+        "d": 0.7,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "if": "{{style.door == 'shaker'}}",
+        "x": "{{width / 2 + 5}}",
+        "y": "{{height - 7.2}}",
+        "z": "{{depth}}",
+        "w": "{{width / 2 - 9}}",
+        "h": 1.2,
+        "d": 0.7,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
         }
       },
       {
         "x": "{{width / 2 - 5}}",
         "y": "{{height / 2 - 7}}",
-        "z": "{{depth}}",
+        "z": "{{depth + 0.5}}",
         "w": 1.5,
         "h": 14,
         "d": 1.5,
@@ -103,7 +169,7 @@ export const BUILTIN_TEMPLATES = [
       {
         "x": "{{width / 2 + 3.5}}",
         "y": "{{height / 2 - 7}}",
-        "z": "{{depth}}",
+        "z": "{{depth + 0.5}}",
         "w": 1.5,
         "h": 14,
         "d": 1.5,
@@ -175,23 +241,73 @@ export const BUILTIN_TEMPLATES = [
         }
       },
       {
-        "x": 5,
-        "y": 7,
+        "x": 4,
+        "y": 12,
+        "z": "{{depth - 6}}",
+        "w": "{{width - 8}}",
+        "h": 2,
+        "d": "{{depth - 8}}",
+        "faces": {
+          "top": "$woodTop",
+          "front": "$woodSide"
+        }
+      },
+      {
+        "x": 4,
+        "y": "{{height / 2}}",
+        "z": "{{depth - 6}}",
+        "w": "{{width - 8}}",
+        "h": 2,
+        "d": "{{depth - 8}}",
+        "faces": {
+          "top": "$woodTop",
+          "front": "$woodSide"
+        }
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "z": "{{depth - 1}}",
+        "w": "{{width / 2 - 4}}",
+        "h": "{{height - 6}}",
+        "d": 1,
+        "faces": {
+          "front": "$woodFrontL",
+          "top": "$woodTop"
+        }
+      },
+      {
+        "x": "{{width / 2 + 1}}",
+        "y": 3,
+        "z": "{{depth - 1}}",
+        "w": "{{width / 2 - 4}}",
+        "h": "{{height - 6}}",
+        "d": 1,
+        "faces": {
+          "front": "$woodFrontL",
+          "top": "$woodTop"
+        }
+      },
+      {
+        "x": 6,
+        "y": 8,
         "z": "{{depth - 0.4}}",
-        "w": "{{width / 2 - 9}}",
-        "h": "{{height - 14}}",
+        "w": "{{width / 2 - 12}}",
+        "h": "{{height - 16}}",
         "d": 0.4,
+        "opacity": 0.62,
         "faces": {
           "front": "$glass"
         }
       },
       {
-        "x": "{{width / 2 + 4}}",
-        "y": 7,
+        "x": "{{width / 2 + 6}}",
+        "y": 8,
         "z": "{{depth - 0.4}}",
-        "w": "{{width / 2 - 9}}",
-        "h": "{{height - 14}}",
+        "w": "{{width / 2 - 12}}",
+        "h": "{{height - 16}}",
         "d": 0.4,
+        "opacity": 0.62,
         "faces": {
           "front": "$glass"
         }
@@ -199,25 +315,29 @@ export const BUILTIN_TEMPLATES = [
       {
         "x": "{{width / 2 - 5}}",
         "y": "{{height / 2 - 7}}",
-        "z": "{{depth}}",
+        "z": "{{depth + 0.5}}",
         "w": 1.5,
         "h": 14,
         "d": 1.5,
         "faces": {
           "front": "$handle",
-          "top": "$handleEdge"
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
         }
       },
       {
         "x": "{{width / 2 + 3.5}}",
         "y": "{{height / 2 - 7}}",
-        "z": "{{depth}}",
+        "z": "{{depth + 0.5}}",
         "w": 1.5,
         "h": 14,
         "d": 1.5,
         "faces": {
           "front": "$handle",
-          "top": "$handleEdge"
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
         }
       }
     ]
@@ -363,6 +483,55 @@ export const BUILTIN_TEMPLATES = [
           "right": "$handleEdge",
           "top": "$handleEdge"
         }
+      },
+      {
+        "x": 4,
+        "y": "{{height / 2}}",
+        "z": 4,
+        "w": "{{width - 8}}",
+        "h": 2,
+        "d": "{{depth - 12}}",
+        "faces": {
+          "top": "$woodTop",
+          "front": "$woodSide"
+        }
+      },
+      {
+        "type": "cylinder",
+        "x": "{{width / 2 - 2}}",
+        "y": 24,
+        "z": 8,
+        "radius": 1.4,
+        "length": "{{width - 12}}",
+        "axis": "x",
+        "faces": {
+          "front": "$metal",
+          "top": "$metalDark"
+        }
+      },
+      {
+        "type": "cylinder",
+        "x": "{{width / 4}}",
+        "y": 3,
+        "z": "{{depth - 2}}",
+        "radius": 2,
+        "length": 2,
+        "axis": "z",
+        "faces": {
+          "front": "$metal"
+        }
+      },
+      {
+        "type": "cylinder",
+        "x": "{{width * 3 / 4}}",
+        "y": 3,
+        "z": "{{depth - 3.5}}",
+        "radius": 2,
+        "length": 2,
+        "axis": "z",
+        "faces": {
+          "front": "$metal"
+        }
       }
     ]
   },
@@ -404,6 +573,12 @@ export const BUILTIN_TEMPLATES = [
           "flat"
         ],
         "default": "flat"
+      },
+      "handle": {
+        "values": [
+          "finger-pull"
+        ],
+        "default": "finger-pull"
       }
     },
     "boxes": [
@@ -423,27 +598,81 @@ export const BUILTIN_TEMPLATES = [
         }
       },
       {
+        "x": 0,
+        "y": "{{height - 3}}",
+        "z": "{{depth - 3}}",
+        "w": "{{width}}",
+        "h": 3,
+        "d": 3,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "bottom": "$handleEdge"
+        }
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": "{{depth - 3}}",
+        "w": "{{width}}",
+        "h": 2,
+        "d": 3,
+        "faces": {
+          "top": "$handleEdge",
+          "front": "$woodDark"
+        }
+      },
+      {
+        "x": 4,
+        "y": "{{height / 2}}",
+        "z": 4,
+        "w": "{{width - 8}}",
+        "h": 2,
+        "d": "{{depth - 12}}",
+        "faces": {
+          "top": "$woodTop",
+          "front": "$woodSide"
+        }
+      },
+      {
+        "type": "cylinder",
+        "x": "{{width / 2 - 2}}",
+        "y": 24,
+        "z": 8,
+        "radius": 1.4,
+        "length": "{{width - 12}}",
+        "axis": "x",
+        "faces": {
+          "front": "$metal",
+          "top": "$metalDark"
+        }
+      },
+      {
         "x": 1,
         "y": 2,
         "z": "{{depth - 1.5}}",
-        "w": "{{width / 3}}",
+        "w": "{{width / 3 - 1}}",
         "h": "{{height - 5}}",
         "d": 1.5,
         "faces": {
           "front": "$woodFrontL",
-          "top": "$woodTop"
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
         }
       },
       {
         "x": "{{width / 3}}",
         "y": 2,
         "z": "{{depth - 3}}",
-        "w": "{{width / 3}}",
+        "w": "{{width / 3 - 1}}",
         "h": "{{height - 5}}",
         "d": 1.5,
         "faces": {
           "front": "$woodFront",
-          "top": "$woodTop"
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
         }
       },
       {
@@ -455,7 +684,63 @@ export const BUILTIN_TEMPLATES = [
         "d": 1.5,
         "faces": {
           "front": "$woodFrontL",
-          "top": "$woodTop"
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 5,
+        "y": "{{height / 2 - 25}}",
+        "z": "{{depth - 1}}",
+        "w": 2,
+        "h": 50,
+        "d": 1.2,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
+        }
+      },
+      {
+        "x": "{{width / 3 + 5}}",
+        "y": "{{height / 2 - 25}}",
+        "z": "{{depth - 2.5}}",
+        "w": 2,
+        "h": 50,
+        "d": 1.2,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
+        }
+      },
+      {
+        "x": "{{width * 2 / 3 + 5}}",
+        "y": "{{height / 2 - 25}}",
+        "z": "{{depth - 1}}",
+        "w": 2,
+        "h": 50,
+        "d": 1.2,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
+        }
+      },
+      {
+        "type": "cylinder",
+        "x": "{{width / 2}}",
+        "y": 3,
+        "z": "{{depth - 3.5}}",
+        "radius": 2,
+        "length": 2,
+        "axis": "z",
+        "faces": {
+          "front": "$metal"
         }
       }
     ]
@@ -794,10 +1079,10 @@ export const BUILTIN_TEMPLATES = [
     "boxes": [
       {
         "x": 0,
-        "y": 0,
+        "y": 8,
         "z": 0,
         "w": "{{width}}",
-        "h": "{{height}}",
+        "h": "{{height - 12}}",
         "d": "{{depth}}",
         "faces": {
           "top": "$woodTop",
@@ -808,29 +1093,143 @@ export const BUILTIN_TEMPLATES = [
         }
       },
       {
+        "x": 0,
+        "y": "{{height - 4}}",
+        "z": 0,
+        "w": "{{width}}",
+        "h": 4,
+        "d": "{{depth}}",
+        "faces": {
+          "top": "$stone",
+          "front": "$stone",
+          "right": "$stone",
+          "left": "$stone"
+        }
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "z": 3,
+        "w": "{{width - 6}}",
+        "h": 8,
+        "d": "{{depth - 6}}",
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
         "x": 2,
-        "y": 8,
+        "y": 10,
         "z": "{{depth - 1}}",
         "w": "{{width / 2 - 3}}",
-        "h": "{{height - 12}}",
+        "h": "{{height - 18}}",
         "d": 1,
         "faces": {
           "front": "$woodFrontL",
+          "top": "$woodTop",
           "right": "$woodSide",
-          "top": "$woodTop"
+          "left": "$woodDark"
         }
       },
       {
         "x": "{{width / 2 + 1}}",
-        "y": 8,
+        "y": 10,
         "z": "{{depth - 1}}",
         "w": "{{width / 2 - 3}}",
-        "h": "{{height - 12}}",
+        "h": "{{height - 18}}",
         "d": 1,
         "faces": {
           "front": "$woodFrontL",
+          "top": "$woodTop",
           "right": "$woodSide",
-          "top": "$woodTop"
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 2,
+        "y": 10,
+        "z": "{{depth - 0.4}}",
+        "w": "{{width / 2 - 3}}",
+        "h": 2,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 2,
+        "y": "{{height - 10}}",
+        "z": "{{depth - 0.4}}",
+        "w": "{{width / 2 - 3}}",
+        "h": 2,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 + 1}}",
+        "y": 10,
+        "z": "{{depth - 0.4}}",
+        "w": "{{width / 2 - 3}}",
+        "h": 2,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 + 1}}",
+        "y": "{{height - 10}}",
+        "z": "{{depth - 0.4}}",
+        "w": "{{width / 2 - 3}}",
+        "h": 2,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 - 7}}",
+        "y": "{{height / 2 - 1}}",
+        "z": "{{depth + 0.3}}",
+        "w": 8,
+        "h": 2,
+        "d": 1.2,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
+        }
+      },
+      {
+        "x": "{{width / 2 + 1}}",
+        "y": "{{height / 2 - 1}}",
+        "z": "{{depth + 0.3}}",
+        "w": 8,
+        "h": 2,
+        "d": 1.2,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
         }
       }
     ]
@@ -868,14 +1267,23 @@ export const BUILTIN_TEMPLATES = [
         "default": 60
       }
     },
-    "style": {},
+    "style": {
+      "drawers": {
+        "values": [
+          2,
+          3,
+          4
+        ],
+        "default": 3
+      }
+    },
     "boxes": [
       {
         "x": 0,
-        "y": 0,
+        "y": 8,
         "z": 0,
         "w": "{{width}}",
-        "h": "{{height}}",
+        "h": "{{height - 12}}",
         "d": "{{depth}}",
         "faces": {
           "top": "$woodTop",
@@ -886,15 +1294,115 @@ export const BUILTIN_TEMPLATES = [
         }
       },
       {
+        "x": 0,
+        "y": "{{height - 4}}",
+        "z": 0,
+        "w": "{{width}}",
+        "h": 4,
+        "d": "{{depth}}",
+        "faces": {
+          "top": "$stone",
+          "front": "$stone",
+          "right": "$stone",
+          "left": "$stone"
+        }
+      },
+      {
         "x": 3,
-        "y": 8,
+        "y": 0,
+        "z": 3,
+        "w": "{{width - 6}}",
+        "h": 8,
+        "d": "{{depth - 6}}",
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 3,
+        "y": 10,
         "z": "{{depth - 1}}",
         "w": "{{width - 6}}",
-        "h": "{{height - 12}}",
+        "h": "{{(height - 20) / 3}}",
         "d": 1,
         "faces": {
           "front": "$woodFrontL",
-          "top": "$woodTop"
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 3,
+        "y": "{{10 + (height - 20) / 3}}",
+        "z": "{{depth - 1}}",
+        "w": "{{width - 6}}",
+        "h": "{{(height - 20) / 3}}",
+        "d": 1,
+        "faces": {
+          "front": "$woodFrontL",
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 3,
+        "y": "{{10 + (height - 20) * 2 / 3}}",
+        "z": "{{depth - 1}}",
+        "w": "{{width - 6}}",
+        "h": "{{(height - 20) / 3}}",
+        "d": 1,
+        "faces": {
+          "front": "$woodFrontL",
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 - 12}}",
+        "y": "{{10 + (height - 20) / 6}}",
+        "z": "{{depth + 0.3}}",
+        "w": 24,
+        "h": 1.5,
+        "d": 1,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
+        }
+      },
+      {
+        "x": "{{width / 2 - 12}}",
+        "y": "{{10 + (height - 20) / 2}}",
+        "z": "{{depth + 0.3}}",
+        "w": 24,
+        "h": 1.5,
+        "d": 1,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
+        }
+      },
+      {
+        "x": "{{width / 2 - 12}}",
+        "y": "{{10 + (height - 20) * 5 / 6}}",
+        "z": "{{depth + 0.3}}",
+        "w": 24,
+        "h": 1.5,
+        "d": 1,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
         }
       }
     ]
@@ -933,7 +1441,22 @@ export const BUILTIN_TEMPLATES = [
         "default": 35
       }
     },
-    "style": {},
+    "style": {
+      "door": {
+        "values": [
+          "flat",
+          "shaker"
+        ],
+        "default": "flat"
+      },
+      "handle": {
+        "values": [
+          "bar",
+          "knob"
+        ],
+        "default": "bar"
+      }
+    },
     "boxes": [
       {
         "x": 0,
@@ -958,7 +1481,10 @@ export const BUILTIN_TEMPLATES = [
         "h": "{{height - 4}}",
         "d": 1,
         "faces": {
-          "front": "$woodFrontL"
+          "front": "$woodFrontL",
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
         }
       },
       {
@@ -969,7 +1495,94 @@ export const BUILTIN_TEMPLATES = [
         "h": "{{height - 4}}",
         "d": 1,
         "faces": {
-          "front": "$woodFrontL"
+          "front": "$woodFrontL",
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 4,
+        "y": 4,
+        "z": "{{depth - 0.4}}",
+        "w": "{{width / 2 - 7}}",
+        "h": 1.4,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 4,
+        "y": "{{height - 5.4}}",
+        "z": "{{depth - 0.4}}",
+        "w": "{{width / 2 - 7}}",
+        "h": 1.4,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 + 3}}",
+        "y": 4,
+        "z": "{{depth - 0.4}}",
+        "w": "{{width / 2 - 7}}",
+        "h": 1.4,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 + 3}}",
+        "y": "{{height - 5.4}}",
+        "z": "{{depth - 0.4}}",
+        "w": "{{width / 2 - 7}}",
+        "h": 1.4,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 - 7}}",
+        "y": "{{height / 2 - 1}}",
+        "z": "{{depth + 0.3}}",
+        "w": 8,
+        "h": 1.5,
+        "d": 1,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
+        }
+      },
+      {
+        "x": "{{width / 2 + 1}}",
+        "y": "{{height / 2 - 1}}",
+        "z": "{{depth + 0.3}}",
+        "w": 8,
+        "h": 1.5,
+        "d": 1,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
         }
       }
     ]
@@ -1075,10 +1688,10 @@ export const BUILTIN_TEMPLATES = [
     "boxes": [
       {
         "x": 0,
-        "y": 0,
+        "y": 8,
         "z": 0,
         "w": "{{width}}",
-        "h": "{{height}}",
+        "h": "{{height - 12}}",
         "d": "{{depth}}",
         "faces": {
           "top": "$woodTop",
@@ -1086,6 +1699,90 @@ export const BUILTIN_TEMPLATES = [
           "right": "$woodSide",
           "left": "$woodDark",
           "back": "$woodBack"
+        }
+      },
+      {
+        "x": 0,
+        "y": "{{height - 4}}",
+        "z": 0,
+        "w": "{{width}}",
+        "h": 4,
+        "d": "{{depth}}",
+        "faces": {
+          "top": "$stone",
+          "front": "$stone",
+          "right": "$stone",
+          "left": "$stone"
+        }
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "z": 3,
+        "w": "{{width - 6}}",
+        "h": 8,
+        "d": "{{depth - 6}}",
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 3,
+        "y": 10,
+        "z": "{{depth - 1}}",
+        "w": "{{width - 6}}",
+        "h": "{{height - 18}}",
+        "d": 1,
+        "faces": {
+          "front": "$woodFrontL",
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 5,
+        "y": 12,
+        "z": "{{depth - 0.4}}",
+        "w": "{{width - 10}}",
+        "h": 2,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 5,
+        "y": "{{height - 12}}",
+        "z": "{{depth - 0.4}}",
+        "w": "{{width - 10}}",
+        "h": 2,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 - 10}}",
+        "y": "{{height / 2 - 1}}",
+        "z": "{{depth + 0.3}}",
+        "w": 20,
+        "h": 2,
+        "d": 1.2,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
         }
       }
     ]
@@ -1127,10 +1824,10 @@ export const BUILTIN_TEMPLATES = [
     "boxes": [
       {
         "x": 0,
-        "y": 0,
+        "y": 8,
         "z": 0,
         "w": "{{width}}",
-        "h": "{{height}}",
+        "h": "{{height - 12}}",
         "d": "{{depth}}",
         "faces": {
           "top": "$woodTop",
@@ -1141,15 +1838,125 @@ export const BUILTIN_TEMPLATES = [
         }
       },
       {
-        "x": "{{width / 2 - 20}}",
+        "x": 0,
+        "y": "{{height - 4}}",
+        "z": 0,
+        "w": "{{width}}",
+        "h": 4,
+        "d": "{{depth}}",
+        "faces": {
+          "top": "$stone",
+          "front": "$stone",
+          "right": "$stone",
+          "left": "$stone"
+        }
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "z": 3,
+        "w": "{{width - 6}}",
+        "h": 8,
+        "d": "{{depth - 6}}",
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 - 23}}",
         "y": "{{height}}",
         "z": 10,
-        "w": 40,
+        "w": 46,
         "h": 1,
-        "d": 28,
+        "d": 30,
+        "faces": {
+          "top": "$ceramic",
+          "front": "$glassBorder",
+          "right": "$ceramic",
+          "left": "$ceramic"
+        }
+      },
+      {
+        "x": "{{width / 2 - 18}}",
+        "y": "{{height + 0.5}}",
+        "z": 14,
+        "w": 36,
+        "h": 1,
+        "d": 22,
         "faces": {
           "top": "$glass",
           "front": "$glassBorder"
+        }
+      },
+      {
+        "x": 2,
+        "y": 10,
+        "z": "{{depth - 1}}",
+        "w": "{{width / 2 - 3}}",
+        "h": "{{height - 18}}",
+        "d": 1,
+        "faces": {
+          "front": "$woodFrontL",
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 + 1}}",
+        "y": 10,
+        "z": "{{depth - 1}}",
+        "w": "{{width / 2 - 3}}",
+        "h": "{{height - 18}}",
+        "d": 1,
+        "faces": {
+          "front": "$woodFrontL",
+          "top": "$woodTop",
+          "right": "$woodSide",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": "{{width / 2 - 7}}",
+        "y": "{{height / 2 - 1}}",
+        "z": "{{depth + 0.3}}",
+        "w": 8,
+        "h": 2,
+        "d": 1.2,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
+        }
+      },
+      {
+        "x": "{{width / 2 + 1}}",
+        "y": "{{height / 2 - 1}}",
+        "z": "{{depth + 0.3}}",
+        "w": 8,
+        "h": 2,
+        "d": 1.2,
+        "faces": {
+          "front": "$handle",
+          "top": "$handleEdge",
+          "right": "$handle",
+          "left": "$handle"
+        }
+      },
+      {
+        "x": "{{width / 2 - 1}}",
+        "y": 12,
+        "z": 4,
+        "w": 2,
+        "h": "{{height - 22}}",
+        "d": "{{depth - 10}}",
+        "faces": {
+          "front": "$woodDark",
+          "top": "$woodDark"
         }
       }
     ]
@@ -1206,6 +2013,34 @@ export const BUILTIN_TEMPLATES = [
     },
     "boxes": [
       {
+        "x": 0,
+        "y": "{{height - 4}}",
+        "z": 0,
+        "w": "{{width}}",
+        "h": 4,
+        "d": "{{depth}}",
+        "faces": {
+          "top": "$stone",
+          "front": "$stone",
+          "right": "$stone",
+          "left": "$stone"
+        }
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "z": 3,
+        "w": "{{width - 6}}",
+        "h": 8,
+        "d": "{{depth - 6}}",
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
         "type": "roundedBox",
         "x": 0,
         "y": 0,
@@ -1260,6 +2095,34 @@ export const BUILTIN_TEMPLATES = [
         "axis": "z",
         "faces": {
           "front": "$handle"
+        }
+      },
+      {
+        "x": 5,
+        "y": 12,
+        "z": "{{depth - 0.4}}",
+        "w": "{{width - 10}}",
+        "h": 1.5,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
+        }
+      },
+      {
+        "x": 5,
+        "y": "{{height - 13.5}}",
+        "z": "{{depth - 0.4}}",
+        "w": "{{width - 10}}",
+        "h": 1.5,
+        "d": 0.4,
+        "faces": {
+          "top": "$woodDark",
+          "front": "$woodDark",
+          "right": "$woodDark",
+          "left": "$woodDark"
         }
       }
     ]

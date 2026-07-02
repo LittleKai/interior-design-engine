@@ -71,7 +71,10 @@
       "h": "{{height - 4}}",
       "d": 0.5,
       "faces": {
-        "front": "$woodFrontL"
+        "front": "$woodFrontL",
+        "top": "$woodTop",
+        "right": "$woodSide",
+        "left": "$woodDark"
       }
     },
     {
@@ -82,13 +85,76 @@
       "h": "{{height - 4}}",
       "d": 0.5,
       "faces": {
-        "front": "$woodFrontL"
+        "front": "$woodFrontL",
+        "top": "$woodTop",
+        "right": "$woodSide",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "if": "{{style.door == 'shaker'}}",
+      "x": 5,
+      "y": 6,
+      "z": "{{depth}}",
+      "w": "{{width / 2 - 9}}",
+      "h": 1.2,
+      "d": 0.7,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "if": "{{style.door == 'shaker'}}",
+      "x": 5,
+      "y": "{{height - 7.2}}",
+      "z": "{{depth}}",
+      "w": "{{width / 2 - 9}}",
+      "h": 1.2,
+      "d": 0.7,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "if": "{{style.door == 'shaker'}}",
+      "x": "{{width / 2 + 5}}",
+      "y": 6,
+      "z": "{{depth}}",
+      "w": "{{width / 2 - 9}}",
+      "h": 1.2,
+      "d": 0.7,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "if": "{{style.door == 'shaker'}}",
+      "x": "{{width / 2 + 5}}",
+      "y": "{{height - 7.2}}",
+      "z": "{{depth}}",
+      "w": "{{width / 2 - 9}}",
+      "h": 1.2,
+      "d": 0.7,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
       }
     },
     {
       "x": "{{width / 2 - 5}}",
       "y": "{{height / 2 - 7}}",
-      "z": "{{depth}}",
+      "z": "{{depth + 0.5}}",
       "w": 1.5,
       "h": 14,
       "d": 1.5,
@@ -102,7 +168,7 @@
     {
       "x": "{{width / 2 + 3.5}}",
       "y": "{{height / 2 - 7}}",
-      "z": "{{depth}}",
+      "z": "{{depth + 0.5}}",
       "w": 1.5,
       "h": 14,
       "d": 1.5,

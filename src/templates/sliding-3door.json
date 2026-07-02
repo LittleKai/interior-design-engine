@@ -36,6 +36,12 @@
         "flat"
       ],
       "default": "flat"
+    },
+    "handle": {
+      "values": [
+        "finger-pull"
+      ],
+      "default": "finger-pull"
     }
   },
   "boxes": [
@@ -55,27 +61,81 @@
       }
     },
     {
+      "x": 0,
+      "y": "{{height - 3}}",
+      "z": "{{depth - 3}}",
+      "w": "{{width}}",
+      "h": 3,
+      "d": 3,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "bottom": "$handleEdge"
+      }
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "z": "{{depth - 3}}",
+      "w": "{{width}}",
+      "h": 2,
+      "d": 3,
+      "faces": {
+        "top": "$handleEdge",
+        "front": "$woodDark"
+      }
+    },
+    {
+      "x": 4,
+      "y": "{{height / 2}}",
+      "z": 4,
+      "w": "{{width - 8}}",
+      "h": 2,
+      "d": "{{depth - 12}}",
+      "faces": {
+        "top": "$woodTop",
+        "front": "$woodSide"
+      }
+    },
+    {
+      "type": "cylinder",
+      "x": "{{width / 2 - 2}}",
+      "y": 24,
+      "z": 8,
+      "radius": 1.4,
+      "length": "{{width - 12}}",
+      "axis": "x",
+      "faces": {
+        "front": "$metal",
+        "top": "$metalDark"
+      }
+    },
+    {
       "x": 1,
       "y": 2,
       "z": "{{depth - 1.5}}",
-      "w": "{{width / 3}}",
+      "w": "{{width / 3 - 1}}",
       "h": "{{height - 5}}",
       "d": 1.5,
       "faces": {
         "front": "$woodFrontL",
-        "top": "$woodTop"
+        "top": "$woodTop",
+        "right": "$woodSide",
+        "left": "$woodDark"
       }
     },
     {
       "x": "{{width / 3}}",
       "y": 2,
       "z": "{{depth - 3}}",
-      "w": "{{width / 3}}",
+      "w": "{{width / 3 - 1}}",
       "h": "{{height - 5}}",
       "d": 1.5,
       "faces": {
         "front": "$woodFront",
-        "top": "$woodTop"
+        "top": "$woodTop",
+        "right": "$woodSide",
+        "left": "$woodDark"
       }
     },
     {
@@ -87,7 +147,63 @@
       "d": 1.5,
       "faces": {
         "front": "$woodFrontL",
-        "top": "$woodTop"
+        "top": "$woodTop",
+        "right": "$woodSide",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "x": 5,
+      "y": "{{height / 2 - 25}}",
+      "z": "{{depth - 1}}",
+      "w": 2,
+      "h": 50,
+      "d": 1.2,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge",
+        "right": "$handle",
+        "left": "$handle"
+      }
+    },
+    {
+      "x": "{{width / 3 + 5}}",
+      "y": "{{height / 2 - 25}}",
+      "z": "{{depth - 2.5}}",
+      "w": 2,
+      "h": 50,
+      "d": 1.2,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge",
+        "right": "$handle",
+        "left": "$handle"
+      }
+    },
+    {
+      "x": "{{width * 2 / 3 + 5}}",
+      "y": "{{height / 2 - 25}}",
+      "z": "{{depth - 1}}",
+      "w": 2,
+      "h": 50,
+      "d": 1.2,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge",
+        "right": "$handle",
+        "left": "$handle"
+      }
+    },
+    {
+      "type": "cylinder",
+      "x": "{{width / 2}}",
+      "y": 3,
+      "z": "{{depth - 3.5}}",
+      "radius": 2,
+      "length": 2,
+      "axis": "z",
+      "faces": {
+        "front": "$metal"
       }
     }
   ]

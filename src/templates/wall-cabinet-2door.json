@@ -32,7 +32,22 @@
       "default": 35
     }
   },
-  "style": {},
+  "style": {
+    "door": {
+      "values": [
+        "flat",
+        "shaker"
+      ],
+      "default": "flat"
+    },
+    "handle": {
+      "values": [
+        "bar",
+        "knob"
+      ],
+      "default": "bar"
+    }
+  },
   "boxes": [
     {
       "x": 0,
@@ -57,7 +72,10 @@
       "h": "{{height - 4}}",
       "d": 1,
       "faces": {
-        "front": "$woodFrontL"
+        "front": "$woodFrontL",
+        "top": "$woodTop",
+        "right": "$woodSide",
+        "left": "$woodDark"
       }
     },
     {
@@ -68,7 +86,94 @@
       "h": "{{height - 4}}",
       "d": 1,
       "faces": {
-        "front": "$woodFrontL"
+        "front": "$woodFrontL",
+        "top": "$woodTop",
+        "right": "$woodSide",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "x": 4,
+      "y": 4,
+      "z": "{{depth - 0.4}}",
+      "w": "{{width / 2 - 7}}",
+      "h": 1.4,
+      "d": 0.4,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "x": 4,
+      "y": "{{height - 5.4}}",
+      "z": "{{depth - 0.4}}",
+      "w": "{{width / 2 - 7}}",
+      "h": 1.4,
+      "d": 0.4,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "x": "{{width / 2 + 3}}",
+      "y": 4,
+      "z": "{{depth - 0.4}}",
+      "w": "{{width / 2 - 7}}",
+      "h": 1.4,
+      "d": 0.4,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "x": "{{width / 2 + 3}}",
+      "y": "{{height - 5.4}}",
+      "z": "{{depth - 0.4}}",
+      "w": "{{width / 2 - 7}}",
+      "h": 1.4,
+      "d": 0.4,
+      "faces": {
+        "top": "$woodDark",
+        "front": "$woodDark",
+        "right": "$woodDark",
+        "left": "$woodDark"
+      }
+    },
+    {
+      "x": "{{width / 2 - 7}}",
+      "y": "{{height / 2 - 1}}",
+      "z": "{{depth + 0.3}}",
+      "w": 8,
+      "h": 1.5,
+      "d": 1,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge",
+        "right": "$handle",
+        "left": "$handle"
+      }
+    },
+    {
+      "x": "{{width / 2 + 1}}",
+      "y": "{{height / 2 - 1}}",
+      "z": "{{depth + 0.3}}",
+      "w": 8,
+      "h": 1.5,
+      "d": 1,
+      "faces": {
+        "front": "$handle",
+        "top": "$handleEdge",
+        "right": "$handle",
+        "left": "$handle"
       }
     }
   ]
