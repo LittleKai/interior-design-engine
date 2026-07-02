@@ -43,6 +43,43 @@ export function defaultFaces(palette = DEFAULT_PALETTE) {
   };
 }
 
+function clampChannel(value) {
+  return Math.max(0, Math.min(255, Math.round(value)));
+}
+
+function expandHex(hex) {
+  const value = String(hex || "").trim();
+  const short = value.match(/^#([0-9a-f]{3})$/i);
+  if (short) {
+    return `#${short[1].split("").map((ch) => ch + ch).join("")}`;
+  }
+  return /^#[0-9a-f]{6}$/i.test(value) ? value : null;
+}
+
+function shadeHex(hex, amount) {
+  const value = expandHex(hex);
+  if (!value) return hex;
+  const mix = amount >= 0 ? 255 : 0;
+  const ratio = Math.abs(amount);
+  const r = parseInt(value.slice(1, 3), 16);
+  const g = parseInt(value.slice(3, 5), 16);
+  const b = parseInt(value.slice(5, 7), 16);
+  const next = [r, g, b].map((channel) => clampChannel(channel + (mix - channel) * ratio));
+  return `#${next.map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+}
+
+export function colorFaces(color, palette = DEFAULT_PALETTE) {
+  if (!color) return defaultFaces(palette);
+  return {
+    top: shadeHex(color, 0.08),
+    front: color,
+    right: shadeHex(color, -0.12),
+    left: shadeHex(color, -0.18),
+    back: shadeHex(color, -0.16),
+    bottom: shadeHex(color, -0.22)
+  };
+}
+
 export function resolveItemBoxes(item, palette = DEFAULT_PALETTE) {
   if (item._isTemplate && item.tpl) {
     const template = getTemplate(item.tpl);
@@ -56,7 +93,7 @@ export function resolveItemBoxes(item, palette = DEFAULT_PALETTE) {
   }
   return [{
     ...transformBox(item, { x: 0, y: 0, z: 0, w: item.width, h: item.height, d: item.depth }),
-    faces: defaultFaces(palette),
+    faces: item.color ? colorFaces(item.color, palette) : defaultFaces(palette),
     opacity: item.opacity
   }];
 }

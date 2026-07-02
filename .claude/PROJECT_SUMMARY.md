@@ -8,7 +8,7 @@
 - **i18n:** Hiện đang phân tán trong code; Phase 1 sẽ centralize vào `src/core/i18n.js` (vi/en).
 - **State Management:** In-memory JavaScript model object với `runs`, `modules`, `details`, `specs`. Legacy top-level `modules[]` is normalized into a default east run.
 - **Styling:** Plain CSS với prefix `ide-`.
-- **Deployment:** Mở `.claude/tu_quan_ao_engine_demo.html` trực tiếp trong browser, serve folder statically, hoặc dùng bản copy ở `alpha-studio/public/interior-design/` được serve qua `/studio/interior-design`.
+- **Deployment:** Mở `tu_quan_ao_engine_demo.html` (project root) trực tiếp trong browser, serve folder statically, hoặc dùng bản copy ở `alpha-studio/public/interior-design/` được serve qua `/studio/interior-design`.
 
 ---
 
@@ -33,55 +33,48 @@ tools/interior-design-engine/
     └── tu_quan_ao_engine_demo.html    ← Demo page (live here, not at project root)
 ```
 
-### Current Structure (post-Phase 3)
+### Current Structure (post-Phase 11/14/15 — Three.js đã bị xoá, thay bằng iso renderer + template engine)
 
 ```text
 tools/interior-design-engine/
 ├── interior-design-engine.js          ← 4-dòng shim: import "./src/index.js"
-├── interior-design-engine.css         ← + .ide-three-stage, .ide-three-toolbar, .ide-three-toggle, .ide-dim-label
-├── importmap.json                     ← Three.js 0.169.0 CDN map
+├── interior-design-engine.css
+├── tu_quan_ao_engine_demo.html        ← Demo page (đã chuyển ra project root)
+├── IMPROVEMENT_PLAN.md                ← Phân tích vấn đề + roadmap hoàn thiện (2026-07-02)
+├── skills/                            ← Domain skills cho backend agent (kitchen-l-shape, wardrobe-sliding...)
 ├── src/
 │   ├── index.js                       ← ES module entry, expose window.InteriorDesigner
 │   ├── core/
 │   │   ├── dom.js
 │   │   ├── model.js
-│   │   └── i18n.js
+│   │   ├── i18n.js
+│   │   ├── box-resolver.js            ← resolveItemBoxes: template boxes → world-space boxes (3D-as-truth)
+│   │   ├── validation.js              ← validateModel (Phase 15)
+│   │   └── debug.js
 │   ├── renderers/
-│   │   ├── svg-renderer.js
-│   │   ├── canvas-2d-renderer.js      ← fallback khi WebGL không khả dụng
-│   │   ├── three-renderer.js          ← ThreeRenderer class, mount/update/exportPNG/setMode/setShadowEnabled/setDimensionsVisible/dispose
-│   │   └── three/
-│   │       ├── materials.js           ← 8 PBR preset (wood-oak, wood-walnut, laminate-white, laminate-black-matte, glass-smoked, metal-brushed, metal-black, fabric-linen)
-│   │       ├── geometry-factories.js  ← createGeometry theo catalogId
-│   │       ├── csg-service.js         ← Phase 7 CSG hints: roundCorner, drawerCutout, glassCutout
-│   │       ├── lighting.js            ← hemi + directional shadow + 2 point fills
-│   │       └── dimensions.js          ← CSS2DRenderer dimension labels
-│   ├── catalog/
-│   │   ├── registry.js
-│   │   ├── index.js
-│   │   ├── elements/                  ← 8 element specs
-│   │   └── services/box-service.js
+│   │   ├── svg-renderer.js            ← front/side/plan chiếu từ resolved 3D boxes
+│   │   └── iso-renderer.js            ← Canvas 2D isometric 3D (drag rotate/zoom, exportPNG)
+│   ├── template-engine/
+│   │   ├── interpreter.js             ← renderTemplate/projectBoxToView (box, roundedBox, cylinder)
+│   │   ├── expression.js              ← DSL expression AST whitelist ({{ expr }})
+│   │   ├── color-tokens.js            ← 4 palette × ~21 token ($woodFront, $handle...)
+│   │   ├── loader.js                  ← catalog: builtin + static manifest + backend /templates
+│   │   ├── builtin-templates.js       ← bundle inline của templates JSON
+│   │   └── dispatcher.js
+│   ├── templates/                     ← 14 seed template JSON + manifest.json
 │   ├── ai/
 │   │   ├── prompt-builder.js
-│   │   └── image-analyzer.js          ← analyzeImage/generateRender + client-side resize ≤1600px + presigned B2 upload
+│   │   └── image-analyzer.js          ← analyzeImage/generateRender + resize ≤1600px + presigned B2 upload
 │   ├── editor/
-│   │   ├── index.js                   ← enableEditor: orchestrates selection + property panel + history + keyboard
-│   │   ├── selection.js               ← enableSelection/setSelected/clearSelected — data-detail-id click delegation
-│   │   ├── property-panel.js          ← attachPropertyPanel — name/x/y/z/w/h/d/color/material/catalog form
-│   │   ├── history.js                 ← History class, structuredClone, max 50 metadata snapshots
-│   │   ├── history-panel.js           ← Phase 9 snapshot timeline with preview/restore controls
-│   │   └── keyboard.js                ← bindEditorKeyboard — Ctrl+Z/Y, Delete, Escape; ignores typing targets
+│   │   ├── index.js, selection.js, property-panel.js, history.js, history-panel.js, keyboard.js
 │   └── ui/
-│       ├── main-renderer.js           ← mount3dTab: WebGL detect → ThreeRenderer hoặc Canvas 2D fallback
-│       ├── review-panel.js
-│       ├── ai-export-panel.js
-│       ├── upload-panel.js            ← drop zone + hints + analyze + compare slider on done
-│       └── compare-slider.js          ← pointer-drag before/after with clip-path
+│       ├── main-renderer.js           ← mount3dTab: IsoRenderer
+│       ├── review-panel.js, ai-export-panel.js, upload-panel.js, compare-slider.js
 └── .claude/
-    └── tu_quan_ao_engine_demo.html
+    ├── PROJECT_SUMMARY.md, CONVENTIONS.md, MODEL_CONTRACT.md, SETUP_REPORT.md
 ```
 
-Vendor (offline fallback): `alpha-studio/public/vendor/three/` chứa `three.module.js` (~1.3MB) + addons (`controls/OrbitControls.js`, `geometries/RoundedBoxGeometry.js`, `renderers/CSS2DRenderer.js`, `loaders/SVGLoader.js`). `shell.html` inject importmap động dựa trên `navigator.onLine`.
+Bản mirror runtime: `alpha-studio/public/interior-design/src/**` (phải đồng bộ với `tools/.../src/**` sau mọi thay đổi). Three.js vendor/importmap không còn được engine sử dụng.
 
 ### Critical Files
 
@@ -89,7 +82,7 @@ Vendor (offline fallback): `alpha-studio/public/vendor/three/` chứa `three.mod
 |------|---------|-------|
 | `interior-design-engine.js` | Reusable browser library | IIFE; Phase 1 sẽ chuyển thành ES modules. Public API `window.InteriorDesigner` giữ nguyên signature. |
 | `interior-design-engine.css` | Library/demo styling | `ide-` prefix, tabs + drawings + spec cards + AI export panel + design review panel. |
-| `.claude/tu_quan_ao_engine_demo.html` | Demo page | Chứa `cabinetModel` data, gọi `render()`, `attachDesignReviewPanel()`, `attachAiImageExportPanel()`. |
+| `tu_quan_ao_engine_demo.html` | Demo page (project root) | Chứa `cabinetModel` data, gọi `render()`, `attachDesignReviewPanel()`, `attachAiImageExportPanel()`. |
 | `interior-design-model.schema.json` | AI output contract | JSON Schema cho validate AI-generated design models. |
 | `ai-model-instructions.md` | AI prompt template | System/developer instruction để convert user request → model JSON. |
 | `interior-design-workflow.md` | AI workflow docs | Intake checklist, design directions, review gate, AI image export. |
@@ -149,11 +142,11 @@ No router. In-page tab buttons.
 |---------|--------|----------------|-------|
 | Shared model rendering | Done | `interior-design-engine.js`, demo HTML | Front/side/plan/3D/specs derive từ một model. |
 | Front/side/plan tabs | Done | `interior-design-engine.js` | SVG views từ model bounds. |
-| 3D photoreal renderer | Done | `src/renderers/three-renderer.js`, `src/renderers/three/*.js`, `src/ui/main-renderer.js`, `interior-design-engine.css` | Three.js 0.169.0, PerspectiveCamera fov=45 + OrthographicCamera toggle, shadows default OFF with toolbar toggle, PCFSoftShadowMap when enabled, ACESFilmicToneMapping, OrbitControls (damping), 8 PBR preset, RoundedBoxGeometry cho panel, LatheGeometry cho knob, CylinderGeometry cho rod, CSS2DRenderer dimension labels (toggle), Canvas 2D fallback khi WebGL không khả dụng hoặc `?renderer=canvas`. Phase 10 widens directional shadow bounds to ±600cm/far 2000 and reduces bias to keep large/L-shaped cabinets shadowed. Vendor offline fallback ở `alpha-studio/public/vendor/three/` qua dynamic importmap. |
-| CSG hint rendering | Done | `src/renderers/three/csg-service.js`, `src/renderers/three-renderer.js`, schema JSON, demo HTML | Phase 7 adds optional `csgHints[]` per item. Whitelist supports `roundCorner:<corner>:<radius>`, `drawerCutout:<edge>:<size>`, and `glassCutout:<x>:<y>:<w>:<h>`. Unknown hints warn and keep rendering. Vendor deps: `three-bvh-csg@0.0.17` + `three-mesh-bvh@0.8.3` under `alpha-studio/public/vendor/`. |
+| 3D iso renderer (thay Three.js) | Done | `src/renderers/iso-renderer.js`, `src/ui/main-renderer.js` | Phase 11 xoá Three.js. Canvas 2D isometric: drag rotate, wheel zoom, dblclick reset, palette-based flat faces, exportPNG. Hạn chế hiện tại: bỏ qua `item.color`/`materialRef`, `roundedBox` vẽ như box vuông, không shading — xem `IMPROVEMENT_PLAN.md`. |
+| CSG hint rendering | Removed (Phase 11) | — | `csgHints[]` chỉ tồn tại ở ThreeRenderer (Phase 7), đã bị xoá cùng Three.js. Bo góc nay dùng primitive `roundedBox` trong template DSL. |
 | Multi-run layouts | Done | `src/core/model.js`, `src/renderers/svg-renderer.js`, `src/renderers/three-renderer.js`, `src/renderers/three/dimensions.js`, schema JSON | Phase 8 adds top-level `runs[]` with `{id, origin:{x,z}, direction, modules}` for L/U/island/galley layouts. `normalizeModel()` converts legacy `modules[]` into `runs:[default]`, resolves run modules to absolute coordinates, plan/3D render all runs, and front/side render the first run plus absolute details. |
 | History preview panel | Done | `src/editor/history.js`, `src/editor/history-panel.js`, `src/editor/index.js`, `src/editor/property-panel.js`, `src/core/i18n.js`, `src/ai/image-analyzer.js`, CSS | Phase 9 stores snapshot metadata (`id`, `timestamp`, `label`, optional `renderUrl`), renders a sidebar timeline, supports non-destructive preview mode with read-only properties and disabled edit shortcuts, restores snapshots explicitly, and attaches `generateRender()` URLs as thumbnails. |
-| Solid material opacity guard | Done | `src/renderers/three/materials.js`, public mirror | Phase 10 forces solid body presets (`wood-*`, laminate, metal, fabric) to opaque when AI/legacy JSON sets `opacity < 1`, while preserving glass and void transparency. |
+| Solid material opacity guard | Superseded (Phase 11) | `src/core/model.js` | Bản gốc Phase 10 nằm ở `three/materials.js` (đã xoá). Normalizer hiện ghi `_validationWarnings` cho material semantics đáng ngờ; iso renderer áp `opacity` trực tiếp per-box. |
 | AI image export package | Done | `interior-design-engine.js`, `.css`, demo HTML | Exports reference PNGs, EN/VI prompt files, hướng dẫn VN, model JSON. |
 | Export options panel | Done | `interior-design-engine.js`, `.css`, demo HTML | Preset VN, design direction, EN/VI prompt, copy EN prompt. |
 | Design direction workflow | Done | `interior-design-engine.js`, workflow MD, README, AI instructions | 3 directions built-in + intake checklist. |
@@ -163,7 +156,7 @@ No router. In-page tab buttons.
 | Alpha Studio embed assets | Done | `alpha-studio/public/interior-design/*`, `InteriorDesignPage.tsx` | Source ở `tools/interior-design-engine`, copy static được serve qua `/studio/interior-design`. |
 | Alpha Studio AI shell | Done | `shell.html`, `InteriorDesignPage.tsx`, `routes/interior.js` | MongoDB project storage, B2 reference image upload, postMessage flow. |
 | ES module refactor | Done | `src/core/*`, `src/renderers/*`, `src/ai/*`, `src/ui/*`, `src/index.js`, `importmap.json` | Monolith 1174 dòng đã split. `interior-design-engine.js` giờ là 4-dòng shim re-export `./src/index.js`. Demo HTML + shell.html dùng `<script type="module">`. i18n centralize tại `src/core/i18n.js` (vi + en). |
-| Catalog registry | Done | `src/catalog/registry.js`, `src/catalog/index.js`, `src/catalog/elements/*.js`, `src/catalog/services/box-service.js` | 8 element built-in: door-shaker, door-flat, drawer-front, handle-bar, handle-knob, rod-hanging, shelf-fixed, void-cavity. Registry API: `registerElement`, `getElement`, `listElements`, `factoryElement`. BoxService: create/update/delete/intersect/contains. SVG renderer auto-delegate khi item có `catalogId`; reviewModel cảnh báo khi `catalogId` không tồn tại. JSON schema mở rộng `catalogId` + `props`. |
+| Template catalog (thay catalog registry cũ) | Done | `src/template-engine/loader.js`, `src/templates/*.json`, backend `GET /api/interior/templates` | Folder `src/catalog/` (Phase 2) đã bị thay bởi template engine Phase 11. Catalog = builtin bundle + static manifest (14 template) + backend rows (seed/approved từ `InteriorTemplate`). `getTemplate()` ưu tiên inline → catalog. |
 | Gemini image-to-design pipeline | Done | `src/ai/image-analyzer.js`, `src/ui/upload-panel.js`, `src/ui/compare-slider.js`, `src/core/model.js`, backend `routes/interior.js` (+/analyze-image, +/generate-render), `middleware/interiorQuota.js`, models `InteriorAnalysis`/`InteriorRender`/`InteriorQuota` | Frontend: `analyzeImage(file, opts)` resize ≤1600px → presigned B2 upload → POST /analyze-image. Debug console logs are gated by `?debug=1` or `localStorage.ide:debug=1`; unsupported schema requests log as `[ide:ai] unsupported:`. `normalizeModel()` records `_validationWarnings` for invalid void/glass material semantics. Compare-slider web component (pointer drag + clip-path). Upload panel with drop zone + hints textarea + status. Backend: analyze flow has 24h cache via sha256(imageUrl+hints), robust JSON extraction before repair loop, repair loop max 2 retries, Gemini Flash 3 default → Pro 3.1 escalate when hints contain "complex" or override="pro". AI may return `meta.unsupportedRequests[]` for unsupported schema requests and is instructed not to misuse `glass-smoked` / `kind:"void"`. Generate-render endpoint validates modelJson, uploads viewBase64 to `interior-design/conditioning/`, persists InteriorRender record. **Image-gen upstream not yet wired** — returns conditioning URL as renderUrl placeholder + meta.pending=true. Rate limit 5/24h/user via `interiorQuotaCheck` middleware (bypass for admin/mod, disable via `INTERIOR_QUOTA_ENABLED=false`). |
 | Simple property editor | Done | `src/editor/{index,selection,property-panel,history,history-panel,keyboard}.js`, `src/renderers/svg-renderer.js` (g-wrapper with `data-detail-id`), `interior-design-engine.css` (`.ide-selected`, `.ide-editor-*`, `.ide-prop-*`, `.ide-history-*`) | `InteriorDesigner.enableEditor({mount, model, language, onChange})` orchestrates click-to-select on front/side/plan SVG views + sidebar property form (label, x/y/z, w/h/d, color, material preset dropdown, catalog id dropdown). Every edit goes through `BoxService.update` → re-render all tabs → push metadata snapshot into `History` (max 50). Keyboard: Ctrl+Z undo, Ctrl+Y/Ctrl+Shift+Z redo, Delete remove selected (via `BoxService.delete`), Escape clear selection or closes preview. Sidebar includes undo/redo/delete plus Phase 9 History preview/restore panel. Backward compat: items render unchanged when editor not mounted. |
 | Template 3D-as-truth rendering | Done | `src/core/box-resolver.js`, `src/template-engine/interpreter.js`, `src/renderers/svg-renderer.js`, `src/renderers/iso-renderer.js`, `src/templates/*.json` | Phase 14 replaces independent `frontSvg`/`sideSvg`/`planSvg` template views with `boxes` only. SVG front/side/plan views project resolved 3D boxes, and min/max param bounds are advisory rather than render-time clamps. |
@@ -174,7 +167,18 @@ No router. In-page tab buttons.
 
 ## 5. Known Issues & TODOs
 
+> **2026-07-02:** Phase B asset pipeline completed. Backend prompts now build the catalog dynamically from `InteriorTemplate` seed/approved rows with 5-minute cache, backend startup auto-seeds built-ins + workshop components, 42 current workshop JSON components were upserted as approved templates, active few-shot examples favor `tpl`, agent prompts include domain/dimension/runs/catalog rules, and source/public mirror color tokens include small workshop aliases (`wood`, `woodLight`, `metal`).
+
+> **2026-07-02:** Phase A hotfix completed. `cab-base-rounded-end` no longer uses ternary, per-shape template errors are skipped into validation warnings, `===`/`!==` aliases are supported, raw `item.color` renders with shaded faces, backend catalog prompt lists all 14 seed templates, public mirror is synced, and seed script upserted 14 DB templates.
+
+> **2026-07-02:** Xem `IMPROVEMENT_PLAN.md` (project root) — phân tích 26 phát hiện (F1-F26) về việc AI không dùng template catalog, màu sắc bị renderer bỏ qua, template bo góc `cab-base-rounded-end` crash do ternary không được expression engine hỗ trợ, kích thước sai ở agent mode, và roadmap 5 phase (A-E) để khắc phục.
+
 ### High Priority
+
+- [x] **[BUG — crash]** `cab-base-rounded-end` ternary/strict-equality crash fixed by splitting conditional handle shapes with `"if"` and adding `===`/`!==` aliases.
+- [x] **[BUG]** `box-resolver.resolveItemBoxes` now honors raw `item.color` by deriving shaded faces from the provided color.
+- [x] Prompt catalog backend (`INTERIOR_CATALOG_VI/EN`) now lists all 14 seed templates and documents the `"if"` pattern instead of ternary.
+- [x] Workshop components are now dynamically included in `/chat`/proposal/agent prompts through the DB-backed `InteriorTemplate` catalog.
 
 - [x] Phase 1: Split `interior-design-engine.js` (1174 dòng) thành ES modules + centralize i18n — completed 2026-05-17 session #8.
 - [ ] Browser visual verification: mở `tu_quan_ao_engine_demo.html` + alpha-studio `/studio/interior-design` để confirm 4 tab + review panel + AI export panel render đúng sau khi chuyển sang ES modules.
@@ -206,15 +210,10 @@ No router. In-page tab buttons.
 
 ### Key Dependencies (hiện tại)
 
-- Browser DOM APIs, SVG, Canvas 2D
-- JavaScript `Blob` / data URL / download via anchor
-- **Three.js 0.169.0** qua importmap CDN (jsDelivr) — `three`, `three/addons/controls/OrbitControls.js`, `three/addons/geometries/RoundedBoxGeometry.js`, `three/addons/renderers/CSS2DRenderer.js`. SVGLoader đã vendor cho Phase 4.
-- Vendor offline: `alpha-studio/public/vendor/three/` (5 file ~1.4MB) cho khi `navigator.onLine === false`.
-- CSG vendor offline: `alpha-studio/public/vendor/three-bvh-csg/index.module.js` (`0.0.17`) và `alpha-studio/public/vendor/three-mesh-bvh/three-mesh-bvh.module.js` (`0.8.3`). These are the latest checked versions compatible with `three@0.169.0`; `three-bvh-csg@0.0.18` requires `three>=0.179.0`.
-
-### Planned Dependencies (theo SPEC.md)
-
-- **Phase 4:** Backend Gemini SDK + B2 client (đã có trong alpha-studio-backend).
+- Browser DOM APIs, SVG, Canvas 2D — **zero runtime dependency** (Phase 11 đã xoá Three.js, importmap, và CSG vendor).
+- JavaScript `Blob` / data URL / download via anchor.
+- Backend: Gemini qua gcli-proxy + B2 client (đã có trong alpha-studio-backend) cho analyze-image / chat / agent.
+- Lưu ý: các folder vendor `alpha-studio/public/vendor/three*` nếu còn tồn tại là dead asset của phase cũ, engine không import nữa.
 
 ### External APIs / Services
 
@@ -285,7 +284,7 @@ node --check interior-design-engine.js
 for f in src/**/*.js; do node --check "$f"; done
 
 # Open demo directly
-.claude/tu_quan_ao_engine_demo.html
+tu_quan_ao_engine_demo.html
 ```
 
 ---

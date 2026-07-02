@@ -51,6 +51,47 @@ test("renderTemplate resolves roundedBox and cylinder primitive fields", () => {
   assert.equal(shapes[1].axis, "z");
 });
 
+test("renderTemplate skips invalid shapes and records validation warnings", () => {
+  const warnings = [];
+  const template = {
+    id: "bad-shape-template",
+    params: { width: { default: 80 }, height: { default: 86 }, depth: { default: 60 } },
+    boxes: [
+      { x: 0, y: 0, z: 0, w: "{{width}}", h: "{{height}}", d: "{{depth}}", faces: { front: "$woodFront" } },
+      { x: "{{style.hand === 'right' ? width - 10 : 8}}", y: 0, z: 0, w: 5, h: 5, d: 5 },
+      { x: 10, y: 0, z: 0, w: 5, h: 5, d: 5, faces: { front: "#111111" } }
+    ]
+  };
+  const shapes = renderTemplate(template, { warnings }, "front", "wood-oak");
+  assert.equal(shapes.length, 2);
+  assert.match(warnings.join("\n"), /bad-shape-template\.boxes\[1\] skipped/);
+});
+
+test("renderTemplate accepts strict equality aliases", () => {
+  const template = {
+    id: "strict-equality-template",
+    params: { width: { default: 80 }, height: { default: 86 }, depth: { default: 60 } },
+    style: { hand: { default: "right" } },
+    boxes: [
+      { if: "{{style.hand === 'right'}}", x: "{{width - 10}}", y: 0, z: 0, w: 5, h: 5, d: 5 },
+      { if: "{{style.hand !== 'right'}}", x: 8, y: 0, z: 0, w: 5, h: 5, d: 5 }
+    ]
+  };
+  const shapes = renderTemplate(template, { style: { hand: "right" } }, "front", "wood-oak");
+  assert.equal(shapes.length, 1);
+  assert.equal(shapes[0].x, 70);
+});
+
+test("cab-base-rounded-end builtin renders without ternary crash", () => {
+  const template = BUILTIN_TEMPLATES.find((tpl) => tpl.id === "cab-base-rounded-end");
+  const warnings = [];
+  const boxes = renderTemplate(template, { params: { width: 50, height: 86, depth: 60 }, style: { hand: "right" }, warnings }, "front", "wood-oak");
+  assert.equal(warnings.length, 0);
+  assert.equal(boxes.length, 3);
+  assert.equal(boxes[2].type, "cylinder");
+  assert.equal(boxes[2].x, 40);
+});
+
 test("projectBoxToView projects rounded boxes and front-facing cylinders", () => {
   assert.deepEqual(
     projectBoxToView({ type: "roundedBox", x: 5, y: 10, z: 0, w: 40, h: 50, d: 20, radius: 6, faces: { front: "#aaa" } }, "front"),

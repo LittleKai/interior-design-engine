@@ -24,6 +24,12 @@ function tokenize(input) {
       i += 1;
       continue;
     }
+    const three = source.slice(i, i + 3);
+    if (three === "===" || three === "!==") {
+      tokens.push({ type: "op", value: three === "===" ? "==" : "!=" });
+      i += 3;
+      continue;
+    }
     const two = source.slice(i, i + 2);
     if (["==", "!=", "<=", ">=", "&&", "||"].includes(two)) {
       tokens.push({ type: "op", value: two });

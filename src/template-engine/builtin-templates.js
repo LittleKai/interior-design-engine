@@ -1238,7 +1238,21 @@ export const BUILTIN_TEMPLATES = [
       },
       {
         "type": "cylinder",
-        "x": "{{style.hand === 'right' ? width - 10 : 8}}",
+        "if": "{{style.hand == 'right'}}",
+        "x": "{{width - 10}}",
+        "y": "{{height / 2 - 2}}",
+        "z": "{{depth + 0.5}}",
+        "radius": 2,
+        "length": 3,
+        "axis": "z",
+        "faces": {
+          "front": "$handle"
+        }
+      },
+      {
+        "type": "cylinder",
+        "if": "{{style.hand != 'right'}}",
+        "x": 8,
         "y": "{{height / 2 - 2}}",
         "z": "{{depth + 0.5}}",
         "radius": 2,

@@ -41,6 +41,14 @@ function resolveShape(shape, ctx) {
   return out;
 }
 
+function pushShapeWarning(instance, template, index, error) {
+  const warnings = Array.isArray(instance.warnings) ? instance.warnings : instance._validationWarnings;
+  if (!Array.isArray(warnings)) return;
+  const templateId = template?.id || "template";
+  const message = error && error.message ? error.message : String(error);
+  warnings.push(`${templateId}.boxes[${index}] skipped: ${message}`);
+}
+
 function finiteNumber(value, fallback = 0) {
   return Number.isFinite(value) ? value : fallback;
 }
@@ -92,7 +100,14 @@ export function renderTemplate(template, instance = {}, view = "front", palette 
   const style = Object.assign({}, defaultsFrom(template.style), instance.style || {});
   const ctx = { params, style, palette };
   return (template.boxes || template.isoBoxes || [])
-    .map((shape) => resolveShape(shape, ctx))
+    .map((shape, index) => {
+      try {
+        return resolveShape(shape, ctx);
+      } catch (error) {
+        pushShapeWarning(instance, template, index, error);
+        return null;
+      }
+    })
     .filter((shape) => shape && BOX_TYPES.has(shape.type || "box"));
 }
 

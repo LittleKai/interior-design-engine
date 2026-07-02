@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { transformBox, resolveItemBoxes } from "../core/box-resolver.js";
+import { colorFaces, transformBox, resolveItemBoxes } from "../core/box-resolver.js";
 import { registerInlineTemplates } from "../template-engine/loader.js";
 
 test("transformBox keeps east-direction boxes in item world frame", () => {
@@ -75,6 +75,20 @@ test("resolveItemBoxes returns one default box for non-templated items", () => {
     { x: 1, y: 2, z: 3, w: 40, h: 50, d: 60 }
   );
   assert.equal(boxes[0].faces.front, "#c9986b");
+});
+
+test("resolveItemBoxes honors raw item color with shaded faces", () => {
+  const boxes = resolveItemBoxes({ x: 0, y: 0, z: 0, width: 40, height: 50, depth: 60, color: "#1a1a2e" }, "wood-oak");
+  assert.equal(boxes.length, 1);
+  assert.equal(boxes[0].faces.front, "#1a1a2e");
+  assert.equal(boxes[0].faces.top, "#2c2c3f");
+  assert.equal(boxes[0].faces.right, "#171728");
+});
+
+test("colorFaces expands short hex colors", () => {
+  const faces = colorFaces("#123", "wood-oak");
+  assert.equal(faces.front, "#123");
+  assert.equal(faces.top, "#243443");
 });
 
 test("resolveItemBoxes preserves roundedBox and cylinder primitive metadata", () => {
