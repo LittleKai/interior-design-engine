@@ -43,6 +43,20 @@ test("valid runs model passes", () => {
   assert.equal(result.normalized.runs.length, 2);
 });
 
+test("template modules use params.default for missing dimensions", () => {
+  const result = validateModel({
+    width: 300,
+    height: 260,
+    depth: 60,
+    modules: [{ tpl: "sliding-2door", x: 0, y: 0, z: 0 }]
+  });
+
+  assert.equal(result.valid, true);
+  assert.equal(result.normalized.modules[0].width, 138);
+  assert.equal(result.normalized.modules[0].height, 186);
+  assert.equal(result.normalized.modules[0].depth, 60);
+});
+
 test("missing dimensions fail with clear errors", () => {
   const result = validateModel({
     width: 100,
@@ -80,6 +94,20 @@ test("unknown palette warns and normalizes to wood-oak", () => {
   assert.equal(result.valid, true);
   assert.equal(result.normalized.palette, "wood-oak");
   assert.match(result.warnings.join("\n"), /Unknown palette "purple-gloss"/);
+});
+
+test("new VN palettes pass validation without normalization warning", () => {
+  const result = validateModel({
+    width: 100,
+    height: 200,
+    depth: 60,
+    palette: "navy-brass",
+    modules: [{ width: 100, height: 200, depth: 60 }]
+  });
+
+  assert.equal(result.valid, true);
+  assert.equal(result.normalized.palette, "navy-brass");
+  assert.equal(result.warnings.some((warning) => warning.includes("Unknown palette")), false);
 });
 
 test("void item with solid material returns warning", () => {

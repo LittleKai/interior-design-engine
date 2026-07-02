@@ -252,6 +252,14 @@ AI sinh model "mù" — không bao giờ nhìn thấy kết quả render của c
 
 ### Phase C — Màu sắc & vật liệu (~1 tuần)
 
+**Status 2026-07-02:** Phase C completed and verified.
+
+- [x] C1: Token vocabulary expanded across all palettes (`metalDark`, `fabric`, `stone`, `ceramic`, `plantGreen`, `ledWarm`, `accent2`, etc.); backend validates unknown `$token` references and ingest normalizes `faces.side` before validation.
+- [x] C2: Added `white-oak`, `navy-brass`, `green-sage`, and `grey-minimal` palettes with i18n labels; dropdown picks them up through `listPalettes()`.
+- [x] C3: Added per-module `module.style.colors` overrides in the template interpreter, schema JSON, MODEL_CONTRACT, and prompt rules.
+- [x] C4: Added iso-renderer face luminance shading (`top` lighter, side/back/bottom darker) with focused tests.
+- [x] C5: Synced `INTERIOR_DOMAIN_HINTS`/catalog/agent prompt rules with actual renderable palettes, tokens, and per-module color overrides.
+
 | # | Việc | Ghi chú |
 |---|------|--------|
 | C1 | Mở rộng token vocabulary: `metal`, `metalDark`, `fabric`, `stone`, `ceramic`, `plantGreen`, `ledWarm`, `accent2`... cho cả 4 palette; chuẩn hoá face keys (map `side` → `left`+`right` hoặc cấm khi import) | Sửa F10; validate `$token` tồn tại trong `templateValidator` khi import/tplNew |
@@ -261,6 +269,13 @@ AI sinh model "mù" — không bao giờ nhìn thấy kết quả render của c
 | C5 | Đồng bộ `INTERIOR_DOMAIN_HINTS` với năng lực thật của engine sau C1-C3 (chỉ quảng cáo màu/vật liệu render được) | Sửa F9 |
 
 ### Phase D — Kích thước đúng & vòng lặp tự sửa (~1 tuần)
+
+**Status 2026-07-02:** Phase D completed and verified.
+
+- [x] D1: Backend now produces non-blocking geometry warnings for run occupied length, out-of-bounds modules, overlapping modules in the same run/y-range, and upper-vs-lower cabinet z alignment.
+- [x] D2: `/chat` apply now retries once with a focused geometry-repair prompt when D1 warnings exist, then keeps the schema-valid model with warnings if repair fails.
+- [x] D3: `/chat` applies missing `tpl` dimensions from `InteriorTemplate.params.default` and inline template defaults; engine normalization also uses template defaults instead of full model-size fallback for template modules.
+- [x] D4: Shell render now shows `_validationWarnings` plus `reviewModel()` issues in a warning panel with vi/en i18n; source and `alpha-studio/public/interior-design/` mirror are synced.
 
 | # | Việc | Ghi chú |
 |---|------|--------|

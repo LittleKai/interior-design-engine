@@ -847,6 +847,73 @@
   font-size: 13px;
 }
 
+.ide-validation-panel {
+  max-width: 1180px;
+  margin: 22px auto 0;
+  padding: 16px 18px;
+  border: 1px solid #e0c083;
+  border-radius: 8px;
+  background: #fff7e3;
+  color: #1f2523;
+  box-shadow: 0 10px 24px rgba(35, 28, 20, 0.08);
+}
+
+.ide-validation-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.ide-validation-header h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+
+.ide-validation-header p {
+  margin: 0;
+  color: #6a5a3c;
+  font-size: 13px;
+}
+
+.ide-validation-count {
+  min-width: 38px;
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: #8a5a15;
+  color: #fff8ea;
+  font: 700 14px/1 Arial, Helvetica, sans-serif;
+  text-align: center;
+}
+
+.ide-validation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ide-validation-card {
+  border: 1px solid #e4c78e;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #fffdf8;
+}
+
+.ide-validation-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.ide-validation-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #4f4634;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
 .ide-review-panel {
   max-width: 1180px;
   margin: 24px auto 0;
@@ -935,6 +1002,10 @@
   }
 
   .ide-review-header {
+    flex-direction: column;
+  }
+
+  .ide-validation-header {
     flex-direction: column;
   }
 

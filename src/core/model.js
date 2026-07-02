@@ -1,3 +1,6 @@
+import { DEFAULT_PALETTE, hasPalette } from "../template-engine/color-tokens.js";
+import { getTemplate } from "../template-engine/loader.js";
+
 const SOLID_MATERIAL_REFS = new Set([
   "wood-oak",
   "wood-walnut",
@@ -19,7 +22,6 @@ const SOLID_BODY_KINDS = new Set([
 ]);
 
 const RUN_DIRECTIONS = new Set(["east", "north", "west", "south"]);
-const VALID_PALETTES = new Set(["wood-oak", "wood-walnut", "laminate-white", "dark-modern"]);
 
 export function normalizeModel(input) {
   const source = input || {};
@@ -34,11 +36,11 @@ export function normalizeModel(input) {
     runs: [],
     details: [],
     materials: {},
-    palette: "wood-oak",
+    palette: DEFAULT_PALETTE,
     inlineTemplates: {}
   }, source);
 
-  model.palette = VALID_PALETTES.has(source.palette) ? source.palette : "wood-oak";
+  model.palette = hasPalette(source.palette) ? source.palette : DEFAULT_PALETTE;
   model.inlineTemplates = source.inlineTemplates && typeof source.inlineTemplates === "object" && !Array.isArray(source.inlineTemplates)
     ? source.inlineTemplates
     : {};
@@ -46,7 +48,7 @@ export function normalizeModel(input) {
   model.modules = model.runs.flatMap((run) => run.modules);
   model.details = normalizeItems(model.details, model, "detail");
   model._validationWarnings = validateMaterialSemantics(model);
-  if (source.palette && source.palette !== model.palette) model._validationWarnings.push(`Unknown palette "${source.palette}", using wood-oak.`);
+  if (source.palette && source.palette !== model.palette) model._validationWarnings.push(`Unknown palette "${source.palette}", using ${DEFAULT_PALETTE}.`);
   return model;
 }
 
@@ -84,20 +86,23 @@ function normalizeRuns(source, model) {
 
 export function normalizeItems(items, model, group) {
   return (items || []).map((item, index) => {
+    const source = item || {};
+    const isTemplate = typeof source.tpl === "string" && source.tpl.trim();
+    const dimensionDefaults = defaultDimensions(source, model, group, !!isTemplate);
     const normalized = Object.assign({
       id: `${group}-${index + 1}`,
       group,
       kind: "box",
-      label: item.type || `${group} ${index + 1}`,
+      label: source.type || `${group} ${index + 1}`,
       x: 0,
       y: 0,
       z: 0,
-      width: group === "module" ? model.width : 1,
-      height: group === "module" ? model.height : 1,
-      depth: group === "module" ? model.depth : 1,
-      color: item.kind === "void" ? "#ebe4d9" : "#c89a62",
+      width: dimensionDefaults.width,
+      height: dimensionDefaults.height,
+      depth: dimensionDefaults.depth,
+      color: source.kind === "void" ? "#ebe4d9" : "#c89a62",
       layer: group === "module" ? 0 : 10
-    }, item);
+    }, source);
     normalized.style = normalized.style && typeof normalized.style === "object" && !Array.isArray(normalized.style) ? normalized.style : {};
     if (typeof normalized.tpl === "string" && normalized.tpl.trim()) {
       normalized.tpl = normalized.tpl.trim();
@@ -105,6 +110,28 @@ export function normalizeItems(items, model, group) {
     }
     return normalized;
   });
+}
+
+function defaultDimensions(item, model, group, isTemplate) {
+  const result = {};
+  ["width", "height", "depth"].forEach((key) => {
+    const templateDefault = isTemplate ? templateDimensionDefault(item, model, key) : null;
+    if (templateDefault != null) {
+      result[key] = templateDefault;
+    } else if (group === "module" && !isTemplate) {
+      result[key] = model[key];
+    } else {
+      result[key] = 1;
+    }
+  });
+  return result;
+}
+
+function templateDimensionDefault(item, model, key) {
+  const id = typeof item.tpl === "string" ? item.tpl.trim() : "";
+  const template = (model.inlineTemplates && model.inlineTemplates[id]) || getTemplate(id);
+  const value = template && template.params && template.params[key] && template.params[key].default;
+  return Number.isFinite(value) && value > 0 ? value : null;
 }
 
 export function allItems(model) {

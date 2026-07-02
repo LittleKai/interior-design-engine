@@ -85,7 +85,11 @@ export const I18N = {
       "wood-oak": { label: "Sồi vàng" },
       "wood-walnut": { label: "Óc chó" },
       "laminate-white": { label: "Trắng laminate" },
-      "dark-modern": { label: "Hiện đại tối" }
+      "dark-modern": { label: "Hiện đại tối" },
+      "white-oak": { label: "Trắng + sồi sáng" },
+      "navy-brass": { label: "Navy + đồng" },
+      "green-sage": { label: "Xanh sage" },
+      "grey-minimal": { label: "Xám tối giản" }
     },
     template: {
       notFound: "Không tìm thấy template: {id}",
@@ -172,6 +176,13 @@ export const I18N = {
         unknownCatalog: (ids) => `Có ${ids.length} chi tiết tham chiếu catalogId không tồn tại: ${ids.join(", ")}.`
       }
     },
+    validationPanel: {
+      title: "Cảnh báo model",
+      subtitle: "Các điểm cần kiểm tra trước khi dựng ảnh hoặc bàn giao thiết kế.",
+      modelWarnings: "Cảnh báo hình học / dữ liệu",
+      reviewWarnings: "Review nhanh",
+      errorPrefix: "Lỗi:"
+    },
     export: {
       title: "Xuất dữ liệu cho AI tạo ảnh",
       description: "Tạo ảnh tham chiếu, prompt tiếng Anh/tiếng Việt, hướng dẫn sử dụng và JSON model để đưa vào công cụ AI tạo ảnh.",
@@ -232,7 +243,11 @@ export const I18N = {
       "wood-oak": { label: "Oak" },
       "wood-walnut": { label: "Walnut" },
       "laminate-white": { label: "Laminate white" },
-      "dark-modern": { label: "Dark modern" }
+      "dark-modern": { label: "Dark modern" },
+      "white-oak": { label: "White oak" },
+      "navy-brass": { label: "Navy brass" },
+      "green-sage": { label: "Sage green" },
+      "grey-minimal": { label: "Grey minimal" }
     },
     template: {
       notFound: "Template not found: {id}",
@@ -318,6 +333,13 @@ export const I18N = {
         noMaterials: "Missing materials; AI image prompts will be less stable.",
         unknownCatalog: (ids) => `${ids.length} items reference unknown catalogId(s): ${ids.join(", ")}.`
       }
+    },
+    validationPanel: {
+      title: "Model warnings",
+      subtitle: "Items to check before image rendering or design handoff.",
+      modelWarnings: "Geometry / data warnings",
+      reviewWarnings: "Quick review",
+      errorPrefix: "Error:"
     },
     export: {
       title: "Export data for AI image generation",

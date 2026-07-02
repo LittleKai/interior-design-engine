@@ -5,6 +5,7 @@ import { renderSvgView } from "../renderers/svg-renderer.js";
 import { IsoRenderer } from "../renderers/iso-renderer.js";
 import { listPalettes } from "../template-engine/color-tokens.js";
 import { prepareModelForRender } from "../template-engine/dispatcher.js";
+import { reviewModel } from "./review-panel.js";
 
 const DEFAULT_TABS = ["front", "side", "plan", "3d", "specs"];
 
@@ -73,6 +74,50 @@ function renderSpecs(model, language) {
   return grid;
 }
 
+function uniqueText(items) {
+  return Array.from(new Set((items || []).filter((item) => typeof item === "string" && item.trim()).map((item) => item.trim())));
+}
+
+function warningList(items) {
+  return el("ul", {}, items.map((item) => el("li", { text: item })));
+}
+
+function renderValidationPanel(validation, model, language) {
+  const modelWarnings = uniqueText([
+    ...(validation.errors || []).map((message) => `${t("validationPanel.errorPrefix", language)} ${message}`),
+    ...(validation.warnings || []),
+    ...(Array.isArray(model._validationWarnings) ? model._validationWarnings : [])
+  ]);
+  const review = reviewModel(model, { language });
+  const reviewWarnings = uniqueText(review.issues || []);
+  if (modelWarnings.length === 0 && reviewWarnings.length === 0) return null;
+
+  const cards = [];
+  if (modelWarnings.length > 0) {
+    cards.push(el("div", { class: "ide-validation-card" }, [
+      el("strong", { text: t("validationPanel.modelWarnings", language) }),
+      warningList(modelWarnings)
+    ]));
+  }
+  if (reviewWarnings.length > 0) {
+    cards.push(el("div", { class: "ide-validation-card" }, [
+      el("strong", { text: t("validationPanel.reviewWarnings", language) }),
+      warningList(reviewWarnings)
+    ]));
+  }
+
+  return el("section", { class: "ide-validation-panel" }, [
+    el("div", { class: "ide-validation-header" }, [
+      el("div", {}, [
+        el("h2", { text: t("validationPanel.title", language) }),
+        el("p", { text: t("validationPanel.subtitle", language) })
+      ]),
+      el("div", { class: "ide-validation-count", text: String(modelWarnings.length + reviewWarnings.length) })
+    ]),
+    el("div", { class: "ide-validation-grid" }, cards)
+  ]);
+}
+
 export function render(options) {
   const mount = typeof options.mount === "string" ? document.querySelector(options.mount) : options.mount;
   if (!mount) throw new Error("InteriorDesigner.render: mount element not found.");
@@ -100,6 +145,9 @@ export function render(options) {
       el("div", { text: `${t("headerBadge.depth", language)}: ${cm(model.depth)}` })
     ])
   ]));
+
+  const validationPanel = renderValidationPanel(validation, model, language);
+  if (validationPanel) shell.appendChild(validationPanel);
 
   const nav = el("nav", { class: "ide-tabs" });
   const views = el("main", {});

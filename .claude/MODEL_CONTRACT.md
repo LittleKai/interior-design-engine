@@ -23,7 +23,7 @@ Optional fields:
 - `subtitle`
 - `units`
 - `materials`
-- `palette`
+- `palette`: one of `wood-oak`, `wood-walnut`, `laminate-white`, `dark-modern`, `white-oak`, `navy-brass`, `green-sage`, `grey-minimal`.
 - `inlineTemplates`
 - `details`
 - `specs`
@@ -70,6 +70,23 @@ Supported fields:
 
 `width`, `height`, and `depth` must be finite positive numbers after defaulting. Modules default to the model size when dimensions are omitted. Details default to `1` cm for omitted dimensions.
 
+`style.colors` is the supported per-module color override surface for template modules. Example:
+
+```json
+{
+  "tpl": "base-cabinet-2door",
+  "style": {
+    "colors": {
+      "front": "#1d2b44",
+      "body": "#ffffff",
+      "handle": "#c9a354"
+    }
+  }
+}
+```
+
+Semantic keys include `front`, `body`, `top`, `side`, `back`, `handle`, `metal`, `fabric`, `stone`, `ceramic`, `plant`, `led`, `accent`, and `accent2`. Direct token keys such as `woodFront`, `cab`, `metalDark`, `plantGreen`, and `ledWarm` are also accepted.
+
 ## Templates
 
 Modules may use `tpl` to reference a template. Since Phase 14, templates are `boxes`-based: 3D primitive definitions are the source of truth, and 2D front/side/plan drawings are projected from resolved primitives.
@@ -81,6 +98,8 @@ Supported `boxes[]` primitives:
 - `type: "cylinder"`: round primitive with `x/y/z`, `radius`, `length`, and `axis: "x" | "y" | "z"` for knobs, rods, round legs, pendant stems, or metal tubes.
 
 Inline templates may be supplied through `inlineTemplates`. Built-in templates and approved backend templates are loaded by the template catalog.
+
+Template `faces` colors may use literal hex/rgba values or palette tokens. Supported tokens include `woodFront`, `woodFrontL`, `woodTop`, `woodSide`, `woodDark`, `woodBack`, `cab`, `cabLight`, `cabDark`, `cabEdge`, `handle`, `handleEdge`, `metal`, `metalDark`, `fabric`, `fabricDark`, `stone`, `stoneDark`, `ceramic`, `plantGreen`, `ledWarm`, `glass`, `glassBorder`, `accent`, and `accent2`. Backend validation rejects unknown `$token` references before import or `tplNew` promotion.
 
 ## Validation
 

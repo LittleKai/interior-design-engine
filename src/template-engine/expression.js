@@ -136,7 +136,11 @@ function parser(tokens) {
 }
 
 function readIdentifier(name, ctx) {
-  if (name[0] === "$") return resolveToken(ctx.palette, name.slice(1));
+  if (name[0] === "$") {
+    const token = name.slice(1);
+    if (ctx.colors && Object.prototype.hasOwnProperty.call(ctx.colors, token)) return ctx.colors[token];
+    return resolveToken(ctx.palette, token);
+  }
   const parts = name.split(".");
   let root;
   if (Object.prototype.hasOwnProperty.call(ctx.params || {}, parts[0])) root = ctx.params;

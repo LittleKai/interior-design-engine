@@ -47,7 +47,7 @@
     "palette": {
       "type": "string",
       "description": "Built-in renderer palette id. Unknown values are normalized to wood-oak by runtime validation.",
-      "enum": ["wood-oak", "wood-walnut", "laminate-white", "dark-modern"]
+      "enum": ["wood-oak", "wood-walnut", "laminate-white", "dark-modern", "white-oak", "navy-brass", "green-sage", "grey-minimal"]
     },
     "inlineTemplates": {
       "type": "object",
@@ -209,7 +209,16 @@
         "style": {
           "type": "object",
           "additionalProperties": true,
-          "description": "Per-template style overrides consumed by the template interpreter."
+          "description": "Per-template style overrides consumed by the template interpreter.",
+          "properties": {
+            "colors": {
+              "type": "object",
+              "description": "Optional per-module color overrides. Semantic keys include front, body, top, side, back, handle, metal, fabric, stone, ceramic, plant, led, accent, accent2; direct token keys such as woodFront, cab, metalDark, plantGreen, ledWarm are also accepted.",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
         },
         "opacity": {
           "type": "number",

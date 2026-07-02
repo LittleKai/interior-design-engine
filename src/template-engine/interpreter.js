@@ -4,6 +4,22 @@ import { resolveToken } from "./color-tokens.js";
 const NUMERIC_FIELDS = new Set(["x", "y", "z", "w", "h", "d", "x1", "y1", "x2", "y2", "rx", "sw", "fontSize", "opacity", "radius", "r", "length"]);
 const COLOR_FIELDS = new Set(["fill", "stroke"]);
 const BOX_TYPES = new Set(["box", "roundedBox", "cylinder"]);
+const COLOR_OVERRIDE_ALIASES = {
+  front: ["woodFront", "woodFrontL", "cab"],
+  body: ["cab", "cabLight", "cabDark", "cabEdge", "woodTop", "woodSide", "woodDark", "woodBack"],
+  top: ["woodTop", "deskTop"],
+  side: ["woodSide", "woodDark", "left", "right"],
+  back: ["woodBack"],
+  handle: ["handle", "handleEdge", "metal"],
+  metal: ["metal", "handle"],
+  fabric: ["fabric"],
+  stone: ["stone"],
+  ceramic: ["ceramic"],
+  plant: ["plantGreen"],
+  led: ["ledWarm"],
+  accent: ["accent"],
+  accent2: ["accent2"]
+};
 
 function defaultsFrom(defs) {
   const out = {};
@@ -13,9 +29,29 @@ function defaultsFrom(defs) {
   return out;
 }
 
+function normalizeColorOverrides(colors) {
+  if (!colors || typeof colors !== "object" || Array.isArray(colors)) return {};
+  const out = {};
+  Object.entries(colors).forEach(([key, value]) => {
+    if (typeof value !== "string" || !value.trim()) return;
+    const color = value.trim();
+    const aliases = COLOR_OVERRIDE_ALIASES[key] || [];
+    aliases.forEach((token) => {
+      if (out[token] === undefined) out[token] = color;
+    });
+    out[key] = color;
+  });
+  return out;
+}
+
+function resolveColorToken(ctx, token) {
+  if (ctx.colors && Object.prototype.hasOwnProperty.call(ctx.colors, token)) return ctx.colors[token];
+  return resolveToken(ctx.palette, token);
+}
+
 function resolveValue(value, ctx, key) {
   if (typeof value === "string" && value.trim().startsWith("{{")) return evalExpr(value, ctx);
-  if (typeof value === "string" && value.startsWith("$")) return resolveToken(ctx.palette, value.slice(1)) || value;
+  if (typeof value === "string" && value.startsWith("$")) return resolveColorToken(ctx, value.slice(1)) || value;
   if (NUMERIC_FIELDS.has(key) && typeof value === "string") return evalExpr(value, ctx);
   return value;
 }
@@ -98,7 +134,7 @@ export function renderTemplate(template, instance = {}, view = "front", palette 
   if (!template) return [];
   const params = resolveParams(template, instance);
   const style = Object.assign({}, defaultsFrom(template.style), instance.style || {});
-  const ctx = { params, style, palette };
+  const ctx = { params, style, palette, colors: normalizeColorOverrides(style.colors) };
   return (template.boxes || template.isoBoxes || [])
     .map((shape, index) => {
       try {

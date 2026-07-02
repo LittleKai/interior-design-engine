@@ -3,6 +3,40 @@ import { allItems, modelBounds, isVisible } from "../core/model.js";
 import { resolveItemBoxes, defaultFaces } from "../core/box-resolver.js";
 import { resolveToken, DEFAULT_PALETTE } from "../template-engine/color-tokens.js";
 
+const FACE_LUMINANCE = {
+  top: 1.1,
+  front: 1,
+  right: 0.85,
+  left: 0.85,
+  back: 0.82,
+  bottom: 0.78
+};
+
+function clampChannel(value) {
+  return Math.max(0, Math.min(255, Math.round(value)));
+}
+
+export function shadeColor(color, factor = 1) {
+  if (typeof color !== "string") return color;
+  const value = color.trim();
+  const short = value.match(/^#([0-9a-f]{3})$/i);
+  const long = value.match(/^#([0-9a-f]{6})$/i);
+  const hex = long
+    ? long[1]
+    : short
+      ? short[1].split("").map((ch) => ch + ch).join("")
+      : null;
+  if (!hex) return color;
+  const r = clampChannel(parseInt(hex.slice(0, 2), 16) * factor);
+  const g = clampChannel(parseInt(hex.slice(2, 4), 16) * factor);
+  const b = clampChannel(parseInt(hex.slice(4, 6), 16) * factor);
+  return `#${[r, g, b].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
+}
+
+export function shadeFaceColor(face, color) {
+  return shadeColor(color, FACE_LUMINANCE[face] || 1);
+}
+
 export class IsoRenderer {
   constructor(container, options = {}) {
     this.container = container;
@@ -158,12 +192,12 @@ export class IsoRenderer {
     const y1 = y0 + box.h;
     const z1 = z0 + box.d;
     const faces = Object.assign({}, defaultFaces(this.palette), box.faces || {});
-    this.face(ctx, [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]], faces.bottom, faces.stroke, box.opacity);
-    this.face(ctx, [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]], faces.back, faces.stroke, box.opacity);
-    this.face(ctx, [[x0, y0, z0], [x0, y0, z1], [x0, y1, z1], [x0, y1, z0]], faces.left, faces.stroke, box.opacity);
-    this.face(ctx, [[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]], faces.right, faces.stroke, box.opacity);
-    this.face(ctx, [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], faces.front, faces.stroke, box.opacity);
-    this.face(ctx, [[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], faces.top, faces.stroke, box.opacity);
+    this.face(ctx, [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]], shadeFaceColor("bottom", faces.bottom), faces.stroke, box.opacity);
+    this.face(ctx, [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]], shadeFaceColor("back", faces.back), faces.stroke, box.opacity);
+    this.face(ctx, [[x0, y0, z0], [x0, y0, z1], [x0, y1, z1], [x0, y1, z0]], shadeFaceColor("left", faces.left), faces.stroke, box.opacity);
+    this.face(ctx, [[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]], shadeFaceColor("right", faces.right), faces.stroke, box.opacity);
+    this.face(ctx, [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], shadeFaceColor("front", faces.front), faces.stroke, box.opacity);
+    this.face(ctx, [[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], shadeFaceColor("top", faces.top), faces.stroke, box.opacity);
   }
 
   projectedRadius(x, y, z, radius) {

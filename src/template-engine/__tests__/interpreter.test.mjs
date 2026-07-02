@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { renderTemplate, projectBoxToView } from "../interpreter.js";
 import { BUILTIN_TEMPLATES } from "../builtin-templates.js";
+import { hasPalette, resolveToken, hasColorToken } from "../color-tokens.js";
 
 test("renderTemplate returns resolved boxes from builtin templates", () => {
   const template = BUILTIN_TEMPLATES.find((tpl) => tpl.id === "wall-cabinet-2door");
@@ -101,4 +102,52 @@ test("projectBoxToView projects rounded boxes and front-facing cylinders", () =>
     projectBoxToView({ type: "cylinder", x: 20, y: 30, z: 4, radius: 3, length: 5, axis: "z", faces: { front: "#111" } }, "front"),
     { x: 20, y: 30, w: 6, h: 6, fill: "#111", depthKey: 4, kind: "ellipse" }
   );
+});
+
+test("new VN palettes and material tokens are available", () => {
+  assert.equal(hasPalette("white-oak"), true);
+  assert.equal(hasPalette("navy-brass"), true);
+  assert.equal(hasPalette("green-sage"), true);
+  assert.equal(hasPalette("grey-minimal"), true);
+  assert.equal(hasColorToken("metalDark"), true);
+  assert.equal(hasColorToken("plantGreen"), true);
+  assert.equal(resolveToken("navy-brass", "metal"), "#c9a354");
+});
+
+test("renderTemplate applies per-module style.colors overrides", () => {
+  const template = {
+    id: "color-override-template",
+    params: { width: { default: 80 }, height: { default: 86 }, depth: { default: 60 } },
+    boxes: [
+      {
+        x: 0,
+        y: 0,
+        z: 0,
+        w: "{{width}}",
+        h: "{{height}}",
+        d: "{{depth}}",
+        faces: {
+          front: "$woodFront",
+          top: "$woodTop",
+          right: "$woodSide",
+          back: "$woodBack"
+        }
+      },
+      { type: "cylinder", x: 4, y: 4, z: 60, radius: 1, length: 8, axis: "z", faces: { front: "$handle" } }
+    ]
+  };
+  const boxes = renderTemplate(template, {
+    style: {
+      colors: {
+        front: "#112233",
+        body: "#eeeeee",
+        handle: "#c9a354"
+      }
+    }
+  }, "front", "wood-oak");
+  assert.equal(boxes[0].faces.front, "#112233");
+  assert.equal(boxes[0].faces.top, "#eeeeee");
+  assert.equal(boxes[0].faces.right, "#eeeeee");
+  assert.equal(boxes[0].faces.back, "#eeeeee");
+  assert.equal(boxes[1].faces.front, "#c9a354");
 });
