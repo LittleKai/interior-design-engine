@@ -43,6 +43,8 @@ Each run contains:
 - `direction`: one of `east`, `north`, `west`, `south`.
 - `modules[]`: non-empty array of design items.
 
+Run module coordinate semantics (unified 2026-07-03): within every run, module `x` is the position ALONG the run axis measured from the origin, and module `z` is the perpendicular depth offset from the run's wall line. Directions extend east=+x, west=-x, south=+z, north=-z, so a north run needs its origin at the far z end to stay inside the model. When no module in a run carries an explicit `x > 0`, positions fall back to index-based auto-offset by cumulative widths (legacy single-module runs). Items that already carry `_runDirection` are treated as resolved world coordinates and are not re-translated.
+
 ## Design Items
 
 Items appear in `modules[]`, `runs[].modules[]`, and `details[]`.

@@ -1,5 +1,11 @@
 # Kế hoạch hoàn thiện Interior Design Engine (`/studio/interior-design`)
 
+> **Cập nhật 2026-07-03 — REVIEW SAU TRIỂN KHAI:** Toàn bộ Phase A-E đã được triển khai; review phát hiện 2 vấn đề lớn và **cả 2 đã được xử lý trong cùng ngày**:
+> 1. **Deploy gap (fixed):** `npm run sync:interior-assets` bundle 14 template + 42 workshop component + 6 agent skill vào `alpha-studio-backend/server/assets/interior/`; runtime ưu tiên `tools/` (dev) và fallback bundle (Fly image). Nhắc vận hành: chạy lại sync trước khi deploy nếu assets thay đổi, và cần **redeploy backend** để auto-seed chạy trên prod.
+> 2. **Run coordinate mismatch (fixed):** `resolveRunCoord` (engine + backend mirror) thống nhất `x` = dọc trục run cho mọi hướng, `z` = offset vuông góc; occupied-length chỉ cảnh báo overshoot với model đa run; few-shot chữ L + skill kitchen-l-shape/galley viết lại theo pattern chuẩn (return run `south` chứa corner, main run origin lệch qua khối góc).
+>
+> Verification: 19 engine tests + 17 backend tests pass; few-shot chữ L parse từ chính `interior.js` chạy qua validator + engine cho 0 warnings, mọi module in-bounds, không chồng lấn; mirror `public/interior-design` đồng bộ.
+
 **Ngày phân tích:** 2026-07-02
 **Phạm vi kiểm tra:** `tools/interior-design-engine/src/`, `alpha-studio-backend/server/routes/interior.js`, `server/tools/interior/`, `server/utils/templateValidator.js`, `tools/interior-component-workshop/`, `alpha-studio/src/pages/InteriorDesignPage.tsx`, mirror `alpha-studio/public/interior-design/`.
 

@@ -147,24 +147,32 @@ export function resolveRunCoord(run, moduleIndex, item) {
   const modules = Array.isArray(run.modules) ? run.modules : [];
   const current = item || modules[moduleIndex] || {};
   const origin = run.origin || {};
-  const isResolved = !!current._runDirection;
-  const localX = !isResolved && Number.isFinite(current.x) ? current.x : 0;
   const localY = Number.isFinite(current.y) ? current.y : 0;
-  const localZ = !isResolved && Number.isFinite(current.z) ? current.z : 0;
+  // Already resolved into world coordinates (e.g. editor re-normalizing) —
+  // keep positions as-is instead of re-translating.
+  if (current._runDirection) {
+    return {
+      x: Number.isFinite(current.x) ? current.x : 0,
+      y: localY,
+      z: Number.isFinite(current.z) ? current.z : 0
+    };
+  }
+  const localX = Number.isFinite(current.x) ? current.x : 0;
+  const localZ = Number.isFinite(current.z) ? current.z : 0;
   const originX = Number.isFinite(origin.x) ? origin.x : 0;
   const originZ = Number.isFinite(origin.z) ? origin.z : 0;
-  // Heuristic: if any module in run already carries explicit along-axis position,
-  // treat local x/z as ABSOLUTE within run frame. Otherwise fall back to
-  // index-based auto-offset (legacy convention from Phase 8 single-module runs).
-  const alongAxisKey = run.direction === "north" || run.direction === "south" ? "z" : "x";
-  const hasExplicitAlong = modules.some((m) => Number.isFinite(m[alongAxisKey]) && m[alongAxisKey] > 0);
-  const offset = hasExplicitAlong
+  // One run-local frame for EVERY direction: `x` is the position ALONG the run
+  // axis measured from the origin, `z` is the perpendicular depth offset from
+  // the run's wall line. If no module carries an explicit along-position, fall
+  // back to index-based auto-offset (legacy Phase 8 single-module runs).
+  const hasExplicitAlong = modules.some((m) => m && !m._runDirection && Number.isFinite(m.x) && m.x > 0);
+  const along = (hasExplicitAlong
     ? 0
-    : modules.slice(0, moduleIndex).reduce((sum, module) => sum + (module.width || 0), 0);
-  if (run.direction === "north") return { x: originX + localX, y: localY, z: originZ - offset + localZ };
-  if (run.direction === "west") return { x: originX - offset + localX, y: localY, z: originZ + localZ };
-  if (run.direction === "south") return { x: originX + localX, y: localY, z: originZ + offset + localZ };
-  return { x: originX + offset + localX, y: localY, z: originZ + localZ };
+    : modules.slice(0, moduleIndex).reduce((sum, module) => sum + ((module && module.width) || 0), 0)) + localX;
+  if (run.direction === "north") return { x: originX + localZ, y: localY, z: originZ - along };
+  if (run.direction === "west") return { x: originX - along, y: localY, z: originZ + localZ };
+  if (run.direction === "south") return { x: originX + localZ, y: localY, z: originZ + along };
+  return { x: originX + along, y: localY, z: originZ + localZ };
 }
 
 export function itemFootprint(item) {
