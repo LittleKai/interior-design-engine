@@ -134,6 +134,53 @@ Phase 4 sẽ thêm backend pipeline qua `alpha-studio-backend/server/routes/inte
 
 No router. In-page tab buttons.
 
+### State & Data Dependency Graph
+
+Toàn bộ engine là **một model object → nhiều view dẫn xuất**. Không có store, không có network trong browser library.
+
+```mermaid
+flowchart LR
+    SRC[("tools/.../src/**<br/>NGUỒN")]
+    MIRROR[("alpha-studio/public/interior-design/src/**<br/>MIRROR RUNTIME")]
+    MODEL["Design model (plain JS object)<br/>modules[] + details[]"]
+    TPL["template-engine/<br/>interpreter · expression · color-tokens · loader"]
+    CAT[("Catalog template: builtin<br/>+ static manifest + backend /templates")]
+    BOX["core/box-resolver.js<br/>resolveItemBoxes → world-space boxes"]
+    VAL["core/validation.js<br/>validateModel"]
+    SVG["renderers/svg-renderer.js<br/>front · side · plan"]
+    ISO["renderers/iso-renderer.js<br/>Canvas 2D iso · exportPNG"]
+    SPEC["specs · review-panel<br/>ai-export-panel"]
+    EDIT["editor/ (selection · property · history)"]
+    SHELL["shell.html trong iframe<br/>postMessage"]
+    FE["alpha-studio<br/>/studio/interior-design/:projectId?"]
+    BE["alpha-studio-backend<br/>/api/interior/*"]
+
+    SRC -->|"phải copy sau MỌI thay đổi"| MIRROR
+    MIRROR --> SHELL
+    MODEL --> TPL --> CAT
+    MODEL --> BOX --> SVG
+    BOX --> ISO
+    MODEL --> VAL --> SPEC
+    EDIT --> MODEL
+    FE --> SHELL
+    FE --> BE
+    BE --> CAT
+```
+
+**Invalidate / refresh rules** — hợp đồng bắt buộc:
+
+| Sau khi / Khi | Phải làm | Nếu quên sẽ bị |
+|---|---|---|
+| 🔴 Sửa bất kỳ file nào trong `tools/.../src/**` | **Đồng bộ sang mirror `alpha-studio/public/interior-design/src/**`** và cache-bust asset shell/demo | Trang `/studio/interior-design` vẫn chạy bản cũ — sửa xong mà app không đổi, cực dễ tưởng code sai |
+| 🔴 3D là nguồn sự thật | Mọi view (front/side/plan) **phải chiếu từ boxes đã resolve** bởi `resolveItemBoxes`, không tự tính riêng | Bản vẽ 2D lệch với 3D — hai nguồn sự thật, sai âm thầm |
+| Đổi model shape | Cập nhật **cùng lúc**: `interior-design-model.schema.json` · `.claude/MODEL_CONTRACT.md` · `core/validation.js` · `ai-model-instructions.md` | AI sinh model theo contract cũ, `validateModel` bỏ lọt hoặc chặn nhầm |
+| Đổi DSL biểu thức `{{ expr }}` | Cập nhật whitelist AST trong `template-engine/expression.js` **và** `validateTemplateStructure` phía backend | Template qua được ở engine nhưng import backend fail (hoặc ngược lại) |
+| Thêm/sửa color token hoặc palette | Cập nhật `color-tokens.js` **và** hướng dẫn palette trong `CONVENTIONS.md` của `interior-component-workshop` | Component do agent thiết kế dùng token không tồn tại → render mất màu |
+| Thêm template mới | Bổ sung `src/templates/*.json` **và** `manifest.json`; nếu là bundle inline thì cả `builtin-templates.js` | Template có file nhưng loader không thấy |
+| Sửa CSS | Giữ prefix `ide-`, **không** style element global | Rò rỉ style ra trang `/studio` bọc ngoài iframe |
+| Sửa demo/embed HTML | Chỉ chứa **model data + gọi public API**, không chứa logic tái sử dụng | Logic trôi ra khỏi `src/`, mirror không mang theo được |
+| Đổi public API `window.InteriorDesigner` | Cập nhật `shell.html` (giao thức postMessage) + `alpha-studio/src/pages/InteriorDesignPage.tsx` | Iframe preview đứng hình, không báo lỗi rõ |
+
 ---
 
 ## 4. Active Features & Status
@@ -224,6 +271,17 @@ No router. In-page tab buttons.
 
 - Hiện tại: None.
 - Phase 4: Gemini Pro 3.1 + Gemini Flash 3.0 qua backend proxy (KHÔNG gọi từ browser).
+
+### Secrets & Credentials
+
+Browser library này **không giữ secret nào**, và phải giữ nguyên như vậy:
+
+- 🔴 **Không bao giờ gọi Gemini (hay AI provider nào) trực tiếp từ browser library.** Mọi lệnh gọi AI đi qua `alpha-studio-backend/server/routes/interior.js`; backend giữ `GEMINI_API_KEY` / `INTERIOR_IMAGE_API_KEY` và áp quota. Đây cũng là ràng buộc đã ghi ở mục "When making changes to → Workflow layer".
+- Mọi file trong `src/**` và bản mirror `alpha-studio/public/interior-design/**` đều **công khai** — được Vercel phục vụ nguyên văn cho bất kỳ ai. Không đặt key, token, hay URL nội bộ vào đó.
+- Upload ảnh dùng **presigned URL B2** do backend cấp (`ai/image-analyzer.js`) — không nhúng credential B2 vào client.
+- JWT của người dùng do trang bọc ngoài (`InteriorDesignPage.tsx`) giữ và truyền qua backend; iframe shell không lưu token.
+
+> Không bao giờ ghi giá trị secret thật vào file này.
 
 ---
 
