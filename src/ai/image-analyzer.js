@@ -18,6 +18,22 @@ function getAuthToken(options) {
   return null;
 }
 
+/** Trình duyệt encode được WebP qua canvas hay không (dò một lần rồi nhớ). */
+let webpEncodeSupport = null;
+
+function canEncodeWebp() {
+  if (webpEncodeSupport !== null) return webpEncodeSupport;
+  try {
+    const probe = document.createElement("canvas");
+    probe.width = 1;
+    probe.height = 1;
+    webpEncodeSupport = probe.toDataURL("image/webp").startsWith("data:image/webp");
+  } catch {
+    webpEncodeSupport = false;
+  }
+  return webpEncodeSupport;
+}
+
 export async function resizeImageFile(file, maxEdge = MAX_EDGE) {
   if (!file || !file.type || !file.type.startsWith("image/")) {
     throw new Error("Tệp không phải ảnh.");
@@ -32,14 +48,19 @@ export async function resizeImageFile(file, maxEdge = MAX_EDGE) {
   canvas.height = h;
   const ctx = canvas.getContext("2d");
   ctx.drawImage(bitmap, 0, 0, w, h);
+  // WebP nhỏ hơn JPEG ~25-35% ở cùng chất lượng; Safari < 14 không encode được
+  // thì rơi về JPEG. Gemini đọc được cả hai.
+  const useWebp = canEncodeWebp();
+  const mime = useWebp ? "image/webp" : "image/jpeg";
+  const ext = useWebp ? ".webp" : ".jpg";
   return await new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (!blob) {
         reject(new Error("Không thể nén ảnh."));
         return;
       }
-      resolve(new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" }));
-    }, "image/jpeg", 0.88);
+      resolve(new File([blob], file.name.replace(/\.[^.]+$/, "") + ext, { type: mime }));
+    }, mime, 0.88);
   });
 }
 
