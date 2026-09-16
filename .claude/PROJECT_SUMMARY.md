@@ -1,11 +1,23 @@
 # Project Summary
 
+**Last Updated:** 2026-09-16 · **Session:** 1
+
+> Trang thai hien tai, khong phai changelog. Sau moi task: cap nhat ngay/session, feature status, TODO, model contract va mirror runtime neu doi. Archive chi de biet vi sao.
+
+## 0. Gia dinh dang giu
+
+| Gia dinh | Gia tri | Nguon |
+|---|---|---|
+| Resolved 3D boxes la source truth | moi view project tu cung boxes | `box-resolver.js`, renderers |
+| Runtime frontend mirror source project | `alpha-studio/public/interior-design/src/**` | deploy integration |
+| Template expression dung whitelist | khong `eval` | `template-engine/expression.js` |
+
 ## 1. Project Overview
 
 - **Type:** Static browser library and demo for interior design visualization (chuyên tủ áo built-in).
 - **Tech Stack:** HTML, CSS, JavaScript, SVG, Canvas 2D.
-- **Package Manager:** None (no build tool; sẽ thêm importmap cho Three.js ở Phase 3).
-- **i18n:** Hiện đang phân tán trong code; Phase 1 sẽ centralize vào `src/core/i18n.js` (vi/en).
+- **Package Manager:** None; runtime dùng ES modules trình duyệt và Node test runner.
+- **i18n:** Tập trung trong `src/core/i18n.js` cho VI/EN.
 - **State Management:** In-memory JavaScript model object với `runs`, `modules`, `details`, `specs`. Legacy top-level `modules[]` is normalized into a default east run.
 - **Styling:** Plain CSS với prefix `ide-`.
 - **Deployment:** Mở `tu_quan_ao_engine_demo.html` (project root) trực tiếp trong browser, serve folder statically, hoặc dùng bản copy ở `alpha-studio/public/interior-design/` được serve qua `/studio/interior-design`.
@@ -14,33 +26,14 @@
 
 ## 2. File Structure
 
-### Key Directories (hiện tại — pre-Phase 1)
-
-```text
-tools/interior-design-engine/
-├── claude.md
-├── README.md
-├── SPEC.md                            ← Architect output, ready for Builder
-├── ai-model-instructions.md
-├── interior-design-workflow.md
-├── interior-design-model.schema.json
-├── interior-design-engine.css
-├── interior-design-engine.js          ← 1174 dòng monolith (sẽ split ở Phase 1)
-└── .claude/
-    ├── PROJECT_SUMMARY.md
-    ├── CONVENTIONS.md
-    ├── SETUP_REPORT.md
-    └── tu_quan_ao_engine_demo.html    ← Demo page (live here, not at project root)
-```
-
-### Current Structure (post-Phase 11/14/15 — Three.js đã bị xoá, thay bằng iso renderer + template engine)
+### Key Directories
 
 ```text
 tools/interior-design-engine/
 ├── interior-design-engine.js          ← 4-dòng shim: import "./src/index.js"
 ├── interior-design-engine.css
 ├── tu_quan_ao_engine_demo.html        ← Demo page (đã chuyển ra project root)
-├── IMPROVEMENT_PLAN.md                ← Phân tích vấn đề + roadmap hoàn thiện (2026-07-02)
+├── IMPROVEMENT_PLAN.md                ← Giới hạn hiện tại và hướng cải thiện
 ├── skills/                            ← Domain skills cho backend agent (kitchen-l-shape, wardrobe-sliding...)
 ├── src/
 │   ├── index.js                       ← ES module entry, expose window.InteriorDesigner
@@ -80,13 +73,13 @@ Bản mirror runtime: `alpha-studio/public/interior-design/src/**` (phải đồ
 
 | File | Purpose | Notes |
 |------|---------|-------|
-| `interior-design-engine.js` | Reusable browser library | IIFE; Phase 1 sẽ chuyển thành ES modules. Public API `window.InteriorDesigner` giữ nguyên signature. |
+| `interior-design-engine.js` | Compatibility entry | Shim import `src/index.js`; public API `window.InteriorDesigner` giữ contract. |
 | `interior-design-engine.css` | Library/demo styling | `ide-` prefix, tabs + drawings + spec cards + AI export panel + design review panel. |
 | `tu_quan_ao_engine_demo.html` | Demo page (project root) | Chứa `cabinetModel` data, gọi `render()`, `attachDesignReviewPanel()`, `attachAiImageExportPanel()`. |
 | `interior-design-model.schema.json` | AI output contract | JSON Schema cho validate AI-generated design models. |
 | `ai-model-instructions.md` | AI prompt template | System/developer instruction để convert user request → model JSON. |
 | `interior-design-workflow.md` | AI workflow docs | Intake checklist, design directions, review gate, AI image export. |
-| `SPEC.md` | Architect specification | Phase-based roadmap from hybrid-ai-skills Architect. |
+| `SPEC.md` | Thiết kế tham chiếu | Dùng để hiểu phạm vi; trạng thái thật nằm trong summary và code. |
 | `.claude/MODEL_CONTRACT.md` | Public model contract doc | Current model shape, runtime validation contract, template model, and source/generated-output boundary. |
 | `claude.md` | Instructions for future Claude sessions | Read `.claude/PROJECT_SUMMARY.md` first. |
 | `.claude/CONVENTIONS.md` | Coding conventions | Derived from this static library project. |
@@ -98,7 +91,7 @@ Bản mirror runtime: `alpha-studio/public/interior-design/src/**` (phải đồ
 
 ### Component Structure
 
-Static browser library exposed as `window.InteriorDesigner`. HTML demo định nghĩa model data và gọi public API. Logic reusable nằm trong `interior-design-engine.js` (Phase 1 sẽ chuyển sang `src/`).
+Static browser library exposed as `window.InteriorDesigner`. HTML demo chỉ giữ model data và gọi public API; logic reusable nằm trong `src/`.
 
 ### State Management
 
@@ -111,7 +104,7 @@ Front/side/plan SVG, 3D Canvas, specs, AI prompts, review results, exported imag
 
 ### Styling Approach
 
-CSS dùng prefix `ide-`. Phase 1 sẽ giữ nguyên, Phase 3 sẽ thêm `.ide-dim-label` cho dimension overlay và Phase 4 thêm `.ide-compare-slider`.
+CSS dùng prefix `ide-`; renderer, editor, review và compare UI không được rò style ra trang bọc ngoài iframe.
 
 ### AI Workflow Layer
 
@@ -124,9 +117,7 @@ CSS dùng prefix `ide-`. Phase 1 sẽ giữ nguyên, Phase 3 sẽ thêm `.ide-di
 
 ### API Integration
 
-Hiện tại browser library KHÔNG gọi network API. AI export tạo file PNG/TXT/JSON trong browser để user dùng với công cụ AI bên ngoài.
-
-Phase 4 sẽ thêm backend pipeline qua `alpha-studio-backend/server/routes/interior.js`:
+Browser library gọi backend pipeline qua `alpha-studio-backend/server/routes/interior.js` cho catalog, phân tích ảnh và render AI:
 - `POST /api/interior/analyze-image` — Gemini Vision phân tích ảnh upload → trả model JSON
 - `POST /api/interior/generate-render` — Gemini image gen từ model + 3D view
 
